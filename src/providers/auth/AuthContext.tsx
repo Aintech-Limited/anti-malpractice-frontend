@@ -1,7 +1,7 @@
 'use client';
 import { createContext, useContext, useState, useEffect } from 'react';
 import { IAuthContextType } from './interface';
-import { IUserModel } from '../../components/SignUp/interface';
+import { IUserModel } from '@/src/types/user';
 
 const AuthContext = createContext<IAuthContextType | undefined>(undefined);
 
