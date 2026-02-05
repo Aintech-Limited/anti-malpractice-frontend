@@ -105,3 +105,101 @@ input[type='date']:valid::before {
 	display: inline-block;
 	animation: ellipsis 1s infinite steps(4, end);
 }
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* HERO SECTION */
+
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.8s ease-out forwards;
+	
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.delay-1 { animation-delay: 0.2s; }
+.delay-2 { animation-delay: 0.4s; }
+
+@keyframes heroEntranceAndColor {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+    color: #111827;
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(0);
+    color: #2e3f63;
+  }
+  40% {
+    color: #700c7e;
+  }
+  70% {
+    color: #1733af;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    color: #a50e7f;
+  }
+}
+
+.animate-hero-text {
+  animation: heroEntranceAndColor 10s ease-in-out infinite;
+}
+
+.initial-fade-in {
+  animation: heroEntranceAndColor 10s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
+.delay-hero-1 {
+  animation-delay: 0.5s;
+}
+
+/* PRODUCT */
+@keyframes roam-1 {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(120px, 40px); }
+  50% { transform: translate(60px, 150px); }
+  75% { transform: translate(-40px, 80px); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes roam-2 {
+  0% { transform: translate(0, 0); }
+  30% { transform: translate(-100px, 60px); }
+  60% { transform: translate(20px, -40px); }
+  85% { transform: translate(150px, 100px); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes roam-3 {
+  0% { transform: translate(0, 0); }
+  40% { transform: translate(80px, -80px); }
+  70% { transform: translate(-120px, 120px); }
+  100% { transform: translate(0, 0); }
+}
+
+.animate-cursor-1 { animation: roam-1 12s ease-in-out infinite; }
+.animate-cursor-2 { animation: roam-2 15s ease-in-out infinite; }
+.animate-cursor-3 { animation: roam-3 18s ease-in-out infinite; }
+

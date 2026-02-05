@@ -45,3 +45,25 @@ export const dataURLtoFile = (dataUrl: string, filename: string) => {
 
 	return new File([u8arr], filename, { type: mime });
 };
+
+export async function apiFetch(url: string, options: RequestInit = {}) {
+	const res = await fetch(url, {
+		...options,
+		credentials: 'include',
+	});
+
+	if (res.status !== 401) return res;
+
+	// try refresh
+	const refresh = await fetch('/api/v1/auth/refresh', {
+		method: 'POST',
+		credentials: 'include',
+	});
+
+	if (!refresh.ok) throw new Error('Session expired');
+
+	return fetch(url, {
+		...options,
+		credentials: 'include',
+	});
+}
