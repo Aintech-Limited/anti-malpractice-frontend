@@ -28,6 +28,7 @@ export type PhotoIdTypeValue = (typeof PhotoIdType)[keyof typeof PhotoIdType];
 
 export const ProtectedRouteEnum = Object.freeze({
 	DASHBOARD: '/dashboard',
+	DASHBOARD_VERIFY: '/dashboard/verify',
 });
 
 export type ProtectedRouteEnumValue =
@@ -48,4 +49,3 @@ export type UnProtectedRouteEnumValue =
 export const KYC_FRONT = 'front';
 export const KYC_BACK = 'back';
 export const KYC_SELFIE = 'selfie';
-	
