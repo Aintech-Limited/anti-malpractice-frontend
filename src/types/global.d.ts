@@ -7,19 +7,19 @@ declare global {
 
 	namespace NodeJS {
 		interface ProcessEnv {
-			// ===== Client (NEXT_PUBLIC) =====
-			NEXT_PUBLIC_URL: string;
-			NEXT_PUBLIC_GOOGLE_CLIENT_KEY: string;
-			NEXT_PUBLIC_NEXTAUTH_URL: string;
+			NEXT_PUBLIC_APP_URL: string;
 			NEXT_PUBLIC_OTP_EXPIRY: string;
 
-			// ===== Server Only =====
+			NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: string;
+			NEXTAUTH_URL: string;
+			NEXTAUTH_SECRET: string;
+
 			AUTH_TOKEN_NAME: string;
 			AUTH_REFRESH_TOKEN_NAME: string;
 			BACKEND_API_URL: string;
+
 			PORT: string;
 			NODE_ENV: 'development' | 'staging' | 'test' | 'production';
-			NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: string;
 
 			GOOGLE_CLIENT_ID: string;
 			GOOGLE_CLIENT_SECRET: string;
