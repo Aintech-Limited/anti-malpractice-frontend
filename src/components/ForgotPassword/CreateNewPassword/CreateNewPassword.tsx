@@ -98,7 +98,7 @@ const CreateNewPassword = () => {
 			if (!res.ok) {
 				if (
 					res.status === 400 &&
-					data?.message?.contains('reuse old password')
+					data?.message?.includes('reuse old password')
 				) {
 					setErrorMessage('Cannot reuse old password');
 					setLoading(false);
