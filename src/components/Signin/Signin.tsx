@@ -112,6 +112,11 @@ const Signin = () => {
 				if (!res.ok) {
 					setLoading(false);
 					setDisabled(false);
+					if (data?.message?.includes('Account does not have a set password')) {
+						toast.error('Account does not have a set password. Please signin with Google');
+						setLoading(false);
+						return;
+					}
 					if (res.status === 409) {
 						dispatch(setOTPEmailState({ email }));
 						toast.success('Check your email for an otp to verify your account');
