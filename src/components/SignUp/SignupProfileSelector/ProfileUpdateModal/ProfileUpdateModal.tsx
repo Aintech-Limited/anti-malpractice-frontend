@@ -13,7 +13,7 @@ import {
 	clearSignupTypeState,
 } from '@/src/redux/features/signup/signup';
 import { setOTPEmailState } from '@/src/redux/features/otpExpiry/otpExpirySlice';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut as GoogleSinOut } from 'next-auth/react';
 
 const ProfileUpdateModal = ({ isOpen, onClose }: IProfileUpdateModalProps) => {
 	const router = useRouter();
@@ -133,10 +133,19 @@ const ProfileUpdateModal = ({ isOpen, onClose }: IProfileUpdateModalProps) => {
 					});
 					const data = await res.json();
 					if (!res.ok) {
-						toast.error(data?.message);
-						console.log(data);
 						setLoading(false);
 						setDisabled(false);
+						console.log(data?.message);
+						if (
+							(data?.message as string)?.includes('Google ID Token has expired')
+						) {
+							toast.error('Waited too long. Please try again.');
+							GoogleSinOut({ redirect: false });
+							router.push('/signup');
+							return;
+						}
+						toast.error(data?.message);
+						console.log(data);
 						return;
 					}
 					dispatch(clearSignupTokenState());

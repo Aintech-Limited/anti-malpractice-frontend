@@ -93,8 +93,18 @@ const CreateNewPassword = () => {
 				}),
 			});
 
+			const data = await res.json();
+
 			if (!res.ok) {
-				const data = await res.json();
+				if (
+					res.status === 400 &&
+					data?.message?.contains('reuse old password')
+				) {
+					setErrorMessage('Cannot reuse old password');
+					setLoading(false);
+					setDisabled(false);
+					return;
+				}
 				setErrorMessage(data.message);
 				setLoading(false);
 				setDisabled(false);
