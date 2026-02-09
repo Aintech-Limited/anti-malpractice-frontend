@@ -51,7 +51,7 @@ const ProfileUpdateModal = ({ isOpen, onClose }: IProfileUpdateModalProps) => {
 			setDOB(value);
 			updatedDOB = value;
 
-			const birthDate = new Date(dob);
+			const birthDate = new Date(value);
 			const today = new Date();
 			let currentAge = today.getFullYear() - birthDate.getFullYear();
 			const monthDiff = today.getMonth() - birthDate.getMonth();
