@@ -29,6 +29,8 @@ export type PhotoIdTypeValue = (typeof PhotoIdType)[keyof typeof PhotoIdType];
 export const ProtectedRouteEnum = Object.freeze({
 	DASHBOARD: '/dashboard',
 	DASHBOARD_VERIFY: '/dashboard/verify',
+	STUDENTS: '/dashboard/students',
+	LECTURERS: '/dashboard/lecturers',
 });
 
 export type ProtectedRouteEnumValue =
