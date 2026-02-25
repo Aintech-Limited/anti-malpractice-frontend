@@ -7,12 +7,16 @@ import IDCapture from './IDCapture/IDCapture';
 import VerificationOption from './VerificationOption/VerificationOptions';
 import SelfieCapture from './SelfieCapture/SelfieCapture';
 import { useAuth } from '@/src/providers/auth/AuthContext';
+import { useRouter } from 'next/navigation';
 
 export default function Verify() {
+	const router = useRouter();
 	const { user } = useAuth();
 	useEffect(() => {
 		if (user?.isIdVerified) window.history.back();
-	}, [user]);
+		if (user?.profileType === 'STUDENT') router.push('/students');
+	}, [user, router]);
+
 	const [stage, setstage] = useState<TVerifyStage>('VERIFICATION_OPTIONS');
 
 	if (stage === 'GOVERNMENT') return <GovernmentId setStage={setstage} />;

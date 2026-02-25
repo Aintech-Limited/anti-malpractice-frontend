@@ -13,7 +13,7 @@ import Image from 'next/image';
 import { TVerifyStage } from '../interface';
 import { useAppDispatch, useAppSelector } from '@/src/redux/reduxStore';
 import { TCaptureStep } from './interface';
-import { compressImage, dataURLtoFile } from '@/src/lib/helper';
+import { compressImage, dataURLtoFile, detectBlur } from '@/src/lib/helper';
 import {
 	setBackImageId,
 	setFrontImageId,
@@ -104,7 +104,7 @@ const IDCapture = ({
 		// detect blurry image
 		const blurry = detectBlur(canvas);
 
-		if (blurry) {
+		if (blurry < 100) {
 			toast.warning('Image is blurry. Hold steady and try again.');
 			return;
 		}
@@ -152,26 +152,6 @@ const IDCapture = ({
 				console.warn('Autofocus not supported', err);
 			}
 		}
-	};
-
-	const detectBlur = (canvas: HTMLCanvasElement) => {
-		const ctx = canvas.getContext('2d');
-		if (!ctx) return false;
-
-		const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-		let sum = 0;
-
-		for (let i = 0; i < imageData.data.length; i += 4) {
-			const gray =
-				imageData.data[i] * 0.299 +
-				imageData.data[i + 1] * 0.587 +
-				imageData.data[i + 2] * 0.114;
-			sum += gray;
-		}
-
-		const avg = sum / (imageData.data.length / 4);
-
-		return avg < 60; // threshold
 	};
 
 	const handleUploadID = async () => {

@@ -23,21 +23,28 @@ import DropdownItem from './DropdownItem/DropdownItem';
 import { usePathname, useRouter } from 'next/navigation';
 import { signOut as GoogleSinOut } from 'next-auth/react';
 import { ProtectedRouteEnum, ProtectedRouteEnumValue } from '@/src/lib/enums';
-import { clearFaceAuthState } from '@/src/redux/features/faceAuth/faceAuthSlice';
-import { useAppDispatch } from '@/src/redux/reduxStore';
+import {
+	clearFaceAuthState,
+	setFaceAuthState,
+} from '@/src/redux/features/faceAuth/faceAuthSlice';
+import { useAppDispatch, useAppSelector } from '@/src/redux/reduxStore';
 import {
 	clearSelfieImageId,
 	clearVerification,
 } from '@/src/redux/features/lecturerVerificationImages/lecturerVerificationImages';
+import FaceIDSetupModal from '../Dashboard/FaceIDSetupModal/FaceIDSetupModal';
 
 const Header = () => {
 	const router = useRouter();
 	const pathname = usePathname();
 	const dispatch = useAppDispatch();
+	const { SkipFaceAuth } = useAppSelector((state) => state.afaceAuth);
 
 	const { user, loading, signOut, signIn } = useAuth();
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+
+	const [showFaceId, setShowFaceId] = useState<boolean>(false);
 
 	// Mobile accordion states
 	const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
@@ -91,7 +98,25 @@ const Header = () => {
 			router.push('/dashboard/verify');
 			return;
 		}
-	}, [pathname, router, user?.idRecorded, user?.profileType]);
+		if (
+			!user?.faceAuthEnabled &&
+			user?.profileType === 'STUDENT' &&
+			!SkipFaceAuth
+		) {
+			const enableFaceAuth = () => {
+				setShowFaceId(true);
+			};
+			enableFaceAuth();
+			return;
+		}
+	}, [
+		SkipFaceAuth,
+		pathname,
+		router,
+		user?.faceAuthEnabled,
+		user?.idRecorded,
+		user?.profileType,
+	]);
 
 	useEffect(() => {
 		const handleClickOutside = () => setActiveDropdown(null);
@@ -141,8 +166,18 @@ const Header = () => {
 		}
 	};
 
+	const handleCloseFaceId = () => {
+		setShowFaceId(false);
+		dispatch(setFaceAuthState({ SkipFaceAuth: true }));
+		return;
+	};
+
 	return (
 		<header className="relative w-full border-b border-gray-100 bg-white top-0 z-50">
+			<FaceIDSetupModal
+				isOpen={showFaceId}
+				onClose={() => handleCloseFaceId()}
+			/>
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex items-center justify-between h-20">
 				{/* Logo */}
 				<Link href="/">

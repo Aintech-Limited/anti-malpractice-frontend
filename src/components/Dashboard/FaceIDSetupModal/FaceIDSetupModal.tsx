@@ -1,15 +1,20 @@
 import { memo } from 'react';
 import { Scan, Camera, X } from 'lucide-react';
-import { IFaceIdPopupProps } from './interface';
+import { IFaceIDSetupModalProps } from './interface';
+import { useRouter } from 'next/navigation';
 
-const FaceIdPopup = memo(({ isOpen, onClose }: IFaceIdPopupProps) => {
+const FaceIDSetupModal = memo(({ isOpen, onClose }: IFaceIDSetupModalProps) => {
+	const router = useRouter();
+
 	if (!isOpen) return null;
 
 	const handleClose = () => {
 		onClose();
 	};
 
-	const handleInitiateFaceAuth = async () => {};
+	const handleInitiateFaceAuth = () => {
+		router.push('/dashboard/face-capture');
+	};
 
 	return (
 		<div
@@ -50,7 +55,7 @@ const FaceIdPopup = memo(({ isOpen, onClose }: IFaceIdPopupProps) => {
 					</h2>
 
 					<p className="text-slate-500 text-sm md:text-base leading-relaxed mb-10 max-w-xs">
-						Lorem ipsum dolor sit amet consectetur. Egestas turpis non ac.
+						Setup Face Authentication for secured examination.
 					</p>
 
 					{/* Action Buttons */}
@@ -74,5 +79,5 @@ const FaceIdPopup = memo(({ isOpen, onClose }: IFaceIdPopupProps) => {
 		</div>
 	);
 });
-FaceIdPopup.displayName = 'FaceIdPopup';
-export default FaceIdPopup;
+FaceIDSetupModal.displayName = 'FaceIDSetupModal';
+export default FaceIDSetupModal;
