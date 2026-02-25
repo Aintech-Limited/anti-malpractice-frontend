@@ -11,6 +11,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@mediapipe/face_detection": "^0.4.1646425229",
     "@reduxjs/toolkit": "^2.11.2",
     "class-validator": "^0.14.3",
     "framer-motion": "^12.29.0",
