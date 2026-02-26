@@ -2,13 +2,16 @@
 
 import { Radio, Pencil, BarChart2 } from 'lucide-react';
 import ExamRow from './ExamRow/ExamRow';
+import { useRouter } from 'next/navigation';
 
 const StudentDashboard = () => {
+	const router = useRouter();
+
 	const stats = [
-		{ label: 'Course Completed', value: '57' },
-		{ label: 'Online Exam', value: '21' },
-		{ label: 'Registration Course', value: '57' },
-		{ label: 'Drop Semester', value: '01' },
+		{ id: '1', label: 'Course Completed', value: '57' },
+		{ id: '2', label: 'Online Exam', value: '21' },
+		{ id: '3', label: 'Registration Course', value: '57' },
+		{ id: '4', label: 'Drop Semester', value: '01' },
 	];
 
 	return (
@@ -18,12 +21,17 @@ const StudentDashboard = () => {
 				<div className="w-full md:w-1/3">
 					<h2 className="text-2xl font-bold text-gray-900 mb-6">Overview</h2>
 					<div className="space-y-4">
-						{stats.map((stat, index) => (
+						{stats.map((stat) => (
 							<div
-								key={index}
+								key={stat.id}
 								className="bg-white p-6 rounded-xl shadow-sm flex flex-col cursor-pointer
                            transition-all duration-300 ease-out
                            hover:-translate-y-2 hover:shadow-xl hover:shadow-blue-900/5 active:scale-95"
+								onClick={() => {
+									if (stat.id === '2') {
+										router.push('/dashboard/students/exams');
+									}
+								}}
 							>
 								<span className="text-gray-900 font-bold text-lg mb-4">
 									{stat.label}

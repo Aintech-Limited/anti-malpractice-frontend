@@ -1,17 +1,21 @@
+import { useRouter } from 'next/navigation';
 import { IExamRowProps } from './interface';
 
-const ExamRow = ({ time, title, action, isLive }: IExamRowProps) => (
-	<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 group p-2 -m-2 rounded-lg hover:bg-gray-50 transition-colors">
-		<div className="flex items-center gap-6">
-			<span className="bg-[#E9EEF2] px-3 py-1.5 rounded-md text-gray-700 font-bold text-sm min-w-20 text-center group-hover:bg-white group-hover:shadow-sm transition-all">
-				{time}
-			</span>
-			<h4 className="text-gray-900 font-bold text-[15px] leading-tight max-w-md group-hover:text-blue-700 transition-colors">
-				{title}
-			</h4>
-		</div>
-		<button
-			className={`
+const ExamRow = ({ time, title, action, isLive }: IExamRowProps) => {
+	const router = useRouter();
+
+	return (
+		<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 group p-2 -m-2 rounded-lg hover:bg-gray-50 transition-colors">
+			<div className="flex items-center gap-6">
+				<span className="bg-[#E9EEF2] px-3 py-1.5 rounded-md text-gray-700 font-bold text-sm min-w-20 text-center group-hover:bg-white group-hover:shadow-sm transition-all">
+					{time}
+				</span>
+				<h4 className="text-gray-900 font-bold text-[15px] leading-tight max-w-md group-hover:text-blue-700 transition-colors">
+					{title}
+				</h4>
+			</div>
+			<button
+				className={`
       px-5 py-2 rounded-md font-bold text-sm transition-all duration-200 whitespace-nowrap self-start sm:self-center
       ${
 				isLive
@@ -20,10 +24,14 @@ const ExamRow = ({ time, title, action, isLive }: IExamRowProps) => (
 			}
       active:scale-95
     `}
-		>
-			{action}
-		</button>
-	</div>
-);
+				onClick={() => {
+					if (isLive) router.push('/dashboard/students/exams/id');
+				}}
+			>
+				{action}
+			</button>
+		</div>
+	);
+};
 
 export default ExamRow;
