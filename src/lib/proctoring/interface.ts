@@ -7,7 +7,9 @@ export type ViolationType =
 	| 'VOICE_DETECTED'
 	| 'MULTIPLE_FACES'
 	| 'NO_FACE'
-	| 'DEVTOOLS_SUSPECTED';
+	| 'FACE_NOT_CENTERED'
+	| 'DEVTOOLS_SUSPECTED'
+	| 'FACE_DETECTION_ERROR';
 
 export type Violation = {
 	type: ViolationType;
@@ -19,7 +21,15 @@ export type ProctoringOptions = {
 	requireFullscreen?: boolean;
 	requireCamera?: boolean;
 	requireScreenShare?: boolean;
+	faceDetectionConfig?: {
+		minConfidence?: number;
+		detectionInterval?: number;
+		noFaceGracePeriod?: number;
+		requireCentered?: boolean;
+		maxConsecutiveNoFace?: number;
+	};
 	onViolation?: (violation: Violation) => void;
+	onFaceStatusChange?: (detected: boolean) => void;
 };
 
 export const CameraType = Object.freeze({

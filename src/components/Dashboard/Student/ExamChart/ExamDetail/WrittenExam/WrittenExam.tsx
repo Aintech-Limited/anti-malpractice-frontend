@@ -24,26 +24,20 @@ const WrittenExam = ({ examType }: { examType: ExamStageValue }) => {
 	const [isFullscreen, setIsFullscreen] = useState(true); // Track fullscreen status
 	const [isSubmitted, setIsSubmitted] = useState(false);
 	const [showViolationModal, setShowViolationModal] = useState(false);
-	const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+
+	const [faceDetectionStatus, setFaceDetectionStatus] = useState<
+		'detected' | 'not_detected' | 'multiple_faces'
+	>('detected');
 
 	const videoRef = useRef<HTMLVideoElement | null>(null);
 
 	const proctorRef = useRef<ProctoringController | null>(null);
 
-	// Sync Camera Feed for UI
 	useEffect(() => {
-		const getStream = async () => {
-			try {
-				const stream = await navigator.mediaDevices.getUserMedia({
-					video: true,
-				});
-				setCameraStream(stream);
-				if (videoRef.current) videoRef.current.srcObject = stream;
-			} catch (err) {
-				toast.error('Camera access required for proctoring.');
-			}
-		};
-		getStream();
+		const timer = setInterval(() => {
+			setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+		}, 1000);
+		return () => clearInterval(timer);
 	}, []);
 
 	// Monitor Fullscreen Status
@@ -56,29 +50,6 @@ const WrittenExam = ({ examType }: { examType: ExamStageValue }) => {
 		return () =>
 			document.removeEventListener('fullscreenchange', handleFsChange);
 	}, []);
-
-	useEffect(() => {
-		const interval = setInterval(() => {
-			if (proctorRef.current) {
-				const isFaceMissing = !proctorRef.current.faceDetected;
-				toast.info(`isFaceMissing: ${isFaceMissing}`);
-
-				if (isFaceMissing && !isSubmitted) {
-					if (!showViolationModal) {
-						setShowViolationModal(true);
-						toast.error('setting face modal');
-					}
-				} else {
-					if (showViolationModal) {
-						setShowViolationModal(false);
-						toast.error('removing face modal');
-					}
-				}
-			}
-		}, 500);
-
-		return () => clearInterval(interval);
-	}, [isSubmitted, showViolationModal]);
 
 	// locked-down efffect
 	useEffect(() => {
@@ -136,85 +107,138 @@ const WrittenExam = ({ examType }: { examType: ExamStageValue }) => {
 		};
 	}, []);
 
+	const handleScreenShot = async () => {
+		try {
+			if (!proctorRef.current) return;
+
+			const [cameraSnap, screenSnap] = await Promise.all([
+				proctorRef.current.captureFrame(CameraType.CAMERA),
+				proctorRef.current.captureFrame(CameraType.SCREEN),
+			]);
+
+			if (!cameraSnap && !screenSnap) return;
+
+			// TODO: Use websocket connection for this
+			await fetch('/api/v1/proctoring/exam/evidence', {
+				method: 'POST',
+				body: JSON.stringify({
+					examId: 'chemistry-02',
+					examAttemptId: '',
+					timestamp: Date.now(),
+					camera: cameraSnap, // base64
+					screen: screenSnap,
+					violationsCount: violations.length,
+					faceDetectionStatus, // CHANGE: Include face detection status
+				}),
+				headers: { 'Content-Type': 'application/json' },
+			});
+			console.log('Evidence synced to backend.');
+		} catch (error) {
+			console.error('Failed to sync proctoring evidence', error);
+		}
+	};
+
 	useEffect(() => {
-		const handleViolationWarning = (v: Violation) => {
-			toast.info(`faceDetected: ${proctorRef?.current?.faceDetected}`);
-			if (v.type === 'EXIT_FULLSCREEN') {
-				toast.warn(
-					`Violation: ${v.type.replaceAll('_', ' ')}. Your activity is being recorded.`,
-				);
-			}
+		let isActive = true;
 
-			if (v.type === 'TAB_SWITCH') {
-				toast.error('CRITICAL VIOLATION: Tab switching is prohibited!', {
-					position: 'top-center',
-					autoClose: false,
-				});
-			}
-		};
-
-		const handleScreenShot = async () => {
+		const initializeProctoring = async () => {
 			try {
-				const [cameraSnap, screenSnap] = await Promise.all([
-					proctorRef?.current?.captureFrame(CameraType.CAMERA),
-					proctorRef?.current?.captureFrame(CameraType.SCREEN),
-				]);
-				if (!cameraSnap && !screenSnap) return;
-				// TODO: Use websocket connection for this
+				proctorRef.current = new ProctoringController({
+					requireFullscreen: true,
+					requireCamera: true,
+					requireScreenShare: true,
+					faceDetectionConfig: {
+						minConfidence: 0.5,
+						detectionInterval: 800,
+						noFaceGracePeriod: 3000,
+						requireCentered: true,
+						maxConsecutiveNoFace: 5,
+					},
+					onViolation: (v) => {
+						if (!isActive) return;
 
-				await fetch('/api/v1/proctoring/exam/evidence', {
-					method: 'POST',
-					body: JSON.stringify({
-						examId: 'chemistry-02',
-						examAttemptId: '',
-						timestamp: Date.now(),
-						camera: cameraSnap, // base64
-						screen: screenSnap,
-						violationsCount: violations.length,
-					}),
-					headers: { 'Content-Type': 'application/json' },
+						setViolations((prev) => {
+							const isDuplicate = prev.some(
+								(p) =>
+									p.type === v.type &&
+									Math.abs(p.timestamp - v.timestamp) < 5000,
+							);
+							return isDuplicate ? prev : [...prev, v];
+						});
+
+						switch (v.type) {
+							case 'NO_FACE':
+								toast.warning('Please ensure your face is visible', {
+									autoClose: 3000,
+								});
+								setFaceDetectionStatus('not_detected');
+								break;
+							case 'MULTIPLE_FACES':
+								toast.error('Multiple faces detected - this is not allowed', {
+									autoClose: 5000,
+								});
+								setFaceDetectionStatus('multiple_faces');
+								break;
+							case 'EXIT_FULLSCREEN':
+								toast.warn('Please return to fullscreen mode', {
+									autoClose: false,
+								});
+								break;
+							case 'TAB_SWITCH':
+								toast.error('Tab switching is a critical violation!', {
+									position: 'top-center',
+									autoClose: false,
+								});
+								break;
+							case 'DEVTOOLS_SUSPECTED':
+								toast.warning(
+									'Developer tools detected - this may be flagged',
+									{
+										autoClose: 4000,
+									},
+								);
+								break;
+							default:
+								toast.info(`Violation: ${v.type.replaceAll('_', ' ')}`);
+						}
+					},
+					onFaceStatusChange(faceDetected) {
+						setFaceDetectionStatus(faceDetected ? 'detected' : 'not_detected');
+						setShowViolationModal(faceDetected ? false : true);
+					},
 				});
-				console.log('Evidence synced to backend.');
-			} catch (error) {
-				console.error('Failed to sync proctoring evidence', error);
-			}
-		};
 
-		proctorRef.current = new ProctoringController({
-			requireFullscreen: true,
-			requireCamera: true,
-			requireScreenShare: true,
-			onViolation: (v) => {
-				setViolations((prev) => [...prev, v]);
-
-				console.log('Violation detected:', v.type);
-				toast.error(`Violation detected: ${v.type.replaceAll('_', ' ')}`);
-
-				handleViolationWarning(v);
-			},
-		});
-
-		// Start proctoring
-		const startProctoring = async () => {
-			try {
+				// Start proctoring
 				await proctorRef.current?.start();
+				const stream = proctorRef.current.getCameraStream();
+				if (videoRef.current && stream) {
+					videoRef.current.srcObject = stream;
+				}
+
+				const evidenceInterval = setInterval(async () => {
+					if (isActive && proctorRef.current) {
+						await handleScreenShot();
+					}
+				}, 60000); // Capture evidence every 60 seconds
+
+				return () => clearInterval(evidenceInterval);
 			} catch (err) {
 				console.error('Failed to start proctoring:', err);
+				toast.error(
+					'Proctoring system failed to start. Please contact support.',
+				);
 			}
 		};
 
-		startProctoring();
+		initializeProctoring();
 
 		return () => {
-			proctorRef.current?.stop();
+			isActive = false;
+			if (proctorRef.current) {
+				proctorRef.current.stop();
+				proctorRef.current = null;
+			}
 		};
-	}, [violations.length]);
-
-	useEffect(() => {
-		const timer = setInterval(() => {
-			setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
-		}, 1000);
-		return () => clearInterval(timer);
 	}, []);
 
 	const handleReEnterFullscreen = async () => {
@@ -244,9 +268,19 @@ const WrittenExam = ({ examType }: { examType: ExamStageValue }) => {
 	};
 
 	const handleSubmit = async () => {
-		proctorRef.current?.stop();
-		// TODO: send 'answers' and 'violations' to API here
-		setIsSubmitted(true);
+		try {
+			// Capture final evidence before submission
+			await handleScreenShot();
+
+			proctorRef.current?.stop();
+			// TODO: send 'answers' and 'violations' to API here
+			setIsSubmitted(true);
+
+			toast.success('Exam submitted successfully!');
+		} catch (error) {
+			console.error('Error submitting exam:', error);
+			toast.error('Failed to submit exam. Please try again.');
+		}
 	};
 
 	if (isSubmitted) {
@@ -283,6 +317,22 @@ const WrittenExam = ({ examType }: { examType: ExamStageValue }) => {
 							Live
 						</span>
 					</div>
+					{/* face detection status indicator */}
+					<div className="absolute bottom-2 left-2 right-2">
+						<div
+							className={`text-[10px] font-bold px-2 py-1 rounded-full text-center ${
+								faceDetectionStatus === 'detected'
+									? 'bg-green-500/80 text-white'
+									: 'bg-red-500/80 text-white animate-pulse'
+							}`}
+						>
+							{faceDetectionStatus === 'detected'
+								? 'Face Detected ✓'
+								: faceDetectionStatus === 'not_detected'
+									? 'Face Not Detected!'
+									: 'Multiple Faces Detetcted!'}
+						</div>
+					</div>
 				</div>
 
 				{/* Status Dashboard */}
@@ -309,6 +359,12 @@ const WrittenExam = ({ examType }: { examType: ExamStageValue }) => {
 								{violations.length} Detected
 							</span>
 						</div>
+						{/* violation warning if too many */}
+						{violations.length > 5 && (
+							<div className="text-xs text-red-600 font-bold bg-red-50 p-2 rounded-lg">
+								⚠️ High violation count detected
+							</div>
+						)}
 					</div>
 				</div>
 			</aside>
@@ -474,11 +530,11 @@ const WrittenExam = ({ examType }: { examType: ExamStageValue }) => {
 						</button>
 					</div>
 				</div>
-				{/* Alert Overlay for major violations */}
-				{/* {showViolationModal && (
+
+				{showViolationModal && (
 					<div className="fixed inset-0 z-200 bg-red-600/90 backdrop-blur-sm flex items-center justify-center text-white p-10 text-center">
-						<div className="max-w-md animate-pulse">
-							<div className="bg-white/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+						<div className="max-w-md">
+							<div className="bg-white/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
 								<UserCheck className="w-10 h-10 text-white" />
 							</div>
 							<h2 className="text-4xl font-black mb-4 uppercase tracking-tighter">
@@ -488,12 +544,19 @@ const WrittenExam = ({ examType }: { examType: ExamStageValue }) => {
 								Exam on Hold. Please reposition yourself clearly in front of the
 								camera to resume.
 							</p>
-							<div className="mt-8 text-xs font-mono bg-black/20 py-2 px-4 rounded-full inline-block">
-								Monitoring active...
+							<div className="mt-8 text-sm font-mono bg-black/20 py-2 px-4 rounded-full inline-block">
+								{violations.filter((v) => v.type === 'NO_FACE').length} face
+								violations recorded
 							</div>
+							{violations.filter((v) => v.type === 'NO_FACE').length > 3 && (
+								<div className="mt-4 text-xs bg-black/40 p-2 rounded-lg">
+									⚠️ Multiple face detection violations may affect your exam
+									result
+								</div>
+							)}
 						</div>
 					</div>
-				)} */}
+				)}
 			</main>
 		</div>
 	);

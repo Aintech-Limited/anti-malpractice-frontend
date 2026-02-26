@@ -22,6 +22,10 @@ export class ProctoringController {
 	public faceDetected = false;
 	private faceInterval: number | null = null;
 	private videoElement: HTMLVideoElement | null = null;
+	private noFaceWarningTimeout: number | null | ReturnType<typeof setTimeout> =
+		null;
+	private consecutiveNoFaceDetections = 0;
+	private readonly MAX_CONSECUTIVE_NO_FACE = 5;
 
 	private devtoolsInterval: number | null = null;
 
@@ -29,10 +33,20 @@ export class ProctoringController {
 
 	constructor(options: ProctoringOptions = {}) {
 		this.options = {
-			requireFullscreen: true,
-			requireCamera: false,
-			requireScreenShare: false,
-			...options,
+			requireFullscreen: options.requireFullscreen,
+			requireCamera: options.requireCamera,
+			requireScreenShare: options.requireScreenShare,
+			faceDetectionConfig: {
+				detectionInterval: options.faceDetectionConfig?.detectionInterval,
+				maxConsecutiveNoFace:
+					options.faceDetectionConfig?.maxConsecutiveNoFace ||
+					this.MAX_CONSECUTIVE_NO_FACE,
+				minConfidence: options.faceDetectionConfig?.minConfidence,
+				noFaceGracePeriod: options.faceDetectionConfig?.noFaceGracePeriod,
+				requireCentered: options.faceDetectionConfig?.requireCentered,
+			},
+			onFaceStatusChange: options.onFaceStatusChange,
+			onViolation: options.onViolation,
 		};
 	}
 
@@ -97,6 +111,22 @@ export class ProctoringController {
 		if (this.faceInterval) {
 			clearInterval(this.faceInterval);
 		}
+		if (this.faceDetector) {
+			await this.faceDetector.close();
+			this.faceDetector = null;
+		}
+
+		if (this.noFaceWarningTimeout) {
+			clearTimeout(this.noFaceWarningTimeout);
+			this.noFaceWarningTimeout = null;
+		}
+
+		if (this.videoElement) {
+			if (this.videoElement.parentNode) {
+				this.videoElement.parentNode.removeChild(this.videoElement);
+			}
+			this.videoElement = null;
+		}
 
 		if (this.devtoolsInterval) {
 			clearInterval(this.devtoolsInterval);
@@ -136,50 +166,133 @@ export class ProctoringController {
 	}
 
 	private async startFaceDetection() {
-		if (!this.cameraStream) return;
+		if (!this.cameraStream) {
+			this.logViolation('FACE_DETECTION_ERROR', { reason: 'no_camera_stream' });
+			return;
+		}
 
-		this.videoElement = document.createElement('video');
-		this.videoElement.srcObject = this.cameraStream;
-		await this.videoElement.play();
+		try {
+			this.videoElement = document.createElement('video');
+			this.videoElement.srcObject = this.cameraStream;
+			this.videoElement.playsInline = true;
+			this.videoElement.muted = true;
+			this.videoElement.style.position = 'absolute'; // Hide video element
+			this.videoElement.style.left = '-9999px'; // Hide video element
+			document.body.appendChild(this.videoElement); // Append to DOM for better performance
 
-		const { FaceDetection } = await import('@mediapipe/face_detection');
-
-		this.faceDetector = new FaceDetection({
-			locateFile: (file: string) =>
-				`https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`,
-		});
-
-		this.faceDetector.setOptions({
-			model: 'short',
-			minDetectionConfidence: 0.5,
-		});
-
-		this.faceDetector.onResults((results: any) => {
-			if (!this.isActive) return;
-
-			const faces = results.detections?.length || 0;
-
-			if (faces === 0) {
-				this.logViolation('NO_FACE');
-				this.faceDetected = false;
-			}
-			if (faces === 1) {
-				this.faceDetected = true;
-			}
-
-			if (faces > 1) {
-				this.logViolation('MULTIPLE_FACES', { count: faces });
-				this.faceDetected = false;
-			}
-		});
-
-		this.faceInterval = window.setInterval(async () => {
-			if (!this.videoElement) return;
-
-			await this.faceDetector.send({
-				image: this.videoElement,
+			await new Promise<void>((resolve, reject) => {
+				const timeout = setTimeout(
+					() => reject(new Error('Video metadata timeout')),
+					5000,
+				);
+				this.videoElement!.onloadedmetadata = () => {
+					clearTimeout(timeout);
+					resolve();
+				};
 			});
-		}, 1500);
+
+			await this.videoElement.play();
+
+			const { FaceDetection } = await import('@mediapipe/face_detection');
+
+			this.faceDetector = new FaceDetection({
+				// locateFile: (file: string) => `/mediapipe/${file}`,
+				locateFile: (file: string) =>
+					`https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`,
+			});
+
+			this.faceDetector.setOptions({
+				model: 'short',
+				minDetectionConfidence: 0.5,
+			});
+
+			this.faceDetector.onResults((results: any) => {
+				if (!this.isActive) return;
+
+				const faces = results.detections?.length || 0;
+				const previousState = this.faceDetected;
+
+				if (faces === 1) {
+					this.faceDetected = true;
+				} else {
+					this.faceDetected = false;
+				}
+
+				if (previousState !== this.faceDetected) {
+					this.options.onFaceStatusChange?.(this.faceDetected);
+				}
+
+				if (faces === 0) {
+					if (!this.noFaceWarningTimeout) {
+						this.noFaceWarningTimeout = setTimeout(() => {
+							if (this.isActive && !this.faceDetected) {
+								this.logViolation('NO_FACE');
+							}
+							this.noFaceWarningTimeout = null;
+						}, 3000);
+					}
+				}
+
+				if (faces > 1) {
+					this.logViolation('MULTIPLE_FACES', { count: faces });
+				}
+			});
+
+			this.runFaceDetectionLoop();
+		} catch (error) {
+			console.error('Face detection initialization error:', error);
+			this.logViolation('FACE_DETECTION_ERROR', {
+				reason: 'initialization_failed',
+				error: (error as Error).message,
+			});
+
+			// Clean up
+			if (this.videoElement && this.videoElement.parentNode) {
+				this.videoElement.parentNode.removeChild(this.videoElement);
+			}
+			this.videoElement = null;
+		}
+	}
+	private async runFaceDetectionLoop() {
+		const loop = async () => {
+			if (!this.isActive || !this.faceDetector || !this.videoElement) return;
+
+			try {
+				await this.faceDetector.send({
+					image: this.videoElement,
+				});
+			} catch (error) {
+				this.logViolation('NO_FACE', { error: (error as Error).message });
+			}
+
+			setTimeout(loop, 300);
+		};
+
+		loop();
+	}
+	private checkFacePosition(boundingBox: any): boolean {
+		if (!this.videoElement) return true;
+
+		const videoWidth = this.videoElement.videoWidth;
+		const videoHeight = this.videoElement.videoHeight;
+
+		// Calculate face center
+		const faceCenterX = boundingBox.xMin + boundingBox.width / 2;
+		const faceCenterY = boundingBox.yMin + boundingBox.height / 2;
+
+		// Define acceptable region (middle 60% of the frame)
+		const minX = videoWidth * 0.2;
+		const maxX = videoWidth * 0.8;
+		const minY = videoHeight * 0.2;
+		const maxY = videoHeight * 0.8;
+
+		// Check if face is within acceptable region
+		return (
+			faceCenterX >= minX &&
+			faceCenterX <= maxX &&
+			faceCenterY >= minY &&
+			faceCenterY <= maxY
+		);
 	}
 
 	private startDevtoolsDetection() {
@@ -298,7 +411,12 @@ export class ProctoringController {
 	private async startCamera() {
 		try {
 			this.cameraStream = await navigator.mediaDevices.getUserMedia({
-				video: true,
+				// video: true,
+				video: {
+					width: 640,
+					height: 480,
+					facingMode: 'user',
+				},
 			});
 
 			const track = this.cameraStream.getVideoTracks()[0];
@@ -332,5 +450,9 @@ export class ProctoringController {
 				reason: 'permission_denied',
 			});
 		}
+	}
+
+	getCameraStream() {
+		return this.cameraStream;
 	}
 }
