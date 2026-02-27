@@ -14,6 +14,7 @@ const FaceIDSetupModal = memo(({ isOpen, onClose }: IFaceIDSetupModalProps) => {
 
 	const handleInitiateFaceAuth = () => {
 		router.push('/dashboard/face-capture');
+		onClose();
 	};
 
 	return (
