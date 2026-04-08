@@ -1,16 +1,20 @@
+import { apiProxy } from '@/src/lib/serverHelper';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
 	try {
 		const cookieHeader = request.headers.get('cookie');
-		const response = await fetch(`${process.env.BACKEND_API_URL}/v1/users/me`, {
-			method: 'GET',
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json',
-				...(cookieHeader && { cookie: cookieHeader }),
+		const response = await apiProxy(
+			`${process.env.BACKEND_API_URL}/v1/users/me`,
+			{
+				method: 'GET',
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json',
+					...(cookieHeader && { cookie: cookieHeader }),
+				},
 			},
-		});
+		);
 
 		if (!response.ok) {
 			return NextResponse.json(
