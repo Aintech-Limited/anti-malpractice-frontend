@@ -432,24 +432,34 @@ export class ProctoringController {
 	}
 
 	// Screen Share Monitoring
-	private async startScreenShare() {
+	async startScreenShare() {
 		try {
 			this.screenStream = await navigator.mediaDevices.getDisplayMedia({
 				video: true,
 			});
 
 			const track = this.screenStream.getVideoTracks()[0];
+			this.options.onScreenShareResumed?.();
 
 			track.onended = () => {
-				if (this.isActive) {
-					this.logViolation('SCREEN_SHARE_STOPPED');
-				}
+				console.log('Screen share stopped by user');
+				this.handleScreenShareStopped();
 			};
 		} catch (error) {
 			this.logViolation('SCREEN_SHARE_STOPPED', {
 				reason: 'permission_denied',
 			});
 		}
+	}
+
+	private handleScreenShareStopped() {
+		if (!this.isActive) return;
+
+		this.options.onScreenShareStopped?.();
+
+		this.logViolation('SCREEN_SHARE_STOPPED');
+
+		this.screenStream = null;
 	}
 
 	getCameraStream() {
