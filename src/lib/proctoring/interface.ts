@@ -30,6 +30,8 @@ export type ProctoringOptions = {
 	};
 	onViolation?: (violation: Violation) => void;
 	onFaceStatusChange?: (detected: boolean) => void;
+	onScreenShareStopped?: () => void;
+	onScreenShareResumed?: () => void;
 };
 
 export const CameraType = Object.freeze({
