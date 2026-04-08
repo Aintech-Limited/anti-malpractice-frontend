@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useAuth } from '@/src/providers/auth/AuthContext';
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import {
 	Menu,
 	X,
@@ -22,7 +22,11 @@ import MobileSubItem from './MobileSubItem/MobileSubItem';
 import DropdownItem from './DropdownItem/DropdownItem';
 import { usePathname, useRouter } from 'next/navigation';
 import { signOut as GoogleSinOut } from 'next-auth/react';
-import { ProtectedRouteEnum, ProtectedRouteEnumValue } from '@/src/lib/enums';
+import {
+	ProtectedRouteEnum,
+	ProtectedRouteEnumValue,
+	UnProtectedRouteEnum,
+} from '@/src/lib/enums';
 import {
 	clearFaceAuthState,
 	setFaceAuthState,
@@ -33,6 +37,7 @@ import {
 	clearVerification,
 } from '@/src/redux/features/lecturerVerificationImages/lecturerVerificationImages';
 import FaceIDSetupModal from '../Dashboard/FaceIDSetupModal/FaceIDSetupModal';
+import { APP_NAME } from '@/src/lib/data';
 
 const Header = () => {
 	const router = useRouter();
@@ -59,8 +64,16 @@ const Header = () => {
 			!Object.values(ProtectedRouteEnum).includes(
 				pathname as ProtectedRouteEnumValue,
 			)
-		)
+		) {
+			if (
+				[UnProtectedRouteEnum.SIGNUP, UnProtectedRouteEnum.SIGNIN].includes(
+					pathname as any,
+				)
+			) {
+				signOut();
+			}
 			return;
+		}
 
 		const timer = setTimeout(() => {
 			if (!user || user === undefined) {
@@ -85,7 +98,7 @@ const Header = () => {
 		}, 3_000);
 
 		return () => clearTimeout(timer);
-	}, [pathname, signIn, user]);
+	}, [pathname, signIn, signOut, user]);
 
 	useEffect(() => {
 		if (
@@ -124,7 +137,7 @@ const Header = () => {
 		return () => window.removeEventListener('click', handleClickOutside);
 	}, []);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const handleResize = () => setWindowWidth(window.innerWidth);
 		handleResize(); // initial
 		window.addEventListener('resize', handleResize);
@@ -136,7 +149,6 @@ const Header = () => {
 		setActiveDropdown(activeDropdown === name ? null : name);
 	};
 
-	// Function to handle logout
 	const handleLogout = async () => {
 		try {
 			const res = await fetch('/api/v1/auth/signout', {
@@ -178,7 +190,7 @@ const Header = () => {
 				isOpen={showFaceId}
 				onClose={() => handleCloseFaceId()}
 			/>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex items-center justify-between h-20">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-2 flex items-center justify-between h-20">
 				{/* Logo */}
 				<Link href="/">
 					<div className="flex items-center gap-2">
@@ -189,7 +201,7 @@ const Header = () => {
 							height={40}
 						/>
 						<span className="font-bold text-slate-900 tracking-tight text-l">
-							AINTECH
+							{APP_NAME}
 						</span>
 					</div>
 				</Link>
