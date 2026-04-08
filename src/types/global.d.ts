@@ -23,6 +23,9 @@ declare global {
 
 			GOOGLE_CLIENT_ID: string;
 			GOOGLE_CLIENT_SECRET: string;
+
+			FLUTTERWAVE_SECRET_KEY: string;
+			FLUTTERWAVE_RESOLVE_URL: string;
 		}
 	}
 }
