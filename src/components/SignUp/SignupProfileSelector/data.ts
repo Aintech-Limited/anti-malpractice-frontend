@@ -1,11 +1,12 @@
 import { ProfileTypeEnum } from '@/src/lib/enums';
 import { IChooseProfileData } from './interface';
+import { APP_NAME } from '@/src/lib/data';
 
 export const profilesTypes: IChooseProfileData[] = [
 	{
 		id: 1,
 		icon: 'Sun',
-		text: "I'm a lecturer, i want to sell my product/service on Aintech",
+		text: `I'm a lecturer, i want to sell my product/service on ${APP_NAME}`,
 		type: ProfileTypeEnum.LECTURER,
 	},
 	{

@@ -17,6 +17,7 @@ import {
 import GoogleTermsModal from './GooogleTermsModal/GoogleTermsModal';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
+import { APP_NAME } from '@/src/lib/data';
 
 const SignupForm = memo(({ setStage }: ISignupFormProps) => {
 	const router = useRouter();
@@ -243,7 +244,7 @@ const SignupForm = memo(({ setStage }: ISignupFormProps) => {
 			</div>
 
 			<h1 className="text-2xl font-bold text-slate-900 text-center mb-10">
-				Create your Aintech Account
+				Create your {APP_NAME} Account
 			</h1>
 
 			<form onSubmit={handleSubmit} className="space-y-6">
@@ -386,7 +387,7 @@ const SignupForm = memo(({ setStage }: ISignupFormProps) => {
 						name="acceptTerms"
 					/>
 					<p className="text-sm text-slate-600">
-						Signing up for Aintech account means you agree to our{' '}
+						Signing up for {APP_NAME} account means you agree to our{' '}
 						<Link
 							href="/privacy"
 							className="text-slate-900 font-bold underline"
