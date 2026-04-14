@@ -44,7 +44,8 @@ export type EmptyStateIcon =
 	| 'inbox'
 	| 'archive'
 	| 'flag'
-	| 'more';
+	| 'more'
+	| 'clipboard';
 
 export interface IEmptyStateProps {
 	title: string;

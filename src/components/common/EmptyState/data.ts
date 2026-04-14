@@ -47,6 +47,7 @@ import {
 	Archive,
 	Flag,
 	MoreHorizontal,
+	Clipboard,
 } from 'lucide-react';
 import { EmptyStateIcon } from './interface';
 
@@ -57,6 +58,7 @@ export const iconMap: Record<EmptyStateIcon, React.ComponentType<any>> = {
 	folder: FolderOpen,
 	alert: AlertCircle,
 	school: School,
+	clipboard: Clipboard,
 	users: Users,
 	calendar: Calendar,
 	clock: Clock,
