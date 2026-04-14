@@ -31,6 +31,7 @@ export const ProtectedRouteEnum = Object.freeze({
 	DASHBOARD_VERIFY: '/dashboard/verify',
 	STUDENTS: '/dashboard/students',
 	LECTURERS: '/dashboard/lecturers',
+	CHECKOUT: '/checkout',
 });
 
 export type ProtectedRouteEnumValue =
@@ -43,6 +44,7 @@ export const UnProtectedRouteEnum = Object.freeze({
 	FORGOT_PASSWORD: '/forgot-password',
 	TERMS: '/terms',
 	PRIVACY: '/privacy',
+	SUPPORT: '/support',
 });
 
 export type UnProtectedRouteEnumValue =

@@ -9,6 +9,7 @@ import {
 	setSignupState,
 	setSignuptokenState,
 } from '@/src/redux/features/signup/signup';
+import { APP_NAME } from '@/src/lib/data';
 
 const iconMap: Record<string, any> = {
 	Sun: <Sun className="w-6 h-6" />,
@@ -69,7 +70,7 @@ const SignupProfileSelector = memo(({ setStage }: TChooseProfileProps) => {
 			<div className="min-h-screen bg-white font-sans text-slate-900 px-6 py-8 flex flex-col items-center">
 				{/* Header */}
 				<header className="mb-8 text-center">
-					<h1 className="font-bold text-lg tracking-tight">Aintech</h1>
+					<h1 className="font-bold text-lg tracking-tight">{APP_NAME}</h1>
 
 					{/* Progress Bar */}
 					<div className="flex justify-center gap-2 mt-6">
@@ -82,7 +83,7 @@ const SignupProfileSelector = memo(({ setStage }: TChooseProfileProps) => {
 				<main className="w-full max-w-5xl gap-7">
 					<div className="text-center mb-10">
 						<h2 className="text-2xl md:text-3xl font-semibold mb-2">
-							How do you plan to use Aintech today?
+							How do you plan to use {APP_NAME} today?
 						</h2>
 						<p className="text-slate-600 text-sm md:text-base">
 							Don&apos;t worry, you can switch between profiles anytime.

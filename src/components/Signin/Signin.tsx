@@ -16,6 +16,7 @@ import { isEmail, isStrongPassword } from 'class-validator';
 import { aintechLogo } from '@/public/assetLinks';
 import { useAppDispatch } from '@/src/redux/reduxStore';
 import { setOTPEmailState } from '@/src/redux/features/otpExpiry/otpExpirySlice';
+import { APP_NAME } from '@/src/lib/data';
 
 const Signin = () => {
 	const router = useRouter();
@@ -149,7 +150,7 @@ const Signin = () => {
 						<div className="w-16 h-16 flex items-center justify-center">
 							<Image
 								src={aintechLogo}
-								alt="AINTECH LOGO"
+								alt={`${APP_NAME} LOGO`}
 								width={60}
 								height={40}
 							/>
@@ -159,7 +160,7 @@ const Signin = () => {
 					{/* Heading */}
 					<div className="text-center mb-8">
 						<h1 className="text-2xl font-bold text-slate-900 mb-2">
-							Login to your Aintech Account
+							Login to your {APP_NAME} Account
 						</h1>
 						<p className="text-slate-600 text-sm">
 							Welcome back! Please enter your details.

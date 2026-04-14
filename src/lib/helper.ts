@@ -1,3 +1,5 @@
+import { TCourseStatus } from '../components/Dashboard/Student/CoursesCatalog/interface';
+
 export const compressImage = async (
 	dataUrl: string,
 	maxWidth = 1280,
@@ -108,4 +110,51 @@ export const detectBlur = (canvas: HTMLCanvasElement) => {
 	const variance = sumSq / count - mean * mean;
 
 	return variance; // tune threshold < 100
+};
+
+export function generateAcademicSemesters(): string[] {
+	const currentYear = new Date().getFullYear();
+	const startYear = currentYear - 2;
+	const semesters: string[] = [];
+
+	for (let i = 0; i < 10; i++) {
+		const year = startYear + i;
+		semesters.push(`${year}/${year + 1} - 1st Semester`);
+		semesters.push(`${year}/${year + 1} - 2nd Semester`);
+	}
+
+	return semesters;
+}
+
+export const formatDate = (dateString: string) => {
+	return new Date(dateString).toLocaleDateString('en-US', {
+		year: 'numeric',
+		month: 'short',
+		day: 'numeric',
+		hour: '2-digit',
+		minute: '2-digit',
+	});
+};
+
+export const getStatusColor = (status: TCourseStatus): string => {
+	switch (status) {
+		case 'registered':
+			return 'bg-green-50 border-green-200 hover:border-green-300';
+		case 'active':
+			return 'bg-blue-50 border-blue-200 hover:border-blue-300';
+		case 'available':
+			return 'bg-white border-gray-200 hover:border-gray-300';
+		case 'locked':
+			return 'bg-gray-50 border-gray-200 opacity-75';
+		default:
+			return 'bg-white border-gray-200';
+	}
+};
+
+export const getLevelLabel = (level: number): string => {
+	return `Level ${level}`;
+};
+
+export const formatCredits = (credits: number): string => {
+	return `${credits} Credit${credits !== 1 ? 's' : ''}`;
 };

@@ -9,4 +9,5 @@ export interface IUserModel {
 	profileType?: 'LECTURER' | 'VENDOR' | 'STUDENT';
 	idRecorded?: boolean;
 	isIdVerified?: boolean;
+	avatarURL?: string;
 }

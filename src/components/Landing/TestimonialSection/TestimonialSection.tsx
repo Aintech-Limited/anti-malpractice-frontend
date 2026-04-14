@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { testimonials } from './data';
+import { APP_NAME } from '@/src/lib/data';
 
 const AUTO_SLIDE_INTERVAL = 5000;
 
@@ -42,7 +43,7 @@ const TestimonialSection = () => {
 					Don&apos;t take our word for it!
 				</h2>
 				<p className="mt-2 text-sm md:text-base opacity-90">
-					See what some of our customers have to say about using Aintech.
+					See what some of our customers have to say about using {APP_NAME}.
 				</p>
 			</div>
 
