@@ -14,6 +14,10 @@ import {
 	IPaymentsPageProps,
 } from '../components/Dashboard/Student/Payments/interface';
 import { IDepartmentsPageProps } from '../components/Dashboard/Department/interface';
+import { IExamsPageProps } from '../components/Dashboard/Lecturer/Exams/interface';
+import { IIExamRegistrationsPageProps } from '../components/Dashboard/Lecturer/Exams/ExamRegistrations/interface';
+import { ICourseMaterialsPageProps } from '../components/Dashboard/Lecturer/CourseMaterials/interface';
+import { IRegisteredExamsPageProps } from '../components/Dashboard/Student/RegisteredExam/interface';
 
 /**
  * Get JWT header without verification
@@ -34,12 +38,11 @@ export async function fetchSupportArticles(): Promise<ISupportArticlesReponse> {
 	try {
 		const cookieStore = await cookies();
 
-		const response = await fetch(
+		const response = await apiProxy(
 			`${process.env.BACKEND_API_URL}/v1/support/articles`,
 			{
 				headers: {
 					'Content-Type': 'application/json',
-					Cookie: cookieStore.toString(),
 				},
 				cache: 'no-store',
 			},
@@ -68,6 +71,7 @@ export const getCourseMaterials = async () => {
 			{
 				method: 'GET',
 				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
 			},
 		);
 
@@ -97,14 +101,20 @@ export const getCourses = async (query: ICoursesCatalogQuery) => {
 		if (query.status) {
 			queryParams += `&status=${query.status}`;
 		}
-		const response = await apiProxy(
-			`${process.env.BACKEND_API_URL}/v1/courses${queryParams}`,
-			{
-				method: 'GET',
-				credentials: 'include',
-				headers: { cookie: (await cookies()).toString() },
-			},
-		);
+		const token = (await cookies()).get(process.env.AUTH_TOKEN_NAME)?.value;
+		const decodedToken = await decodeMyJwt(token!);
+
+		const url =
+			decodedToken.role === 'USER'
+				? `v1/courses${queryParams}`
+				: decodedToken.role === 'STAFF'
+					? `v1/courses/staff${queryParams}`
+					: `v1/courses/admin${queryParams}`;
+		const response = await apiProxy(`${process.env.BACKEND_API_URL}/${url}`, {
+			method: 'GET',
+			credentials: 'include',
+			headers: { 'Content-Type': 'application/json' },
+		});
 
 		if (!response.ok) {
 			const data = await response.json();
@@ -127,10 +137,15 @@ export const getCourses = async (query: ICoursesCatalogQuery) => {
 			};
 			data: any[];
 		};
-		return data.data;
+		return data;
 	} catch (error) {
 		console.error('error fetching materials: ', error);
-		return [];
+		return {
+			message: 'Internal Server error',
+			data: [],
+			success: false,
+			meta: { page: 1, limit: 50, totalItems: 1, totalPages: 1 },
+		};
 	}
 };
 
@@ -144,6 +159,7 @@ export const getPurchasedCourseMaterials = async (
 			{
 				method: 'GET',
 				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
 			},
 		);
 
@@ -213,6 +229,7 @@ export async function fetchPayments(
 	const response = await apiProxy(`${process.env.BACKEND_API_URL}/v1/${url}`, {
 		next: { revalidate: 60 }, // Revalidate every 60 seconds
 		credentials: 'include',
+		headers: { 'Content-Type': 'application/json' },
 	});
 
 	if (!response.ok) {
@@ -260,6 +277,7 @@ export async function fetchDepartments(
 
 	const response = await apiProxy(`${process.env.BACKEND_API_URL}/${url}`, {
 		cache: 'no-store',
+		headers: { 'Content-Type': 'application/json' },
 	});
 
 	if (!response.ok) {
@@ -294,12 +312,240 @@ export async function fetchBankList() {
 			`${process.env.BACKEND_API_URL}/v1/accounts/banklist`,
 			{
 				cache: 'no-store',
+				headers: { 'Content-Type': 'application/json' },
 			},
 		);
 
 		return response.json();
 	} catch (error) {
 		return { data: [], message: 'Failed to fetch bank list', success: false };
+	}
+}
+
+export async function fetchExams(
+	searchParams: IExamsPageProps['searchParams'],
+) {
+	const page = (await searchParams).page || '1';
+	const limit = (await searchParams).limit || '10';
+	const status = (await searchParams).status || '';
+	const type_ = (await searchParams).type_ || '';
+	const sortBy = (await searchParams).sortBy || 'createdAt';
+	const sortOrder = (await searchParams).sortOrder || 'DESC';
+	try {
+		let url = `${process.env.BACKEND_API_URL}/v1/exams?published=true&page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+		if (status) url += `&status=${status}`;
+		if (type_) url += `&type_=${type_}`;
+
+		const response = await apiProxy(url, {
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			cache: 'no-store',
+		});
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			return data;
+		}
+
+		return data;
+	} catch (error) {
+		console.error(error);
+		return {
+			data: [],
+			success: false,
+			message: 'Internal Server error',
+			meta: { page, limit },
+		};
+	}
+}
+
+export async function fetchCourseAssignments() {
+	try {
+		const response = await apiProxy(
+			`${process.env.BACKEND_API_URL}/v1/course-assignments/staff?status=ACTIVE&page=1&limit=50&sortBy=assignedAt&sortOrder=asc`,
+			{
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				cache: 'no-store',
+			},
+		);
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			return data;
+		}
+
+		return data;
+	} catch (error) {
+		console.error(error);
+		return { data: [], success: false, message: 'Internal Server Error' };
+	}
+}
+
+export async function fetchExamRegistrations(
+	examId: string,
+	searchParams: IIExamRegistrationsPageProps['searchParams'],
+) {
+	const page = (await searchParams).page || '1';
+	const limit = (await searchParams).limit || '20';
+	const sortBy = (await searchParams).sortBy || 'registeredAt';
+	const sortOrder = (await searchParams).sortOrder || 'DESC';
+	const status = (await searchParams).status || '';
+	const level = (await searchParams).level || '';
+	const semester = (await searchParams).semester || '';
+
+	let url = `${process.env.BACKEND_API_URL}/v1/exam-registrations/${examId}?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+	if (status) url += `&registrationStatus=${status}`;
+	if (level) url += `&level=${level}`;
+	if (semester) url += `&semester=${semester}`;
+
+	try {
+		const response = await apiProxy(url, {
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			cache: 'no-store',
+		});
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			return data ?? { data: [], message: 'An Error occured', success: false };
+		}
+
+		return data;
+	} catch (error) {
+		console.error(error);
+		return { data: [], message: 'Internal Sserver Error', success: false };
+	}
+}
+
+export async function fetchExamDetails(examId: string) {
+	try {
+		const response = await apiProxy(
+			`${process.env.BACKEND_API_URL}/v1/exams/${examId}`,
+			{
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				cache: 'no-store',
+			},
+		);
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			return null;
+		}
+
+		return data;
+	} catch (error) {
+		console.error(error);
+		return { message: 'Internal Server Error', data: null, success: false };
+	}
+}
+
+export async function fetchCourseMaterials(
+	searchParams: ICourseMaterialsPageProps['searchParams'],
+) {
+	try {
+		const page = (await searchParams).page || '1';
+		const limit = (await searchParams).limit || '10';
+		const sortBy = (await searchParams).sortBy || 'createdAt';
+		const sortOrder = (await searchParams).sortOrder || 'DESC';
+		const fileType = (await searchParams).fileType || '';
+		const isFree = (await searchParams).isFree || '';
+		const search = (await searchParams).search || '';
+
+		let url = `${process.env.BACKEND_API_URL}/v1/course-materials?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+		if (fileType) url += `&fileType=${fileType}`;
+		if (isFree) url += `&isFree=${isFree}`;
+		if (search) url += `&search=${encodeURIComponent(search)}`;
+
+		const response = await apiProxy(url, {
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			cache: 'no-store',
+		});
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			return data;
+		}
+
+		return data;
+	} catch (error) {
+		console.error(error);
+		return { message: 'Internal Server error', data: [], success: false };
+	}
+}
+
+export async function fetchAssignedCourses() {
+	try {
+		const response = await apiProxy(
+			`${process.env.BACKEND_API_URL}/v1/course-assignments/staff?page=1&limit=100&sortBy=assignedAt&sortOrder=asc`,
+			{
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				cache: 'no-store',
+			},
+		);
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			return data;
+		}
+
+		return data;
+	} catch (error) {
+		console.error(error);
+		return { message: 'Internal Server error', data: [], success: false };
+	}
+}
+
+export async function fetchRegisteredExams(
+	searchParams: IRegisteredExamsPageProps['searchParams'],
+) {
+	const page = (await searchParams).page || '1';
+	const limit = (await searchParams).limit || '20';
+	const sortBy = (await searchParams).sortBy || 'registeredAt';
+	const sortOrder = (await searchParams).sortOrder || 'DESC';
+	const status = (await searchParams).status || '';
+
+	let url = `${process.env.BACKEND_API_URL}/v1/exam-registrations?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+	if (status) url += `&status=${status}`;
+
+	try {
+		const response = await apiProxy(url, {
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			cache: 'no-store',
+		});
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			return data;
+		}
+
+		return data;
+	} catch (error) {
+		console.error(error);
+		return {
+			message: 'Internal server error',
+			success: false,
+			data: [],
+			meta: { page, limit, sortBy, sortOrder, status },
+		};
 	}
 }
 
@@ -316,7 +562,6 @@ export const apiProxy = async (
 		return fetch(requestInput, {
 			...requestInit,
 			headers: {
-				'Content-Type': 'application/json',
 				Cookie: (await cookies()).toString(),
 				...requestInit?.headers,
 			},
