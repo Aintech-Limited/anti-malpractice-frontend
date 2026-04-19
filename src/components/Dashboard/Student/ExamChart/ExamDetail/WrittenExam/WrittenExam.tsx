@@ -29,9 +29,15 @@ const WrittenExam = ({ examType }: { examType: ExamStageValue }) => {
 		'detected' | 'not_detected' | 'multiple_faces'
 	>('detected');
 
+	const [showScreenShareModal, setShowScreenShareModal] =
+		useState<boolean>(false);
+	const [screenStreamActive, setScreenStreamActive] = useState(true);
+
 	const videoRef = useRef<HTMLVideoElement | null>(null);
 
 	const proctorRef = useRef<ProctoringController | null>(null);
+
+	const examLocked = !screenStreamActive || isSubmitted;
 
 	useEffect(() => {
 		const timer = setInterval(() => {
@@ -206,6 +212,14 @@ const WrittenExam = ({ examType }: { examType: ExamStageValue }) => {
 						setFaceDetectionStatus(faceDetected ? 'detected' : 'not_detected');
 						setShowViolationModal(faceDetected ? false : true);
 					},
+					onScreenShareStopped: () => {
+						if (showScreenShareModal) setShowScreenShareModal(true);
+						if (!screenStreamActive) setScreenStreamActive(false);
+					},
+					onScreenShareResumed: () => {
+						if (showScreenShareModal) setShowScreenShareModal(false);
+						if (!screenStreamActive) setScreenStreamActive(true);
+					},
 				});
 
 				// Start proctoring
@@ -248,6 +262,16 @@ const WrittenExam = ({ examType }: { examType: ExamStageValue }) => {
 			}
 		} catch (err) {
 			toast.error('Please enable fullscreen to continue.');
+		}
+	};
+
+	const handleResumeScreenShare = async () => {
+		try {
+			if (!proctorRef?.current) return;
+			await proctorRef.current.startScreenShare();
+			setShowScreenShareModal(false);
+		} catch (err) {
+			alert('Screen sharing is required to continue.');
 		}
 	};
 
@@ -525,6 +549,7 @@ const WrittenExam = ({ examType }: { examType: ExamStageValue }) => {
 						<button
 							className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-12 rounded-2xl shadow-xl shadow-blue-200 transition-all active:scale-95 disabled:opacity-50"
 							onClick={handleSubmit}
+							disabled={!examLocked}
 						>
 							Finalize and Submit
 						</button>
@@ -554,6 +579,37 @@ const WrittenExam = ({ examType }: { examType: ExamStageValue }) => {
 									result
 								</div>
 							)}
+						</div>
+					</div>
+				)}
+				{showScreenShareModal && (
+					<div className="fixed inset-0 z-200 bg-red-500/90 backdrop-blur-sm flex items-center justify-center text-white p-10 text-center">
+						<div className="max-w-md">
+							<div className="bg-white/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+								<UserCheck className="w-10 h-10 text-white" />
+							</div>
+							<h2 className="text-4xl font-black mb-4 uppercase tracking-tighter">
+								Screen Sharing Stopped
+							</h2>
+							<p className="text-lg font-medium opacity-90">
+								Exam on Hold. Please resume Screen sharing.
+							</p>
+							<div className="mt-8 text-sm font-mono bg-black/20 py-2 px-4 rounded-full inline-block">
+								{
+									violations.filter((v) => v.type === 'SCREEN_SHARE_STOPPED')
+										.length
+								}{' '}
+								Screen sharing stopped
+							</div>
+							{violations.filter((v) => v.type === 'NO_FACE').length > 3 && (
+								<div className="mt-4 text-xs bg-black/40 p-2 rounded-lg">
+									⚠️ Multiple stoppage of screen sharing violations may affect
+									your exam result
+								</div>
+							)}
+							<button onClick={handleResumeScreenShare}>
+								Resume Screen Share
+							</button>
 						</div>
 					</div>
 				)}
