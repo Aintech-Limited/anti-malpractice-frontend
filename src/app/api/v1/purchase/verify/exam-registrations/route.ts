@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
 		const { provider, transactionRef, transactionId } = body;
 
 		const response = await apiProxy(
-			`${process.env.BACKEND_API_URL}/v1/payments/verify/exam-registrations`,
+			`${process.env.BACKEND_API_URL}/v1/payments/verify/exam-registration`,
 			{
 				method: 'POST',
 				headers: {
@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
 		const data = await response.json();
 
 		if (!response.ok) {
+			console.error('error: ', JSON.stringify(data));
 			return NextResponse.json(data, { status: response.status });
 		}
 

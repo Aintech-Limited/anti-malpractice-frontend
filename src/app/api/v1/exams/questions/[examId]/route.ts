@@ -14,6 +14,7 @@ export async function GET(
 				headers: {
 					'Content-Type': 'application/json',
 				},
+				cache: 'no-cache',
 			},
 		);
 
@@ -26,7 +27,7 @@ export async function GET(
 
 		return NextResponse.json(data, { status: response.status });
 	} catch (error) {
-		console.error('Error fetching exam questions:', error);
+		console.error('Error fetching lec. exam questions:', error);
 		return NextResponse.json(
 			{ error: 'Internal server error' },
 			{ status: 500 },

@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
 		// console.log(data);
 
 		if (!response.ok) {
+			console.error('error: ', JSON.stringify(data));
 			return NextResponse.json(data, { status: response.status });
 		}
 
