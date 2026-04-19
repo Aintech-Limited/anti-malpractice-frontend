@@ -332,10 +332,12 @@ export async function fetchExams(
 	const type_ = (await searchParams).type_ || '';
 	const sortBy = (await searchParams).sortBy || 'createdAt';
 	const sortOrder = (await searchParams).sortOrder || 'DESC';
+	const published = (await searchParams).published;
 	try {
-		let url = `${process.env.BACKEND_API_URL}/v1/exams?published=true&page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+		let url = `${process.env.BACKEND_API_URL}/v1/exams?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
 		if (status) url += `&status=${status}`;
 		if (type_) url += `&type_=${type_}`;
+		if (published) url += `&published=${published}`;
 
 		const response = await apiProxy(url, {
 			headers: {
