@@ -112,15 +112,24 @@ export const detectBlur = (canvas: HTMLCanvasElement) => {
 	return variance; // tune threshold < 100
 };
 
-export function generateAcademicSemesters(): string[] {
+export function generateAcademicSemesters(): {
+	view: string;
+	semester: '1' | '2';
+}[] {
 	const currentYear = new Date().getFullYear();
 	const startYear = currentYear - 2;
-	const semesters: string[] = [];
+	const semesters: { view: string; semester: '1' | '2' }[] = [];
 
 	for (let i = 0; i < 10; i++) {
 		const year = startYear + i;
-		semesters.push(`${year}/${year + 1} - 1st Semester`);
-		semesters.push(`${year}/${year + 1} - 2nd Semester`);
+		semesters.push({
+			view: `${year}/${year + 1} - 1st Semester`,
+			semester: '1',
+		});
+		semesters.push({
+			view: `${year}/${year + 1} - 2nd Semester`,
+			semester: '2',
+		});
 	}
 
 	return semesters;
