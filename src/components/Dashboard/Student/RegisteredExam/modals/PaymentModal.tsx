@@ -25,7 +25,6 @@ export const PaymentModal = ({
 			if (response.success) {
 				setPaymentLink(response.data.link);
 				setTransactionRef(response.data.transactionRef);
-				// Open payment link in new tab
 				window.open(response.data.link, '_blank');
 				onSuccess();
 			} else {
@@ -46,7 +45,7 @@ export const PaymentModal = ({
 	};
 
 	return (
-		<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn p-4">
+		<div className="fixed inset-0 backdrop-blur-md bg-black/20 bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn p-4">
 			<div className="bg-white rounded-2xl max-w-md w-full">
 				<div className="border-b border-gray-200 p-6 flex justify-between items-center">
 					<div className="flex items-center gap-3">
