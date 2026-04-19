@@ -18,6 +18,7 @@ import { IExamsPageProps } from '../components/Dashboard/Lecturer/Exams/interfac
 import { IIExamRegistrationsPageProps } from '../components/Dashboard/Lecturer/Exams/ExamRegistrations/interface';
 import { ICourseMaterialsPageProps } from '../components/Dashboard/Lecturer/CourseMaterials/interface';
 import { IRegisteredExamsPageProps } from '../components/Dashboard/Student/RegisteredExam/interface';
+import { IExamRegistrationPageProps } from '../components/Dashboard/Student/ExamRegistration/interface';
 
 /**
  * Get JWT header without verification
@@ -545,6 +546,46 @@ export async function fetchRegisteredExams(
 			success: false,
 			data: [],
 			meta: { page, limit, sortBy, sortOrder, status },
+		};
+	}
+}
+
+export async function fetchStudentsExamsRegistration(
+	searchParams: IExamRegistrationPageProps['searchParams'],
+) {
+	const page = (await searchParams).page || '1';
+	const limit = (await searchParams).limit || '50';
+	let status = (await searchParams).status;
+	if (status) {
+		if (!['UPCOMING', 'ENDED', 'STARTED'].includes(status)) {
+			status = undefined;
+		}
+	}
+	try {
+		const response = await apiProxy(
+			`${process.env.BACKEND_API_URL}/v1/exams/students/registration?page=${page}&limit=${limit}&sortBy=createdAt${status ? `&status=${status}` : ''}`,
+			{
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				cache: 'no-store',
+			},
+		);
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			return data;
+		}
+
+		return data;
+	} catch (error) {
+		return {
+			message: 'Internal server error',
+			success: false,
+			data: [],
+			meta: { page, limit, status },
 		};
 	}
 }

@@ -22,6 +22,7 @@ export async function POST(request: NextRequest) {
 
 		if (!response.ok) {
 			const error = await response.json();
+			console.error('error: ', JSON.stringify(error));
 			return NextResponse.json(error, { status: response.status });
 		}
 

@@ -10,7 +10,7 @@ export const CourseModal = ({ payment, onClose }: ICourseModalProps) => {
 	if (!course) return null;
 
 	return (
-		<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
+		<div className="fixed inset-0 backdrop-blur-md bg-black/20 bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
 			<div className="bg-white rounded-2xl max-w-2xl w-full mx-4 transform transition-all animate-slideUp">
 				<div className="border-b border-gray-200 p-6 flex justify-between items-center">
 					<div className="flex items-center gap-3">

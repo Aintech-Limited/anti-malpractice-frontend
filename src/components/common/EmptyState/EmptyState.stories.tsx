@@ -69,6 +69,19 @@ export const NoDepartments: Story = {
 		},
 	},
 };
+export const NoExamsStory: Story = {
+	args: {
+		title: 'No Exams found',
+		description:
+			'There are no upcoming exams available for registration at this time.',
+		icon: 'building',
+		action: {
+			label: 'Refresh',
+			onClick: () => console.log('Refresh clicked'),
+			variant: 'primary',
+		},
+	},
+};
 
 export const NoAccounts: Story = {
 	args: {

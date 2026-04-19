@@ -14,6 +14,8 @@ export const EmptyState = ({
 	size = 'md',
 	bordered = false,
 	className = '',
+	searchTerm,
+	onClearSearch,
 }: IEmptyStateProps) => {
 	const IconComponent = iconMap[icon];
 	const styles = sizeConfig[size];
@@ -59,6 +61,20 @@ export const EmptyState = ({
 				<p className={`text-gray-500 ${styles.description} max-w-md mb-6`}>
 					{description}
 				</p>
+			)}
+
+			<p className="text-gray-500">
+				{searchTerm
+					? `No departments match "${searchTerm}". Try a different search term.`
+					: 'No departments available at the moment.'}
+			</p>
+			{searchTerm && (
+				<button
+					onClick={onClearSearch}
+					className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+				>
+					Clear Search
+				</button>
 			)}
 
 			{/* Actions */}

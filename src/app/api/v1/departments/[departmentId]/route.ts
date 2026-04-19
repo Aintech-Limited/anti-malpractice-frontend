@@ -3,11 +3,11 @@ import { apiProxy } from '@/src/lib/serverHelper';
 
 export async function GET(
 	request: NextRequest,
-	params: Promise<{ id: string }>,
+	{ params }: { params: Promise<{ departmentId: string }> },
 ) {
 	try {
 		const response = await apiProxy(
-			`${process.env.BACKEND_API_URL}/v1/departments/${(await params).id}`,
+			`${process.env.BACKEND_API_URL}/v1/departments/${(await params).departmentId}`,
 			{
 				headers: {
 					'Content-Type': 'application/json',
