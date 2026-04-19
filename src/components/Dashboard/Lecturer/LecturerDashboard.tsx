@@ -1,58 +1,8 @@
-import {
-	LayoutDashboard,
-	Users,
-	BookOpen,
-	MessageSquare,
-	Bell,
-	LogOut,
-	Plus,
-	ChevronRight,
-	ChevronDown,
-} from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 const LecturerDashboard = () => {
 	return (
 		<div className="flex min-h-screen bg-[#F1F5F9] font-sans">
-			<aside className="w-64 bg-blue-700 text-white flex flex-col fixed h-full z-20">
-				<div className="p-6">
-					<div className="bg-white/10 p-2 rounded-lg flex items-center gap-3 mb-8">
-						<LayoutDashboard size={20} />
-						<span className="font-bold">Overview</span>
-					</div>
-
-					<nav className="space-y-6">
-						<SidebarGroup title="Lecturer" icon={<Users size={18} />} active>
-							<li className="text-blue-100 text-sm py-1 hover:text-white cursor-pointer">
-								Lecturer List
-							</li>
-							<li className="text-blue-100 text-sm py-1 hover:text-white cursor-pointer">
-								Performance
-							</li>
-						</SidebarGroup>
-
-						<SidebarGroup title="Exam" icon={<BookOpen size={18} />}>
-							<li className="text-blue-100 text-sm py-1">Create Exam Form</li>
-							<li className="text-blue-100 text-sm py-1">Ongoing Exam</li>
-						</SidebarGroup>
-					</nav>
-				</div>
-
-				<div className="mt-auto p-6 space-y-4 border-t border-blue-600">
-					<div className="flex items-center gap-3 text-blue-100 hover:text-white cursor-pointer transition-colors">
-						<MessageSquare size={18} /> <span>Chat</span>
-					</div>
-					<div className="flex items-center justify-between text-blue-100 hover:text-white cursor-pointer">
-						<div className="flex items-center gap-3">
-							<Bell size={18} /> <span>Notification</span>
-						</div>
-						<div className="w-2 h-2 bg-red-500 rounded-full"></div>
-					</div>
-					<div className="flex items-center gap-3 text-blue-100 hover:text-white cursor-pointer pt-4">
-						<LogOut size={18} /> <span>Log out</span>
-					</div>
-				</div>
-			</aside>
-
 			<main className="flex-1 ml-64 p-8">
 				<div className="mb-10">
 					<div className="flex justify-between items-center mb-6">
@@ -86,40 +36,24 @@ const LecturerDashboard = () => {
 					<StatCard label="Total Exams" value="19" />
 					<StatCard label="Completed Exams" value="2" />
 					<StatCard label="Needs Approval" value="0" />
-					<StatCard label="Draft Exams" value="12" />
+					{/* <StatCard label="Draft Exams" value="12" /> */}
 					<StatCard label="Live Exam" value="7" color="text-red-500" />
 					<StatCard label="Upcoming Exams" value="2" />
-					<StatCard label="Practice Exams" value="13" />
+					{/* <StatCard label="Practice Exams" value="13" /> */}
 					<ActionCard label="Create a new exam" icon={<Plus />} />
 				</div>
 
-				<SectionHeader title="Lecturers Summary" />
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+				{/* <SectionHeader title="Lecturers Summary" /> */}
+				{/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
 					<StatCard label="Total Lecturers" value="78" />
 					<StatCard label="Assigned Lecturers" value="12" />
 					<StatCard label="Available Lecturers" value="77" />
 					<ActionCard label="Add new lecturer" icon={<Plus />} />
-				</div>
+				</div> */}
 			</main>
 		</div>
 	);
 };
-
-const SidebarGroup = ({ title, icon, children, active = false }: any) => (
-	<div>
-		<div
-			className={`flex items-center justify-between mb-2 cursor-pointer ${active ? 'text-white' : 'text-blue-200'}`}
-		>
-			<div className="flex items-center gap-3 font-bold">
-				{icon} <span>{title}</span>
-			</div>
-			<ChevronDown size={16} />
-		</div>
-		<ul className="pl-8 space-y-1 border-l border-blue-500/30 ml-2">
-			{children}
-		</ul>
-	</div>
-);
 
 const NotificationItem = ({ title, time, date, border = true }: any) => (
 	<div
