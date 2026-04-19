@@ -1,0 +1,32 @@
+import { apiProxy } from '@/src/lib/serverHelper';
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function POST(request: NextRequest) {
+	try {
+		const body = await request.json();
+
+		const response = await apiProxy(
+			`${process.env.BACKEND_API_URL}/v1/accounts/pin/setup`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(body),
+			},
+		);
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			console.error('error: ', JSON.stringify(data));
+		}
+		// console.log(data);
+		return NextResponse.json(data, { status: response.status });
+	} catch (error) {
+		return NextResponse.json(
+			{ success: false, message: 'Internal server error' },
+			{ status: 500 },
+		);
+	}
+}
