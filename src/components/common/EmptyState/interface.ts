@@ -65,4 +65,6 @@ export interface IEmptyStateProps {
 	size?: 'sm' | 'md' | 'lg';
 	bordered?: boolean;
 	className?: string;
+	searchTerm?: string;
+	onClearSearch?: () => void;
 }
