@@ -1,4 +1,4 @@
-import { ICourseAssignment, IExam } from '../interface';
+import { ICourseAssignment, IExam, IExamQuestion } from '../interface';
 
 export interface ICreateExamModalProps {
 	courses: ICourseAssignment[];
@@ -29,4 +29,17 @@ export interface IViewQuestionsModalProps {
 	exam: IExam;
 	onClose: () => void;
 	onQuestionUpdated?: () => void;
+}
+
+export interface IEditQuestionModalProps {
+	question: IExamQuestion;
+	examId: string;
+	onClose: () => void;
+	onSuccess: () => void;
+}
+
+export interface IDeleteQuestionModalProps {
+	question: IExamQuestion;
+	onClose: () => void;
+	onSuccess: () => void;
 }
