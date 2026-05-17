@@ -1,23 +1,28 @@
-export type ViolationType =
-	| 'TAB_SWITCH'
-	| 'EXIT_FULLSCREEN'
-	| 'CAMERA_STOPPED'
-	| 'SCREEN_SHARE_STOPPED'
-	| 'MULTIPLE_START_ATTEMPT'
-	| 'VOICE_DETECTED'
-	| 'MULTIPLE_FACES'
-	| 'NO_FACE'
-	| 'FACE_NOT_CENTERED'
-	| 'DEVTOOLS_SUSPECTED'
-	| 'FACE_DETECTION_ERROR';
+export const ProctoringViolationEnum = Object.freeze({
+	TAB_SWITCH: 'TAB_SWITCH',
+	EXIT_FULLSCREEN: 'EXIT_FULLSCREEN',
+	CAMERA_STOPPED: 'CAMERA_STOPPED',
+	SCREEN_SHARE_STOPPED: 'SCREEN_SHARE_STOPPED',
+	MULTIPLE_START_ATTEMPT: 'MULTIPLE_START_ATTEMPT',
+	VOICE_DETECTED: 'VOICE_DETECTED',
+	MULTIPLE_FACES: 'MULTIPLE_FACES',
+	NO_FACE: 'NO_FACE',
+	FACE_NOT_CENTERED: 'FACE_NOT_CENTERED',
+	DEVTOOLS_SUSPECTED: 'DEVTOOLS_SUSPECTED',
+	FACE_DETECTION_ERROR: 'FACE_DETECTION_ERROR',
+});
 
-export type Violation = {
-	type: ViolationType;
+export type ViolationEnumKey = keyof typeof ProctoringViolationEnum;
+
+export type TViolationType = (typeof ProctoringViolationEnum)[ViolationEnumKey];
+
+export type TViolation = {
+	type: TViolationType;
 	timestamp: number;
 	metadata?: Record<string, any>;
 };
 
-export type ProctoringOptions = {
+export type TProctoringOptions = {
 	requireFullscreen?: boolean;
 	requireCamera?: boolean;
 	requireScreenShare?: boolean;
@@ -28,7 +33,7 @@ export type ProctoringOptions = {
 		requireCentered?: boolean;
 		maxConsecutiveNoFace?: number;
 	};
-	onViolation?: (violation: Violation) => void;
+	onViolation?: (violation: TViolation) => void;
 	onFaceStatusChange?: (detected: boolean) => void;
 	onScreenShareStopped?: () => void;
 	onScreenShareResumed?: () => void;
