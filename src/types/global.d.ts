@@ -9,6 +9,8 @@ declare global {
 		interface ProcessEnv {
 			NEXT_PUBLIC_APP_URL: string;
 			NEXT_PUBLIC_OTP_EXPIRY: string;
+			NEXT_PUBLIC_WS_URL: string;
+			NEXT_PUBLIC_ADMIN_EMAIL: string;
 
 			NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: string;
 			NEXTAUTH_URL: string;
