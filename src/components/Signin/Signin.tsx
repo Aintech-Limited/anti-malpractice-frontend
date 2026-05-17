@@ -17,6 +17,7 @@ import { aintechLogo } from '@/public/assetLinks';
 import { useAppDispatch } from '@/src/redux/reduxStore';
 import { setOTPEmailState } from '@/src/redux/features/otpExpiry/otpExpirySlice';
 import { APP_NAME } from '@/src/lib/data';
+import BlockedWarningModal from './BlockedWarningModal/BlockedWarningModal';
 
 const Signin = () => {
 	const router = useRouter();
@@ -30,6 +31,7 @@ const Signin = () => {
 	const [showPassword, setShowPassword] = useState<boolean>(false);
 	const [disabled, setDisabled] = useState<boolean>(true);
 	const [loading, setLoading] = useState<boolean>(false);
+	const [showBlockedWarning, setShowBlockedWarning] = useState<boolean>(false);
 
 	useEffect(() => {
 		if (!googleOauth2Session) return;
@@ -53,6 +55,10 @@ const Signin = () => {
 					if (res.status === 401) {
 						GoogleSignout();
 						toast.error('Unauthorized. Try signin again.');
+						return;
+					}
+					if (res.status === 403) {
+						setShowBlockedWarning(true);
 						return;
 					}
 				}
@@ -117,6 +123,10 @@ const Signin = () => {
 						dispatch(setOTPEmailState({ email }));
 						toast.success('Check your email for an otp to verify your account');
 						router.push('/verify');
+						return;
+					}
+					if (res.status === 403) {
+						setShowBlockedWarning(true);
 						return;
 					}
 					toast.error(data.message);
@@ -283,6 +293,7 @@ const Signin = () => {
 						</button>
 					</p>
 				</div>
+				<BlockedWarningModal isOpen={showBlockedWarning} />
 			</div>
 		</>
 	);
