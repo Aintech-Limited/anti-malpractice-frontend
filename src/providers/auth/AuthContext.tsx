@@ -1,52 +1,98 @@
 'use client';
 import { createContext, useContext, useState, useEffect } from 'react';
-import { IAuthContextType } from './interface';
+import { IAuthContextType, IAuthProviderProps } from './interface';
 import { IUserModel } from '@/src/types/user';
 
 const AuthContext = createContext<IAuthContextType | undefined>(undefined);
 
 export function AuthProvider({
 	children,
-}: Readonly<{
-	children: React.ReactNode;
-}>) {
-	const [user, setUser] = useState<IUserModel | null>(null);
-	const [loading, setLoading] = useState(true);
+	userData,
+}: Readonly<IAuthProviderProps>) {
+	const [user, setUser] = useState<IUserModel | null>(() => {
+		if (userData) return userData;
+
+		if (typeof window !== 'undefined') {
+			try {
+				const storedUser = localStorage.getItem('finduUser');
+				if (storedUser && storedUser !== 'undefined') {
+					return JSON.parse(storedUser);
+				}
+			} catch (error) {
+				console.error('Failed to parse stored user:', error);
+				localStorage.removeItem('finduUser');
+			}
+		}
+		return null;
+	});
+	const [loading, setLoading] = useState(!userData && !user);
 
 	useEffect(() => {
-		try {
-			const aintechUser = localStorage.getItem('aintechUser');
-			if (aintechUser && aintechUser !== 'undefined') {
-				setUser(JSON.parse(aintechUser));
+		if (typeof window !== 'undefined') {
+			if (user) {
+				localStorage.setItem('finduUser', JSON.stringify(user));
+			} else {
+				localStorage.removeItem('finduUser');
 			}
-		} catch (error) {
-			console.error('Failed to parse aintechUser:', error);
-			localStorage.removeItem('aintechUser');
 		}
-		setLoading(false);
-	}, []);
+
+		if (loading) {
+			(() => setLoading(false))();
+		}
+	}, [user, loading]);
+
+	useEffect(() => {
+		if (userData && JSON.stringify(userData) !== JSON.stringify(user)) {
+			(() => setUser(userData))();
+		}
+	}, [userData, user]);
 
 	const signIn = (userData: IUserModel) => {
+		if (!userData || typeof userData !== 'object') {
+			console.error('Invalid user data provided to signIn');
+			return;
+		}
 		setUser(userData);
-		localStorage.setItem('aintechUser', JSON.stringify(userData));
 	};
 
 	const signOut = () => {
 		setUser(null);
-		localStorage.removeItem('aintechUser');
+		localStorage.removeItem('finduUser');
+		sessionStorage.clear();
 	};
 
 	const updateUser = (userData: Partial<IUserModel>) => {
-		if (user) {
-			const updatedUser = { ...user, ...userData };
-			setUser(updatedUser);
-			localStorage.setItem('aintechUser', JSON.stringify(updatedUser));
+		if (!user) {
+			console.warn('Cannot update user when no user is logged in');
+			return;
 		}
+
+		if (!userData || typeof userData !== 'object') {
+			console.error('Invalid user data provided to updateUser');
+			return;
+		}
+
+		const updatedUser = { ...user, ...userData };
+		setUser(updatedUser);
+	};
+
+	const isAuthenticated = !!user;
+
+	const getUserRole = () => {
+		return user?.role || null;
 	};
 
 	return (
 		<AuthContext.Provider
-			value={{ user, signIn, loading, signOut, updateUser }}
+			value={{
+				user,
+				signIn,
+				loading,
+				signOut,
+				updateUser,
+				isAuthenticated,
+				getUserRole,
+			}}
 		>
 			{children}
 		</AuthContext.Provider>
