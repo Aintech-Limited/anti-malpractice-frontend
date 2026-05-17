@@ -5,10 +5,13 @@ import {
 	HelpCircle,
 	HouseIcon,
 	Settings,
+	ReceiptTextIcon,
+	TentIcon,
 } from 'lucide-react';
 import { INavGroup } from './DashboardSidebar/SidebarItem/interface';
 
 export const StudentNavGroups: INavGroup[] = [
+	{ name: 'Dashboard', icon: HouseIcon, path: '', children: [] },
 	{
 		name: 'Courses',
 		icon: BookOpen,
@@ -31,6 +34,12 @@ export const StudentNavGroups: INavGroup[] = [
 		],
 	},
 	{
+		name: 'Results',
+		icon: ReceiptTextIcon,
+		path: '/results',
+		children: [],
+	},
+	{
 		name: 'Finance',
 		icon: FileText,
 		path: '/finance',
@@ -39,11 +48,12 @@ export const StudentNavGroups: INavGroup[] = [
 			// { name: 'Pending Invoices', path: '/invoices' },
 		],
 	},
-	{ name: 'Departments', icon: HouseIcon, path: '/departments', children: [] },
+	{ name: 'Departments', icon: TentIcon, path: '/departments', children: [] },
 	{ name: 'Profile', icon: Settings, path: '/profile', children: [] },
 	// { name: 'Support', icon: HelpCircle, path: '/support', children: [] },
 ];
 export const LecturerNavGroups: INavGroup[] = [
+	{ name: 'Dashboard', icon: HouseIcon, path: '', children: [] },
 	{
 		name: 'Courses',
 		icon: BookOpen,
@@ -68,8 +78,23 @@ export const LecturerNavGroups: INavGroup[] = [
 		path: '/finance',
 		children: [{ name: 'Payment History', path: '/history' }],
 	},
-	{ name: 'Departments', icon: HouseIcon, path: '/departments', children: [] },
+	{ name: 'Departments', icon: TentIcon, path: '/departments', children: [] },
 	{ name: 'Profile', icon: Settings, path: '/profile', children: [] },
 	// { name: 'Support', icon: HelpCircle, path: '/support', children: [] },
 	{ name: 'Accounts', icon: HelpCircle, path: '/accounts', children: [] },
+];
+export const AdminNavGroups: INavGroup[] = [
+	{ name: 'Dashboard', icon: HouseIcon, path: '', children: [] },
+	{ name: 'Departments', icon: TentIcon, path: '/departments', children: [] },
+	{ name: 'Lecturers', icon: Settings, path: '/lecturers', children: [] },
+
+	{
+		name: 'Exams',
+		icon: Edit,
+		path: '/exams',
+		// children: [{ name: 'Exams', path: '' }],
+		children: [],
+	},
+
+	{ name: 'Profile', icon: Settings, path: '/profile', children: [] },
 ];
