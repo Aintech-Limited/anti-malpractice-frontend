@@ -1,24 +1,8 @@
+import { IUserModel } from '@/src/types/user';
 import { ComponentType } from 'react';
 
-export interface IUserProfile {
-	id: string;
-	email: string;
-	firstName: string;
-	lastName: string;
-	faceAuthEnabled: boolean;
-	role: string;
-	emailVerified: boolean;
-	profileType: string;
-	idRecorded: boolean;
-	isIdVerified: boolean;
-	hasPassword: boolean;
-	sex: string;
-	dob: string;
-	phoneContact: string;
-}
-
 export interface IProfileClientProps {
-	initialUserData: IUserProfile;
+	initialUserData: IUserModel;
 }
 
 export interface IFormData {
