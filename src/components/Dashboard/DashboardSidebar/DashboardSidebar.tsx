@@ -3,7 +3,7 @@
 import { CircleXIcon, LogOut } from 'lucide-react';
 import Image from 'next/image';
 import SidebarItem from './SidebarItem/SidebarItem';
-import { LecturerNavGroups, StudentNavGroups } from '../data';
+import { LecturerNavGroups, StudentNavGroups, AdminNavGroups } from '../data';
 import { APP_NAME } from '@/src/lib/data';
 import { aintechLogo } from '@/public/assetLinks';
 import { useAuth } from '@/src/providers/auth/AuthContext';
@@ -14,9 +14,11 @@ import { useEffect, useState } from 'react';
 import { signOut as GoogleSinOut } from 'next-auth/react';
 
 import {
+	ProfileTypeEnum,
 	ProtectedRouteEnum,
 	ProtectedRouteEnumValue,
 	UnProtectedRouteEnum,
+	UserRoleTypeEnum,
 } from '@/src/lib/enums';
 import {
 	clearFaceAuthState,
@@ -27,6 +29,7 @@ import {
 	clearVerification,
 } from '@/src/redux/features/lecturerVerificationImages/lecturerVerificationImages';
 import FaceIDSetupModal from '../FaceIDSetupModal/FaceIDSetupModal';
+import Link from 'next/link';
 
 const DashboardSidebar = ({
 	toggleSidebar,
@@ -57,7 +60,7 @@ const DashboardSidebar = ({
 		}
 
 		const timer = setTimeout(() => {
-			if (!userData || userData === undefined) {
+			if (!loading && (!userData || userData === undefined)) {
 				const getUserData = async () => {
 					try {
 						const res = await fetch('/api/v1/users', {
@@ -79,7 +82,7 @@ const DashboardSidebar = ({
 		}, 3_000);
 
 		return () => clearTimeout(timer);
-	}, [pathname, signIn, signOut, userData]);
+	}, [loading, pathname, signIn, signOut, userData]);
 
 	useEffect(() => {
 		if (
@@ -89,15 +92,15 @@ const DashboardSidebar = ({
 		)
 			return;
 		if (
-			userData?.profileType === 'LECTURER' &&
+			userData?.profileType === ProfileTypeEnum.LECTURER &&
 			userData?.idRecorded === false
 		) {
-			router.push('/dashboard/verify');
+			router.push(ProtectedRouteEnum.DASHBOARD_VERIFY);
 			return;
 		}
 		if (
 			!userData?.faceAuthEnabled &&
-			userData?.profileType === 'STUDENT' &&
+			userData?.profileType === ProfileTypeEnum.STUDENT &&
 			!SkipFaceAuth
 		) {
 			const enableFaceAuth = () => {
@@ -135,10 +138,13 @@ const DashboardSidebar = ({
 				dispatch(clearFaceAuthState());
 				dispatch(clearVerification());
 				dispatch(clearSelfieImageId());
-				GoogleSinOut({ redirect: true, callbackUrl: '/signin' });
+				GoogleSinOut({
+					redirect: true,
+					callbackUrl: UnProtectedRouteEnum.SIGNIN,
+				});
 
 				console.log('User logged out');
-				router.push('/signin');
+				router.push(UnProtectedRouteEnum.SIGNIN);
 				return;
 			} else {
 				console.log(await res.json());
@@ -149,7 +155,11 @@ const DashboardSidebar = ({
 	};
 
 	const navGroups =
-		userData?.role === 'STAFF' ? LecturerNavGroups : StudentNavGroups;
+		userData?.role === UserRoleTypeEnum.STAFF
+			? LecturerNavGroups
+			: userData?.role === UserRoleTypeEnum.USER
+				? StudentNavGroups
+				: AdminNavGroups;
 
 	return (
 		<div>
@@ -163,13 +173,16 @@ const DashboardSidebar = ({
 			>
 				<div className="flex items-center justify-between mb-10">
 					<h2 className="text-2xl font-black text-white tracking-tighter">
-						<Image
-							alt={`${APP_NAME} LOGO`}
-							src={aintechLogo}
-							width={80}
-							height={40}
-						/>
-						{APP_NAME}
+						<Link href="/dashboard" className="cursor-pointer">
+							<Image
+								alt={`${APP_NAME} LOGO`}
+								src={aintechLogo}
+								width={80}
+								height={40}
+								className="cursor-pointer"
+							/>
+							{APP_NAME}
+						</Link>
 					</h2>
 					<CircleXIcon
 						onClick={toggleSidebar}
@@ -193,7 +206,10 @@ const DashboardSidebar = ({
 
 				<div className="flex items-center gap-4 border-t border-white/20 pt-6">
 					<Image
-						src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?&w=64&h=64&auto=format&fit=crop&crop=faces&q=80"
+						src={
+							userData?.avatarURL ??
+							'https://images.unsplash.com/photo-1599566150163-29194dcaad36?&w=64&h=64&auto=format&fit=crop&crop=faces&q=80'
+						}
 						alt="Student"
 						className="w-12 h-12 rounded-xl border border-white/20"
 						height={30}
