@@ -1,13 +1,13 @@
 import {
 	CameraType,
-	ProctoringOptions,
+	TProctoringOptions,
 	TCameraTypeValue,
-	Violation,
-	ViolationType,
+	TViolation,
+	TViolationType,
 } from './interface';
 
 export class ProctoringController {
-	private violations: Violation[] = [];
+	private violations: TViolation[] = [];
 	private isActive = false;
 
 	private cameraStream: MediaStream | null = null;
@@ -29,9 +29,9 @@ export class ProctoringController {
 
 	private devtoolsInterval: number | null = null;
 
-	private options: ProctoringOptions;
+	private options: TProctoringOptions;
 
-	constructor(options: ProctoringOptions = {}) {
+	constructor(options: TProctoringOptions = {}) {
 		this.options = {
 			requireFullscreen: options.requireFullscreen,
 			requireCamera: options.requireCamera,
@@ -344,8 +344,8 @@ export class ProctoringController {
 	}
 
 	// Violation Logging
-	private logViolation(type: ViolationType, metadata?: any) {
-		const violation: Violation = {
+	private logViolation(type: TViolationType, metadata?: any) {
+		const violation: TViolation = {
 			type,
 			timestamp: Date.now(),
 			metadata,

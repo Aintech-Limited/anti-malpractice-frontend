@@ -1,3 +1,4 @@
+import { isNumber } from 'class-validator';
 import { TCourseStatus } from '../components/Dashboard/Student/CoursesCatalog/interface';
 
 export const compressImage = async (
@@ -166,4 +167,83 @@ export const getLevelLabel = (level: number): string => {
 
 export const formatCredits = (credits: number): string => {
 	return `${credits} Credit${credits !== 1 ? 's' : ''}`;
+};
+
+export const addMinutesToNow = (durationMinutes: number) => {
+	return Date.now() + durationMinutes * 60 * 1000;
+};
+
+export const formatMinutes = (minutes: string | number) => {
+	const hours = Math.floor(Number(minutes) / 60);
+	const remainingMinutes = Number(minutes) % 60;
+	return `${hours}h ${remainingMinutes}m`;
+};
+
+export const formatTime = (seconds: number) => {
+	const h = Math.floor(seconds / 3600);
+	const m = Math.floor((seconds % 3600) / 60);
+	const s = seconds % 60;
+	return `${h}h ${m}m ${s}s`;
+};
+
+type Primitive = string | number | boolean | undefined | null;
+
+type QueryValue = string | string[] | undefined;
+
+type QueryObject = Promise<Record<string, QueryValue>>;
+
+export async function extractQueryParams<T extends QueryObject>(
+	query: Promise<T> | T,
+) {
+	const resolved = await Promise.resolve(query);
+
+	const parsed = Object.entries(resolved).reduce(
+		(acc, [key, value]) => {
+			if (value === undefined || value === null || value === '') {
+				acc[key] = undefined;
+				return acc;
+			}
+
+			// Handle boolean strings
+			if (value === 'true') {
+				acc[key] = true;
+				return acc;
+			}
+
+			if (value === 'false') {
+				acc[key] = false;
+				return acc;
+			}
+
+			// Handle numeric strings
+			if (['page', 'limit'].includes(key)) {
+				if (key === 'page') acc[key] = Number(isNumber(value) ? value : '1');
+				if (key === 'limit') acc[key] = Number(isNumber(value) ? value : '20');
+				return acc;
+			}
+			if (
+				typeof value === 'string' &&
+				!isNaN(Number(value)) &&
+				value.trim() !== ''
+			) {
+				acc[key] = Number(value);
+				return acc;
+			}
+
+			acc[key] = value;
+			return acc;
+		},
+		{} as Record<string, Primitive | string[]>,
+	);
+
+	return parsed as {
+		[K in keyof T]: T[K] extends string | undefined
+			? string | number | boolean | undefined
+			: T[K];
+	};
+}
+
+export const parseHTMLDateToDateObj = (date: string) => {
+	const [year, month, day] = date.split('-').map(Number);
+	return new Date(year, month - 1, day).getTime();
 };

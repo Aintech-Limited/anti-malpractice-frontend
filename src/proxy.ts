@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { decodeMyJwt } from './lib/serverHelper';
-import { ProtectedRouteEnum } from './lib/enums';
+import {
+	ProfileTypeEnum,
+	ProtectedRouteEnum,
+	UnProtectedRouteEnum,
+	UserRoleTypeEnum,
+} from './lib/enums';
 import { cookies } from 'next/headers';
 
 export async function proxy(request: NextRequest) {
@@ -16,10 +21,17 @@ export async function proxy(request: NextRequest) {
 	)?.value;
 
 	// Public
-	if (['/signin', '/signup'].includes(pathname)) {
+	if (
+		[
+			UnProtectedRouteEnum.SIGNIN,
+			UnProtectedRouteEnum.SIGNUP,
+			UnProtectedRouteEnum.VERIFY,
+			UnProtectedRouteEnum.FORGOT_PASSWORD,
+		].includes(pathname as any)
+	) {
 		if (token) {
 			const redirectResponse = NextResponse.redirect(
-				new URL('/dashboard', request.url),
+				new URL(ProtectedRouteEnum.DASHBOARD, request.url),
 			);
 			redirectResponse.cookies.set('visit_count', visitcount.toString(), {
 				maxAge: 60 * 60 * 24 * 3650, // 10 year
@@ -60,7 +72,7 @@ export async function proxy(request: NextRequest) {
 			},
 		);
 		const resCookie = response.headers.getSetCookie();
-		console.log('resCookie: ', resCookie);
+		// console.log('resCookie: ', resCookie);
 		// Result: [
 		//   'sessionId=abc123; Path=/; HttpOnly; Secure; SameSite=Lax',
 		// ]
@@ -72,7 +84,7 @@ export async function proxy(request: NextRequest) {
 			return nextResponse;
 		} else {
 			const redirectResponse = NextResponse.redirect(
-				new URL('/signin', request.url),
+				new URL(UnProtectedRouteEnum.SIGNIN, request.url),
 			);
 			if (response.status === 401) {
 				redirectResponse.cookies.delete(process.env.AUTH_REFRESH_TOKEN_NAME);
@@ -90,6 +102,25 @@ export async function proxy(request: NextRequest) {
 		}
 	}
 
+	if (!token && !refreshToken) {
+		console.log('missing both tokens. redirecting to signin');
+		return NextResponse.redirect(
+			new URL(UnProtectedRouteEnum.SIGNIN, request.url),
+		);
+	}
+
+	const decodedToken = await decodeMyJwt(token!);
+
+	const currentTime = Math.floor(Date.now() / 1000);
+	const isExpired = decodedToken.exp ? decodedToken.exp < currentTime : false;
+
+	if (isExpired) {
+		console.log('Token expired');
+		return NextResponse.redirect(
+			new URL(UnProtectedRouteEnum.SIGNIN, request.url),
+		);
+	}
+
 	// // Protected
 	if (Object.values(ProtectedRouteEnum).includes(pathname as any)) {
 		if (!token) {
@@ -97,7 +128,7 @@ export async function proxy(request: NextRequest) {
 				return NextResponse.next();
 			}
 			const redirectResponse = NextResponse.redirect(
-				new URL('/signin', request.url),
+				new URL(UnProtectedRouteEnum.SIGNIN, request.url),
 			);
 			redirectResponse.cookies.set('visit_count', visitcount.toString(), {
 				maxAge: 60 * 60 * 24 * 3650, // 10 year
@@ -110,7 +141,6 @@ export async function proxy(request: NextRequest) {
 		}
 
 		try {
-			const decodedToken = await decodeMyJwt(token);
 			const nextResponse = NextResponse.next();
 			nextResponse.cookies.set('visit_count', visitcount.toString(), {
 				maxAge: 60 * 60 * 24 * 3650, // 10 year
@@ -120,14 +150,64 @@ export async function proxy(request: NextRequest) {
 				sameSite: 'lax',
 			});
 
+			// admins
 			if (
-				(pathname === '/dashboard' &&
-					decodedToken.profileType === 'LECTURER') ||
-				(pathname.startsWith('/dashboard/students') &&
-					decodedToken.profileType === 'LECTURER')
+				(pathname === ProtectedRouteEnum.DASHBOARD &&
+					decodedToken.role === UserRoleTypeEnum.ADMIN) ||
+				(pathname.startsWith(ProtectedRouteEnum.STUDENTS) &&
+					decodedToken.role === UserRoleTypeEnum.ADMIN) ||
+				pathname === ProtectedRouteEnum.FACE_CAPTURE ||
+				pathname === ProtectedRouteEnum.DASHBOARD_VERIFY ||
+				(pathname.startsWith(ProtectedRouteEnum.LECTURERS) &&
+					decodedToken.role === UserRoleTypeEnum.ADMIN)
 			) {
 				const redirectResponse = NextResponse.redirect(
-					new URL('/dashboard/lecturers', request.url),
+					new URL(ProtectedRouteEnum.ADMINS, request.url),
+				);
+				redirectResponse.cookies.set('visit_count', visitcount.toString(), {
+					maxAge: 60 * 60 * 24 * 3650, // 10 year
+					path: '/',
+					httpOnly: true,
+					secure: process.env.NODE_ENV === 'production',
+					sameSite: 'lax',
+				});
+				return redirectResponse;
+			}
+			// lecturers
+			if (
+				(pathname === ProtectedRouteEnum.DASHBOARD &&
+					decodedToken.role === UserRoleTypeEnum.STAFF) ||
+				(pathname.startsWith(ProtectedRouteEnum.STUDENTS) &&
+					decodedToken.role === UserRoleTypeEnum.STAFF) ||
+				pathname === ProtectedRouteEnum.FACE_CAPTURE ||
+				(pathname.startsWith(ProtectedRouteEnum.ADMINS) &&
+					decodedToken.role === UserRoleTypeEnum.STAFF)
+			) {
+				const redirectResponse = NextResponse.redirect(
+					new URL(ProtectedRouteEnum.LECTURERS, request.url),
+				);
+				redirectResponse.cookies.set('visit_count', visitcount.toString(), {
+					maxAge: 60 * 60 * 24 * 3650, // 10 year
+					path: '/',
+					httpOnly: true,
+					secure: process.env.NODE_ENV === 'production',
+					sameSite: 'lax',
+				});
+				return redirectResponse;
+			}
+
+			// students
+			if (
+				(pathname === ProtectedRouteEnum.DASHBOARD &&
+					decodedToken.role === UserRoleTypeEnum.USER) ||
+				(pathname.startsWith(ProtectedRouteEnum.LECTURERS) &&
+					decodedToken.role === UserRoleTypeEnum.USER) ||
+				(pathname.startsWith(ProtectedRouteEnum.ADMINS) &&
+					decodedToken.role === UserRoleTypeEnum.USER) ||
+				pathname === ProtectedRouteEnum.DASHBOARD_VERIFY
+			) {
+				const redirectResponse = NextResponse.redirect(
+					new URL(ProtectedRouteEnum.STUDENTS, request.url),
 				);
 				redirectResponse.cookies.set('visit_count', visitcount.toString(), {
 					maxAge: 60 * 60 * 24 * 3650, // 10 year
@@ -139,12 +219,11 @@ export async function proxy(request: NextRequest) {
 				return redirectResponse;
 			}
 			if (
-				(pathname === '/dashboard' && decodedToken.profileType === 'STUDENT') ||
-				(pathname.startsWith('/dashboard/lecturers') &&
-					decodedToken.profileType === 'STUDENT')
+				pathname === ProtectedRouteEnum.DASHBOARD_VERIFY &&
+				decodedToken.profileType !== ProfileTypeEnum.LECTURER
 			) {
 				const redirectResponse = NextResponse.redirect(
-					new URL('/dashboard/students', request.url),
+					new URL(ProtectedRouteEnum.DASHBOARD, request.url),
 				);
 				redirectResponse.cookies.set('visit_count', visitcount.toString(), {
 					maxAge: 60 * 60 * 24 * 3650, // 10 year
@@ -156,27 +235,11 @@ export async function proxy(request: NextRequest) {
 				return redirectResponse;
 			}
 			if (
-				pathname === '/dashboard/verify' &&
-				decodedToken.profileType === 'STUDENT'
+				pathname === ProtectedRouteEnum.FACE_CAPTURE &&
+				decodedToken.profileType !== ProfileTypeEnum.STUDENT
 			) {
 				const redirectResponse = NextResponse.redirect(
-					new URL('/dashboard/students', request.url),
-				);
-				redirectResponse.cookies.set('visit_count', visitcount.toString(), {
-					maxAge: 60 * 60 * 24 * 3650, // 10 year
-					path: '/',
-					httpOnly: true,
-					secure: process.env.NODE_ENV === 'production',
-					sameSite: 'lax',
-				});
-				return redirectResponse;
-			}
-			if (
-				pathname === '/dashboard/face-capture' &&
-				decodedToken.profileType === 'LECTURER'
-			) {
-				const redirectResponse = NextResponse.redirect(
-					new URL('/dashboard/lecturers', request.url),
+					new URL(ProtectedRouteEnum.DASHBOARD, request.url),
 				);
 				redirectResponse.cookies.set('visit_count', visitcount.toString(), {
 					maxAge: 60 * 60 * 24 * 3650, // 10 year
@@ -191,7 +254,7 @@ export async function proxy(request: NextRequest) {
 			return nextResponse;
 		} catch {
 			const redirectResponse = NextResponse.redirect(
-				new URL('/signin', request.url),
+				new URL(UnProtectedRouteEnum.SIGNIN, request.url),
 			);
 			redirectResponse.cookies.set('visit_count', visitcount.toString(), {
 				maxAge: 60 * 60 * 24 * 3650, // 10 year

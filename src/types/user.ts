@@ -1,3 +1,5 @@
+import { ProfileTypeEnumValue, UserRoleTypeEnumValue } from '../lib/enums';
+
 export interface IUserModel {
 	id: string;
 	email: string;
@@ -5,9 +7,14 @@ export interface IUserModel {
 	lastName: string;
 	faceAuthEnabled: boolean;
 	emailVerified?: boolean | null;
-	role?: 'USER' | 'STAFF';
-	profileType?: 'LECTURER' | 'VENDOR' | 'STUDENT';
+	role?: UserRoleTypeEnumValue;
+	profileType?: ProfileTypeEnumValue | 'ADMIN';
 	idRecorded?: boolean;
 	isIdVerified?: boolean;
 	avatarURL?: string;
+	hasPassword?: boolean;
+	sex?: 'MALE' | 'FEMALE';
+	dob?: string;
+	phoneContact?: string;
+	hasPIN?: boolean;
 }
