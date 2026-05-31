@@ -275,3 +275,19 @@ input[type='date']:valid::before {
 .animate-fade-in-up {
   animation: fadeInUp 0.3s ease-out;
 }
+
+@keyframes softPulse {
+  0% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}
+
+.animate-soft-pulse {
+  animation: softPulse 2s ease-in-out infinite;
+}

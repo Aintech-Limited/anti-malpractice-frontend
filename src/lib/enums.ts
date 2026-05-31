@@ -77,7 +77,7 @@ export type ExamStageEnumValue =
 	(typeof ExamStageEnum)[keyof typeof ExamStageEnum];
 
 export const ExamQuestionTypeEnum = Object.freeze({
-	SMQ: 'SMQ',
+	MCQ: 'MCQ',
 	SHORT: 'SHORT',
 });
 
@@ -160,3 +160,35 @@ export const KycStatusEnum = Object.freeze({
 	EXPIRED: 'EXPIRED',
 });
 export type TKycStatusEnum = (typeof KycStatusEnum)[keyof typeof KycStatusEnum];
+
+export const ResultStatusEnum = Object.freeze({
+	PENDING: 'PENDING',
+	GRADED: 'GRADED',
+	RELEASED: 'RELEASED',
+});
+export type TResultStatusEnum =
+	(typeof ResultStatusEnum)[keyof typeof ResultStatusEnum];
+
+export const NotificationTypeEnum = Object.freeze({
+	INFO: 'INFO',
+	SUCCESS: 'SUCCESS',
+	WARNING: 'WARNING',
+	ERROR: 'ERROR',
+	EXAM: 'EXAM',
+	GRADE: 'GRADE',
+	PURCHASE: 'PURCHASE',
+});
+export type TNotificationTypeEnum =
+	(typeof NotificationTypeEnum)[keyof typeof NotificationTypeEnum];
+
+export const DepartmentUserRoleEnum = {
+	HEAD: 'HEAD',
+	DEPUTY_HEAD: 'DEPUTY_HEAD',
+	COORDINATOR: 'COORDINATOR',
+	LECTURER: 'LECTURER',
+	ASSISTANT: 'ASSISTANT',
+	STAFF: 'STAFF',
+	STUDENT: 'STUDENT',
+};
+export type TDepartmentUserRoleEnum =
+	(typeof DepartmentUserRoleEnum)[keyof typeof DepartmentUserRoleEnum];
