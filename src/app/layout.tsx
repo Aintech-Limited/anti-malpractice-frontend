@@ -3,6 +3,7 @@ import './globals.css';
 import { Providers } from '../providers/Providers';
 import { APP_NAME } from '../lib/data';
 import { ReactNode } from 'react';
+import { AuthProvider } from '../providers/auth/AuthContext';
 
 export const metadata: Metadata = {
 	title: `${APP_NAME.toUpperCase()} MVP`,
@@ -18,7 +19,9 @@ export default function RootLayout({
 		<html lang="en">
 			<body>
 				<Providers>
-					<main>{children}</main>
+					<AuthProvider userData={null}>
+						<main>{children}</main>
+					</AuthProvider>
 				</Providers>
 			</body>
 		</html>
