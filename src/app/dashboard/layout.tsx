@@ -5,6 +5,7 @@ import { AuthProvider } from '@/src/providers/auth/AuthContext';
 import { getUserProfile } from '@/src/lib/serverHelper';
 import { redirect } from 'next/navigation';
 import { UnProtectedRouteEnum } from '@/src/lib/enums';
+import { NotificationProvider } from '@/src/providers/notifications/NotificationProvider';
 
 export default async function DashboardLayout({
 	children,
@@ -15,9 +16,11 @@ export default async function DashboardLayout({
 	if (!user) redirect(UnProtectedRouteEnum.SIGNIN);
 	return (
 		<AuthProvider userData={user.data}>
-			<Layout>
-				{children} <FooterSection />
-			</Layout>
+			<NotificationProvider>
+				<Layout>
+					{children} <FooterSection />
+				</Layout>
+			</NotificationProvider>
 		</AuthProvider>
 	);
 }
