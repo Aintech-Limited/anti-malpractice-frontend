@@ -1,7 +1,7 @@
 import { INFO_CARDS_CONFIG } from '../utils/profileConstants';
-import { IUserProfile } from '../interface';
 import { IInfoGridProps } from './interface';
 import { InfoCard } from '../InfoCard/InfoCard';
+import { IUserModel } from '@/src/types/user';
 
 export const InfoGrid = ({ user }: IInfoGridProps) => {
 	return (
@@ -13,7 +13,7 @@ export const InfoGrid = ({ user }: IInfoGridProps) => {
 						key={config.key}
 						icon={config.icon}
 						label={config.label}
-						value={user[config.key as keyof IUserProfile]}
+						value={user[config.key as keyof IUserModel] as string | boolean}
 					/>
 				))}
 			</div>
