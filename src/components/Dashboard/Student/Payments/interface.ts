@@ -11,6 +11,7 @@ export interface IPayment {
 	id?: string;
 	paymentProvider?: string;
 	transactionId?: string;
+	student?: { firstName: string; lastName: string; id?: string };
 	amount: string;
 	currency: string;
 	courseMaterialId?: string;
