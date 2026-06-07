@@ -40,8 +40,8 @@ export const DepartmentItem = ({
 					{department.courses.map((course) => (
 						<CourseItem
 							key={course.id}
-							course={course}
-							status={getCourseStatus(course)}
+							course={{ ...course, isRegistered: false }}
+							status={getCourseStatus({ ...course, isRegistered: false })}
 							isExpanded={expandedCourses.has(course.id)}
 							isRegistering={isRegistering}
 							onToggleDetails={() => onToggleCourseDetails(course.id)}

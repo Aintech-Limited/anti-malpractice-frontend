@@ -8,7 +8,10 @@ export interface IDepartmentListProps {
 	isRegistering?: boolean;
 	onToggleDepartment: (deptId: string) => void;
 	onToggleCourseDetails: (courseId: string) => void;
-	onCourseSelect: (course: ICourse) => void;
+	onCourseSelect: (
+		course: ICourse,
+		action: 'register' | 'continue_learning',
+	) => void;
 	onRegister: (course: ICourse) => void;
 	onClearFilters?: () => void;
 }
