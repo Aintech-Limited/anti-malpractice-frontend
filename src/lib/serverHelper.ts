@@ -16,7 +16,10 @@ import {
 import { IDepartmentsPageProps } from '../components/Dashboard/Department/interface';
 import { IExamsPageProps } from '../components/Dashboard/Lecturer/Exams/interface';
 import { IIExamRegistrationsPageProps } from '../components/Dashboard/Lecturer/Exams/ExamRegistrations/interface';
-import { ICourseMaterialsPageProps } from '../components/Dashboard/Lecturer/CourseMaterials/interface';
+import {
+	ICourseMaterialsPageProps,
+	IMaterialsApiResponse,
+} from '../components/Dashboard/Lecturer/CourseMaterials/interface';
 import { IRegisteredExamsPageProps } from '../components/Dashboard/Student/RegisteredExam/interface';
 import { IExamRegistrationPageProps } from '../components/Dashboard/Student/ExamRegistration/interface';
 import { IStudentDashboardResponse } from '../components/Dashboard/Student/interface';
@@ -48,11 +51,21 @@ import {
 	IAdminExamFullDetails,
 	IAdminExamsResponse,
 } from '../components/Dashboard/Admin/Exams/interface';
-import { IAdminDashboardProps } from '../components/Dashboard/Admin/interface';
-import { TEmailTemplateEnum } from './enums';
+import {
+	IAdminDashboardProps,
+	IAdminDashboardResponse,
+} from '../components/Dashboard/Admin/interface';
+import { ProtectedRouteEnum, TEmailTemplateEnum } from './enums';
 import { IUserModel } from '../types/user';
+import {
+	IBulkGradeRequest,
+	IGetUngradedQuestionResponse,
+	IUngradedQuestion,
+} from '../components/Dashboard/Lecturer/GradeExam/interface';
+import { revalidatePath } from 'next/cache';
+import { ILecturerDashboardResponse } from '../components/Dashboard/Lecturer/interface';
 
-const API_URL = process.env.BACKEND_API_URL;
+const API_BASE_URL = process.env.BACKEND_API_URL;
 /**
  * Get JWT header without verification
  * @param {string} token - The JWT token
@@ -70,9 +83,7 @@ export async function decodeMyJwt(
 
 export async function fetchSupportArticles(): Promise<ISupportArticlesReponse> {
 	try {
-		const cookieStore = await cookies();
-
-		const response = await apiProxy(`${API_URL}/v1/support/articles`, {
+		const response = await apiProxy(`${API_BASE_URL}/v1/support/articles`, {
 			headers: {
 				'Content-Type': 'application/json',
 			},
@@ -97,7 +108,7 @@ export async function fetchSupportArticles(): Promise<ISupportArticlesReponse> {
 
 export const getCourseMaterials = async () => {
 	try {
-		const response = await apiProxy(`${API_URL}/v1/course-materials`, {
+		const response = await apiProxy(`${API_BASE_URL}/v1/course-materials`, {
 			method: 'GET',
 			credentials: 'include',
 			headers: { 'Content-Type': 'application/json' },
@@ -138,7 +149,7 @@ export const getCourses = async (query: ICoursesCatalogQuery) => {
 				: decodedToken.role === 'STAFF'
 					? `v1/courses/staff${queryParams}`
 					: `v1/courses/admin${queryParams}`;
-		const response = await apiProxy(`${API_URL}/${url}`, {
+		const response = await apiProxy(`${API_BASE_URL}/${url}`, {
 			method: 'GET',
 			credentials: 'include',
 			headers: { 'Content-Type': 'application/json' },
@@ -183,7 +194,7 @@ export const getPurchasedCourseMaterials = async (
 	try {
 		const queries = `?page=${query?.page ?? 1}&limit=${query?.limit ?? 20}&stats=${typeof query?.stats === 'undefined' ? false : query.stats}&sortBy=${query?.sort ?? 'createdAt'}`;
 		const response = await apiProxy(
-			`${API_URL}/v1/purchased-materials${queries}`,
+			`${API_BASE_URL}/v1/purchased-materials${queries}`,
 			{
 				method: 'GET',
 				credentials: 'include',
@@ -195,20 +206,51 @@ export const getPurchasedCourseMaterials = async (
 			if (response.headers.get('content-type') === 'application/json') {
 				return (await response.json()) as IPurchasedCourseMaterialsResponse;
 			}
-			return JSON.parse(
-				await response.text(),
-			) as IPurchasedCourseMaterialsResponse;
+			return {
+				success: false,
+				data: {
+					stats: { total: 0, completed: 0, wishlist: 0, inProgress: 0 },
+					materials: [],
+				},
+				message: 'Error occurred',
+				meta: {
+					page: 1,
+					limit: 50,
+					totalItems: 0,
+					totalPages: 1,
+					hasNextPage: false,
+					hasPreviousPage: false,
+				},
+			};
+			// return JSON.parse(
+			// await response.text(),
+			// ) as IPurchasedCourseMaterialsResponse;
 		}
 		const data = (await response.json()) as IPurchasedCourseMaterialsResponse;
 		return data;
 	} catch (error) {
 		console.error('error fetching materials: ', error);
-		throw error;
+		return {
+			success: false,
+			data: {
+				stats: { total: 0, completed: 0, wishlist: 0, inProgress: 0 },
+				materials: [],
+			},
+			message: 'Error occurred',
+			meta: {
+				page: 1,
+				limit: 50,
+				totalItems: 0,
+				totalPages: 1,
+				hasNextPage: false,
+				hasPreviousPage: false,
+			},
+		};
 	}
 };
 export async function fetchRegisteredCourses(): Promise<RegisteredCoursesResponse> {
 	try {
-		const response = await apiProxy(`${API_URL}/v1/course/registrations`, {
+		const response = await apiProxy(`${API_BASE_URL}/v1/course/registrations`, {
 			headers: {
 				'Content-Type': 'application/json',
 			},
@@ -251,7 +293,7 @@ export async function fetchPayments(
 		url += `&type=${type}`;
 	}
 
-	const response = await apiProxy(`${API_URL}/v1/${url}`, {
+	const response = await apiProxy(`${API_BASE_URL}/v1/${url}`, {
 		next: { revalidate: 60 }, // Revalidate every 60 seconds
 		credentials: 'include',
 		headers: { 'Content-Type': 'application/json' },
@@ -270,7 +312,7 @@ export async function getUserProfile(): Promise<{
 	success: boolean;
 }> {
 	try {
-		const response = await apiProxy(`${API_URL}/v1/users/me`, {
+		const response = await apiProxy(`${API_BASE_URL}/v1/users/me`, {
 			headers: {
 				'Content-Type': 'application/json',
 			},
@@ -297,7 +339,7 @@ export async function fetchDepartments(
 		url += `&name=${encodeURIComponent(name)}`;
 	}
 
-	const response = await apiProxy(`${API_URL}/${url}`, {
+	const response = await apiProxy(`${API_BASE_URL}/${url}`, {
 		cache: 'no-store',
 		headers: { 'Content-Type': 'application/json' },
 	});
@@ -311,7 +353,7 @@ export async function fetchDepartments(
 
 export async function fetchAccounts() {
 	try {
-		const response = await apiProxy(`${API_URL}/v1/accounts`, {
+		const response = await apiProxy(`${API_BASE_URL}/v1/accounts`, {
 			headers: {
 				'Content-Type': 'application/json',
 			},
@@ -327,7 +369,7 @@ export async function fetchAccounts() {
 
 export async function fetchBankList() {
 	try {
-		const response = await apiProxy(`${API_URL}/v1/accounts/banklist`, {
+		const response = await apiProxy(`${API_BASE_URL}/v1/accounts/banklist`, {
 			cache: 'no-store',
 			headers: { 'Content-Type': 'application/json' },
 		});
@@ -349,7 +391,7 @@ export async function fetchExams(
 	const sortOrder = (await searchParams).sortOrder || 'DESC';
 	const published = (await searchParams).published;
 	try {
-		let url = `${API_URL}/v1/exams?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+		let url = `${API_BASE_URL}/v1/exams?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
 		if (status) url += `&status=${status}`;
 		if (type_) url += `&type_=${type_}`;
 		if (published) url += `&published=${published}`;
@@ -382,7 +424,7 @@ export async function fetchExams(
 export async function fetchCourseAssignments() {
 	try {
 		const response = await apiProxy(
-			`${API_URL}/v1/course-assignments/staff?status=ACTIVE&page=1&limit=50&sortBy=assignedAt&sortOrder=asc`,
+			`${API_BASE_URL}/v1/course-assignments/staff?status=ACTIVE&page=1&limit=50&sortBy=assignedAt&sortOrder=asc`,
 			{
 				headers: {
 					'Content-Type': 'application/json',
@@ -416,7 +458,7 @@ export async function fetchExamRegistrations(
 	const level = (await searchParams).level || '';
 	const semester = (await searchParams).semester || '';
 
-	let url = `${API_URL}/v1/exam-registrations/${examId}?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+	let url = `${API_BASE_URL}/v1/exam-registrations/${examId}?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
 	if (status) url += `&registrationStatus=${status}`;
 	if (level) url += `&level=${level}`;
 	if (semester) url += `&semester=${semester}`;
@@ -444,7 +486,7 @@ export async function fetchExamRegistrations(
 
 export async function fetchExamDetails(examId: string) {
 	try {
-		const response = await apiProxy(`${API_URL}/v1/exams/${examId}`, {
+		const response = await apiProxy(`${API_BASE_URL}/v1/exams/${examId}`, {
 			headers: {
 				'Content-Type': 'application/json',
 			},
@@ -466,7 +508,7 @@ export async function fetchExamDetails(examId: string) {
 
 export async function fetchCourseMaterials(
 	searchParams: ICourseMaterialsPageProps['searchParams'],
-) {
+): Promise<IMaterialsApiResponse> {
 	try {
 		const page = (await searchParams).page || '1';
 		const limit = (await searchParams).limit || '10';
@@ -476,7 +518,7 @@ export async function fetchCourseMaterials(
 		const isFree = (await searchParams).isFree || '';
 		const search = (await searchParams).search || '';
 
-		let url = `${API_URL}/v1/course-materials?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+		let url = `${API_BASE_URL}/v1/course-materials?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
 		if (fileType) url += `&fileType=${fileType}`;
 		if (isFree) url += `&isFree=${isFree}`;
 		if (search) url += `&search=${encodeURIComponent(search)}`;
@@ -491,20 +533,46 @@ export async function fetchCourseMaterials(
 		const data = await response.json();
 
 		if (!response.ok) {
-			return data;
+			return {
+				...data,
+				message: 'Internal Server error',
+				data: { materials: [], totalRevenue: 0 },
+				success: false,
+				meta: {
+					page: 0,
+					limit: 0,
+					totalItems: 0,
+					totalPages: 0,
+					hasNextPage: false,
+					hasPreviousPage: false,
+				},
+			};
 		}
+		console.log('total revenue: ', data?.data?.totalRevenue);
 
 		return data;
 	} catch (error) {
 		console.error(error);
-		return { message: 'Internal Server error', data: [], success: false };
+		return {
+			message: 'Internal Server error',
+			data: { materials: [], totalRevenue: 0 },
+			success: false,
+			meta: {
+				page: 0,
+				limit: 0,
+				totalItems: 0,
+				totalPages: 0,
+				hasNextPage: false,
+				hasPreviousPage: false,
+			},
+		};
 	}
 }
 
 export async function fetchAssignedCourses() {
 	try {
 		const response = await apiProxy(
-			`${API_URL}/v1/course-assignments/staff?page=1&limit=100&sortBy=assignedAt&sortOrder=asc`,
+			`${API_BASE_URL}/v1/course-assignments/staff?page=1&limit=100&sortBy=assignedAt&sortOrder=asc`,
 			{
 				headers: {
 					'Content-Type': 'application/json',
@@ -535,7 +603,7 @@ export async function fetchRegisteredExams(
 	const sortOrder = (await searchParams).sortOrder || 'DESC';
 	const status = (await searchParams).status || '';
 
-	let url = `${API_URL}/v1/exam-registrations?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+	let url = `${API_BASE_URL}/v1/exam-registrations?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
 	if (status) url += `&status=${status}`;
 
 	try {
@@ -577,7 +645,7 @@ export async function fetchStudentsExamsRegistration(
 	}
 	try {
 		const response = await apiProxy(
-			`${API_URL}/v1/exams/students/registration?page=${page}&limit=${limit}&sortBy=createdAt${status ? `&status=${status}` : ''}`,
+			`${API_BASE_URL}/v1/exams/students/registration?page=${page}&limit=${limit}&sortBy=createdAt${status ? `&status=${status}` : ''}`,
 			{
 				method: 'GET',
 				headers: {
@@ -606,7 +674,7 @@ export async function fetchStudentsExamsRegistration(
 
 export const fetchStudentLiveExam = async (examId: string) => {
 	try {
-		const response = await apiProxy(`${API_URL}/v1/exams/${examId}`, {
+		const response = await apiProxy(`${API_BASE_URL}/v1/exams/${examId}`, {
 			method: 'GET',
 			credentials: 'include',
 		});
@@ -625,7 +693,7 @@ export const fetchStudentLiveExam = async (examId: string) => {
 export const fetchStudentDashboard =
 	async (): Promise<IStudentDashboardResponse> => {
 		try {
-			const response = await apiProxy(`${API_URL}/v1/dashboard/students`, {
+			const response = await apiProxy(`${API_BASE_URL}/v1/dashboard/students`, {
 				method: 'GET',
 				credentials: 'include',
 			});
@@ -656,7 +724,7 @@ export const fetchLiveExamDetails = async (
 ): Promise<ILiveExamDetailResponse> => {
 	try {
 		const response = await apiProxy(
-			`${API_URL}/v1/exams/students/live/details/${examId}`,
+			`${API_BASE_URL}/v1/exams/students/live/details/${examId}`,
 			{ method: 'GET', credentials: 'include' },
 		);
 		if (!response.ok) {
@@ -684,7 +752,7 @@ export async function fetchDepartmentalStudents(
 ): Promise<IDepartmentStudentsResponse> {
 	try {
 		const response = await apiProxy(
-			`${API_URL}/v1/admins/departments/${departmentId}/students?&page=${page}&limit=${limit}`,
+			`${API_BASE_URL}/v1/admins/departments/${departmentId}/students?&page=${page}&limit=${limit}`,
 			{
 				cache: 'no-store',
 				headers: {
@@ -720,13 +788,16 @@ export async function blockStudent(
 	studentId: string,
 ): Promise<IBlockUnblockResponse> {
 	try {
-		const response = await apiProxy(`${API_URL}/v1/admins/students/block`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
+		const response = await apiProxy(
+			`${API_BASE_URL}/v1/admins/students/block`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ studentId, block: true }),
 			},
-			body: JSON.stringify({ studentId, block: true }),
-		});
+		);
 
 		if (!response.ok) {
 			const error = await response.json();
@@ -750,13 +821,16 @@ export async function unblockStudent(
 	studentId: string,
 ): Promise<IBlockUnblockResponse> {
 	try {
-		const response = await apiProxy(`${API_URL}/v1/admins/students/block`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
+		const response = await apiProxy(
+			`${API_BASE_URL}/v1/admins/students/block`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ studentId, block: false }),
 			},
-			body: JSON.stringify({ studentId, block: false }),
-		});
+		);
 
 		if (!response.ok) {
 			const error = await response.json();
@@ -784,7 +858,7 @@ export async function sendEmailToStudent(
 ): Promise<ISendEmailResponse> {
 	try {
 		const response = await apiProxy(
-			`${API_URL}/v1/admins/students/send-email`,
+			`${API_BASE_URL}/v1/admins/students/send-email`,
 			{
 				method: 'POST',
 				headers: {
@@ -822,7 +896,7 @@ export async function fetchAdminDepartments(
 ): Promise<IDepartmentsResponse> {
 	try {
 		const response = await apiProxy(
-			`${API_URL}/v1/admins/departments?page=${page}&limit=${limit}`,
+			`${API_BASE_URL}/v1/admins/departments?page=${page}&limit=${limit}`,
 			{
 				cache: 'no-store',
 				headers: {
@@ -872,7 +946,7 @@ export async function fetchAdminDepartmentCourses(
 		if (filters.status) params.append('status', filters.status);
 
 		const response = await apiProxy(
-			`${API_URL}/v1/admins/departments/${departmentId}/courses?${params.toString()}`,
+			`${API_BASE_URL}/v1/admins/departments/${departmentId}/courses?${params.toString()}`,
 			{
 				cache: 'no-store',
 				headers: {
@@ -924,7 +998,7 @@ export async function fetchAdminCourseStudents(
 		if (filters.level) params.append('level', String(filters.level));
 
 		const response = await apiProxy(
-			`${API_URL}/v1/admins/courses/${courseId}/students?${params.toString()}`,
+			`${API_BASE_URL}/v1/admins/courses/${courseId}/students?${params.toString()}`,
 			{
 				cache: 'no-store',
 				headers: {
@@ -963,7 +1037,7 @@ export async function fetchAdminCourseInfo(
 ): Promise<{ success: boolean; data?: any; message?: string }> {
 	try {
 		const response = await apiProxy(
-			`${API_URL}/v1/admins/courses/${courseId}`,
+			`${API_BASE_URL}/v1/admins/courses/${courseId}`,
 			{
 				cache: 'no-store',
 				headers: {
@@ -1006,7 +1080,7 @@ export async function fetchAdminLecturers(
 			params.append('selfieVerified', String(filters.selfieVerified));
 
 		const response = await apiProxy(
-			`${API_URL}/v1/admins/lecturers?${params.toString()}`,
+			`${API_BASE_URL}/v1/admins/lecturers?${params.toString()}`,
 			{
 				cache: 'no-store',
 				headers: {
@@ -1048,7 +1122,7 @@ export async function fetchAvailableCourses(
 		if (departmentId) params.append('departmentId', departmentId);
 
 		const response = await apiProxy(
-			`${API_URL}/v1/admins/courses?${params.toString()}`,
+			`${API_BASE_URL}/v1/admins/courses?${params.toString()}`,
 			{ cache: 'no-store' },
 		);
 		const data = await response.json();
@@ -1064,7 +1138,7 @@ export async function fetchLecturerAssignments(
 ): Promise<ILecturerAssignment[]> {
 	try {
 		const response = await apiProxy(
-			`${API_URL}/v1/admins/lecturers/${lecturerId}/assignments`,
+			`${API_BASE_URL}/v1/admins/lecturers/${lecturerId}/assignments`,
 			{ cache: 'no-store' },
 		);
 		const data = await response.json();
@@ -1085,16 +1159,16 @@ export async function fetchAdminExams(
 		if (filters.search) params.append('search', filters.search);
 		if (filters.adminStatus) params.append('adminStatus', filters.adminStatus);
 		if (filters.type_) params.append('type_', filters.type_);
-		// if (filters.departmentId)
-		// params.append('departmentId', filters.departmentId);
-		// if (filters.courseId) params.append('courseId', filters.courseId);
+		if (filters.departmentId)
+			params.append('departmentId', filters.departmentId);
+		if (filters.courseId) params.append('courseId', filters.courseId);
 		if (filters.published !== undefined)
 			params.append('published', String(filters.published));
-		// if (filters.startDate) params.append('startDate', filters.startDate);
-		// if (filters.endDate) params.append('endDate', filters.endDate);
+		if (filters.startDate) params.append('startDate', filters.startDate);
+		if (filters.endDate) params.append('endDate', filters.endDate);
 
 		const response = await apiProxy(
-			`${API_URL}/v1/admins/exams?${params.toString()}`,
+			`${API_BASE_URL}/v1/admins/exams?${params.toString()}`,
 			{
 				cache: 'no-store',
 				headers: {
@@ -1130,12 +1204,15 @@ export async function fetchAdminExamDetails(examId: string): Promise<{
 	message?: string;
 }> {
 	try {
-		const response = await apiProxy(`${API_URL}/v1/admins/exams/${examId}`, {
-			cache: 'no-store',
-			headers: {
-				'Content-Type': 'application/json',
+		const response = await apiProxy(
+			`${API_BASE_URL}/v1/admins/exams/${examId}`,
+			{
+				cache: 'no-store',
+				headers: {
+					'Content-Type': 'application/json',
+				},
 			},
-		});
+		);
 
 		if (!response.ok) {
 			throw new Error(`Failed to fetch exam details: ${response.statusText}`);
@@ -1153,20 +1230,53 @@ export async function fetchAdminExamDetails(examId: string): Promise<{
 	}
 }
 
-export async function fetchAdminDashboard(): Promise<
-	IAdminDashboardProps['initialData']
-> {
+export async function fetchAdminDashboard(): Promise<IAdminDashboardResponse> {
 	try {
-		const response = await apiProxy(`${API_URL}/v1/dashboard/a/admins`, {
+		const response = await apiProxy(`${API_BASE_URL}/v1/dashboard/a/admins`, {
 			cache: 'no-store',
 		});
 		const data = await response.json();
-		return data.success
-			? data.data
-			: { examStats: [], lecturerStats: [], notifications: [] };
+		return data;
 	} catch (error) {
 		console.error('Error fetching courses:', error);
-		return { examStats: [], lecturerStats: [], notifications: [] };
+		return {
+			message: 'Failed to fetch Dashboard data',
+			success: false,
+			data: {
+				examStats: [],
+				lecturerStats: [],
+				notifications: [],
+			},
+		};
+	}
+}
+
+export async function fetchAdminDeptSelect() {
+	try {
+		const response = await apiProxy(
+			`${API_BASE_URL}/v1/departments/admins/select`,
+			{
+				cache: 'force-cache',
+			},
+		);
+		const data = await response.json();
+		return data.success ? data.data : [];
+	} catch (error) {
+		console.error('Error fetching admin dept select:', error);
+		return [];
+	}
+}
+
+export async function fetchAdminCourseSelect() {
+	try {
+		const response = await apiProxy(`${API_BASE_URL}/v1/courses/staff/select`, {
+			cache: 'force-cache',
+		});
+		const data = await response.json();
+		return data.success ? data.data : [];
+	} catch (error) {
+		console.error('Error fetching admin courses select:', error);
+		return [];
 	}
 }
 
@@ -1179,7 +1289,7 @@ export async function fetchAdminCourses(
 		if (departmentId) params.append('departmentId', departmentId);
 
 		const response = await apiProxy(
-			`${API_URL}/v1/courses/staff?${params.toString()}`,
+			`${API_BASE_URL}/v1/courses/staff?${params.toString()}`,
 			{ cache: 'no-store' },
 		);
 		const data = await response.json();
@@ -1195,7 +1305,7 @@ export async function fetchAdminExamDepartments(): Promise<
 > {
 	try {
 		const response = await apiProxy(
-			`${API_URL}/v1/departments/admins/select?limit=50`,
+			`${API_BASE_URL}/v1/departments/admins/select?limit=50`,
 			{
 				cache: 'no-store',
 			},
@@ -1208,12 +1318,261 @@ export async function fetchAdminExamDepartments(): Promise<
 	}
 }
 
+export async function getUngradedQuestions(
+	examId: string,
+	page: number = 1,
+	limit: number = 50,
+): Promise<IGetUngradedQuestionResponse> {
+	try {
+		const response = await apiProxy(
+			`${API_BASE_URL}/v1/question-answers/ungraded-questions/${examId}?page=${page}&limit=${limit}`,
+			{
+				cache: 'no-store',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			},
+		);
+
+		if (!response.ok) {
+			if (response.status < 500) {
+				const error = await response.json();
+				return {
+					...error,
+					data: {
+						question: {},
+						asnwers: [],
+						summary: {
+							total: 0,
+							gradedSoFar: 0,
+							remainingToGrade: 0,
+						},
+					},
+					meta: {
+						page: 1,
+						limit: 50,
+						totalItems: 0,
+						totalPages: 0,
+						hasNextPage: false,
+						haxPreviousPage: false,
+					},
+				};
+			}
+			throw new Error(
+				`Failed to fetch ungraded questions: ${response.statusText}`,
+			);
+		}
+
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error('Error fetching ungraded questions:', error);
+		return {
+			success: false,
+			message:
+				error instanceof Error
+					? error.message
+					: 'Failed to fetch ungraded questions',
+			data: {
+				ungradedQuestions: [],
+				examTitle: 'Grading Exam',
+			},
+			meta: {
+				page: 1,
+				limit: 50,
+				totalItems: 0,
+				totalPages: 0,
+				hasNextPage: false,
+				hasPreviousPage: false,
+			},
+		};
+	}
+}
+
+export async function getUngradedAnswers(
+	examId: string,
+	questionId: string,
+	page: number = 1,
+	limit: number = 20,
+) {
+	try {
+		const response = await apiProxy(
+			`${API_BASE_URL}/question-answers/ungraded-answers?examId=${examId}&questionId=${questionId}&page=${page}&limit=${limit}`,
+			{
+				cache: 'no-store',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			},
+		);
+
+		if (!response.ok) {
+			if (response.status < 500) {
+				const error = await response.json();
+				return {
+					...error,
+					data: null,
+					meta: {
+						page: 1,
+						limit: 20,
+						totalItems: 0,
+						totalPages: 0,
+						hasNextPage: false,
+						haxPreviousPage: false,
+					},
+				};
+			}
+			throw new Error(
+				`Failed to fetch ungraded answers: ${response.statusText}`,
+			);
+		}
+
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error('Error fetching ungraded answers:', error);
+		return {
+			success: false,
+			message:
+				error instanceof Error
+					? error.message
+					: 'Failed to fetch ungraded answers',
+			data: null,
+			meta: {
+				page: 1,
+				limit: 20,
+				totalItems: 0,
+				totalPages: 0,
+				hasNextPage: false,
+				haxPreviousPage: false,
+			},
+		};
+	}
+}
+
+export async function bulkGradeAnswers(request: IBulkGradeRequest) {
+	try {
+		const response = await apiProxy(
+			`${API_BASE_URL}/question-answers/bulk-grade`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(request),
+			},
+		);
+
+		if (!response.ok) {
+			if (response.status < 500) {
+				const error = await response.json();
+				return { ...error, data: null };
+			}
+
+			throw new Error('Internal Server Error.');
+		}
+
+		const data = await response.json();
+
+		// Revalidate the page to show updated data
+		revalidatePath(
+			ProtectedRouteEnum.LECTURERS + `/grade-exams/${request.examId}/grade`,
+		);
+
+		return data;
+	} catch (error) {
+		console.error('Error bulk grading:', error);
+		return {
+			success: false,
+			message:
+				error instanceof Error ? error.message : 'Failed to grade answers',
+		};
+	}
+}
+
+export async function getGradingProgress(examId: string) {
+	try {
+		const response = await apiProxy(
+			`${API_BASE_URL}/question-answers/progress/${examId}`,
+			{
+				cache: 'no-store',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			},
+		);
+
+		if (!response.ok) {
+			if (response.status < 500) {
+				const data = await response.json();
+				return data;
+			}
+			throw new Error('Internal Server Error');
+		}
+
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error('Error fetching progress:', error);
+		return {
+			success: false,
+			message:
+				error instanceof Error ? error.message : 'Failed to fetch progress',
+			data: null,
+		};
+	}
+}
+
+export async function fetchDashboard(
+	lecturerId: string,
+): Promise<ILecturerDashboardResponse> {
+	try {
+		const response = await apiProxy(
+			`${API_BASE_URL}/v1/dashboard/staff/lectuers/${lecturerId}`,
+			{
+				cache: 'no-store',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			},
+		);
+
+		if (!response.ok) {
+			if (response.status < 500) {
+				const data = await response.json();
+				return data;
+			}
+			throw new Error('Internal Server Error');
+		}
+
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error('Error fetching progress:', error);
+		return {
+			success: false,
+			message:
+				error instanceof Error ? error.message : 'Failed to fetch progress',
+			data: {
+				stats: {
+					totalExams: 0,
+					completedExams: 0,
+					needsApproval: 0,
+					liveExams: 0,
+					upcomingExams: 0,
+				},
+				recentNotifications: [],
+			},
+		};
+	}
+}
+
 export const apiProxy = async (
 	input: RequestInfo | URL,
 	init?: RequestInit,
 ) => {
 	const cookie = await cookies();
-	// console.log('cookie: ', cookie);
+	// console.log('cookie: ', cookie.toString());
 	const makeRequest = async (
 		requestInput: RequestInfo | URL,
 		requestInit?: RequestInit,
@@ -1221,7 +1580,8 @@ export const apiProxy = async (
 		return fetch(requestInput, {
 			...requestInit,
 			headers: {
-				Cookie: (await cookies()).toString(),
+				Cookie: cookie.toString(),
+				// Cookie: `${process.env.AUTH_TOKEN_NAME}=${cookie.get(process.env.AUTH_TOKEN_NAME)?.value}`,
 				...requestInit?.headers,
 			},
 		});
@@ -1231,12 +1591,13 @@ export const apiProxy = async (
 		let initResponse = await makeRequest(input, init);
 
 		if (initResponse.status === 401) {
-			const refreshResponse = await fetch(`${API_URL}/v1/auth/refresh`, {
+			const refreshResponse = await fetch(`${API_BASE_URL}/v1/auth/refresh`, {
 				method: 'POST',
 				credentials: 'include',
 				headers: {
 					'Content-Type': 'application/json',
-					Cookie: cookieStore.toString(),
+					Cookie: cookie.toString(),
+					// Cookie: `${process.env.AUTH_REFRESH_TOKEN_NAME}=${cookie.get(process.env.AUTH_REFRESH_TOKEN_NAME)?.value}`,
 				},
 			});
 
@@ -1277,6 +1638,7 @@ export default async function serverAction() {
 			fetchExamRegistrations,
 			fetchCourseAssignments,
 			fetchExams,
+			fetchDashboard,
 		},
 		students: {
 			fetchDepartments,
@@ -1314,6 +1676,8 @@ export default async function serverAction() {
 			fetchAdminCourses,
 			fetchAdminExamDepartments,
 			fetchAdminDashboard,
+			fetchAdminDeptSelect,
+			fetchAdminCourseSelect,
 		},
 	};
 }
