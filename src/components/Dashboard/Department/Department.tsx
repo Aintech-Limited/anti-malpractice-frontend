@@ -91,7 +91,7 @@ export default function DepartmentClient({
 		}, 300);
 
 		return () => clearTimeout(timer);
-	}, [localSearchTerm]);
+	}, [localSearchTerm, searchTerm]);
 
 	const performServerSearch = async () => {
 		setLoadingState(true);
@@ -181,7 +181,7 @@ export default function DepartmentClient({
 	const resultsInfo = `Showing ${filteredDepartments.length} of ${searchTerm ? filteredDepartments.length : meta.totalItems} departments${searchTerm ? ` matching "${searchTerm}"` : ''}`;
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+		<div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
 			<NotificationToast notification={notification} />
 
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
