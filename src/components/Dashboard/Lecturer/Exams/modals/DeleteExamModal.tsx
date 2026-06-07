@@ -5,6 +5,7 @@ import { X, AlertTriangle, Calendar } from 'lucide-react';
 import { IDeleteExamModalProps } from './interface';
 import { canDeleteExam, getDaysUntilStart } from '../utils/examHelpers';
 import { formatDate } from '@/src/lib/helper';
+import { toast } from 'react-toastify';
 
 export const DeleteExamModal = ({
 	exam,
@@ -36,9 +37,11 @@ export const DeleteExamModal = ({
 			if (data.success) {
 				onSuccess();
 			} else {
+				toast.error(data.message || 'Failed to delete exam');
 				setError(data.message || 'Failed to delete exam');
 			}
 		} catch (err) {
+			toast.error('An error occurred. Please try again.');
 			setError('An error occurred. Please try again.');
 		} finally {
 			setLoading(false);
@@ -46,7 +49,7 @@ export const DeleteExamModal = ({
 	};
 
 	return (
-		<div className="fixed inset-0 backdrop-blur-md bg-black/20 bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn p-4">
+		<div className="fixed inset-0 backdrop-blur-md bg-black/20 bg-opacity-50 flex items-center justify-center z-10 animate-fadeIn p-4">
 			<div className="bg-white rounded-2xl max-w-md w-full">
 				<div className="border-b border-gray-200 p-6">
 					<div className="flex items-center gap-3">
