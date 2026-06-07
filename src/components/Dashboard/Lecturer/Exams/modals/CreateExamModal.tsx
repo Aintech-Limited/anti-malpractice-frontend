@@ -21,23 +21,49 @@ export const CreateExamModal = ({
 		startTime: '',
 		endTime: '',
 		type_: 'ONLINE',
-		status: 'UPCOMING',
 		mcqMarks: 0,
 		shortMarks: 0,
 		published: false,
 		registrationDeadline: '',
+		mcqDurationMinutes: undefined,
+		shortDurationMinutes: undefined,
+		fee: 0,
+		instructions: [],
 	});
+
+	const validateNewExam = () => {
+		const payload: Partial<ICreateExamPayload> = formData;
+
+		if ((formData?.mcqDurationMinutes ?? 0) < 1) {
+			payload.mcqDurationMinutes = undefined;
+		}
+		if ((formData?.shortDurationMinutes ?? 0) < 1) {
+			payload.shortDurationMinutes = undefined;
+		}
+		if (formData.fee < 100) {
+			toast.error('Registration fee must be at least 100');
+			return;
+		}
+
+		return payload;
+	};
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setLoading(true);
 		setError('');
 
+		const payload = validateNewExam();
+		if (!payload) {
+			setLoading(false);
+			return;
+		}
+
 		try {
 			const response = await fetch('/api/v1/exams', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(formData),
+				body: JSON.stringify(payload),
 			});
 
 			const data = await response.json();
@@ -60,7 +86,7 @@ export const CreateExamModal = ({
 	};
 
 	return (
-		<div className="fixed inset-0 backdrop-blur-md bg-black/20 bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn p-4">
+		<div className="fixed inset-0 backdrop-blur-md bg-black/20 bg-opacity-50 flex items-center justify-center z-10 animate-fadeIn p-4">
 			<div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
 				<div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
 					<div className="flex items-center gap-3">
@@ -121,6 +147,22 @@ export const CreateExamModal = ({
 								setFormData({ ...formData, title: e.target.value })
 							}
 							placeholder="e.g., Mid-Semester Examination"
+							className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+							required
+						/>
+					</div>
+
+					<div>
+						<label className="block text-sm font-medium text-gray-700 mb-2">
+							Registration Fee *
+						</label>
+						<input
+							type="text"
+							value={formData.fee}
+							onChange={(e) =>
+								setFormData({ ...formData, fee: Number(e.target.value) })
+							}
+							placeholder="e.g., 3000"
 							className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
 							required
 						/>
@@ -260,6 +302,45 @@ export const CreateExamModal = ({
 							/>
 						</div>
 					</div>
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+						{/* MCQ Duration */}
+						<div>
+							<label className="block text-sm font-medium text-gray-700 mb-2">
+								MCQ Duration (minutes)
+							</label>
+							<input
+								type="number"
+								min="0"
+								value={formData.mcqDurationMinutes ?? '0'}
+								onChange={(e) => {
+									setFormData({
+										...formData,
+										mcqDurationMinutes: parseInt(e.target.value) || 0,
+									});
+								}}
+								className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+							/>
+						</div>
+
+						{/* Short Answer Duration */}
+						<div>
+							<label className="block text-sm font-medium text-gray-700 mb-2">
+								Short Answer Duration (minutes)
+							</label>
+							<input
+								type="number"
+								min="0"
+								value={formData.shortDurationMinutes ?? '0'}
+								onChange={(e) =>
+									setFormData({
+										...formData,
+										shortDurationMinutes: parseInt(e.target.value) || 0,
+									})
+								}
+								className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+							/>
+						</div>
+					</div>
 
 					{/* Total Marks Display */}
 					<div className="bg-gray-50 rounded-lg p-3">
@@ -291,9 +372,6 @@ export const CreateExamModal = ({
 							Publish immediately (students can see and register)
 						</label>
 					</div> */}
-
-					{/* Status */}
-					<input type="hidden" value={formData.status} />
 
 					<div className="border-t border-gray-200 pt-6 flex gap-3">
 						<button
