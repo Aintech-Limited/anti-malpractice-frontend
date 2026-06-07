@@ -1,4 +1,8 @@
-import { ProfileTypeEnumValue, UserRoleTypeEnumValue } from '../lib/enums';
+import {
+	ProfileTypeEnumValue,
+	TDepartmentUserRoleEnum,
+	UserRoleTypeEnumValue,
+} from '../lib/enums';
 
 export interface IUserModel {
 	id: string;
@@ -17,4 +21,6 @@ export interface IUserModel {
 	dob?: string;
 	phoneContact?: string;
 	hasPIN?: boolean;
+	departmentId?: string;
+	departmentRole?: TDepartmentUserRoleEnum;
 }
