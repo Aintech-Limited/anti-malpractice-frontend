@@ -48,47 +48,6 @@ const DashboardSidebar = ({
 			!Object.values(ProtectedRouteEnum).includes(
 				pathname as ProtectedRouteEnumValue,
 			)
-		) {
-			if (
-				[UnProtectedRouteEnum.SIGNUP, UnProtectedRouteEnum.SIGNIN].includes(
-					pathname as any,
-				)
-			) {
-				signOut();
-			}
-			return;
-		}
-
-		const timer = setTimeout(() => {
-			if (!loading && (!userData || userData === undefined)) {
-				const getUserData = async () => {
-					try {
-						const res = await fetch('/api/v1/users', {
-							method: 'GET',
-							credentials: 'include',
-						});
-
-						if (res.ok) {
-							const data = await res.json();
-							signIn(data.data);
-						}
-					} catch (error) {
-						console.error((error as Error).message);
-					}
-				};
-
-				getUserData();
-			}
-		}, 3_000);
-
-		return () => clearTimeout(timer);
-	}, [loading, pathname, signIn, signOut, userData]);
-
-	useEffect(() => {
-		if (
-			!Object.values(ProtectedRouteEnum).includes(
-				pathname as ProtectedRouteEnumValue,
-			)
 		)
 			return;
 		if (
@@ -169,7 +128,7 @@ const DashboardSidebar = ({
 			/>
 			{/*  Desktop Sidebar  */}
 			<aside
-				className={`fixed inset-y-0 left-0 z-50 w-64 bg-blue-600 flex flex-col p-6 transition-transform duration-300 transform select-none ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:absolute lg:top-0 lg:left-0 lg:block lg:w-64 lg:h-full lg:opacity-0 lg:pointer-events-none'}`}
+				className={`fixed inset-y-0 left-0 z-1000 w-64 bg-blue-600 flex flex-col p-6 transition-transform duration-300 transform select-none ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:absolute lg:top-0 lg:left-0 lg:block lg:w-64 lg:h-full lg:opacity-0 lg:pointer-events-none'}`}
 			>
 				<div className="flex items-center justify-between mb-10">
 					<h2 className="text-2xl font-black text-white tracking-tighter">
