@@ -27,11 +27,8 @@ export default function Exams({
 		meta,
 		loading,
 		selectedExam,
-		showCreateModal,
-		showDeleteModal,
-		showUpdateModal,
-		showQuestionsModal,
-		showViewQuestionsModal,
+		modalStage,
+
 		viewRegistrations,
 		updateExams,
 		setLoadingState,
@@ -72,7 +69,7 @@ export default function Exams({
 	};
 
 	const handleExamCreated = (newExam: IExam) => {
-		updateExams([newExam, ...exams], meta);
+		updateExams([newExam, ...exams], meta, true);
 		closeCreateModal();
 	};
 
@@ -134,7 +131,7 @@ export default function Exams({
 			</div>
 
 			{/* Modals */}
-			{showCreateModal && (
+			{modalStage === 'create_exam' && (
 				<CreateExamModal
 					courses={availableCourses}
 					onClose={closeCreateModal}
@@ -142,7 +139,7 @@ export default function Exams({
 				/>
 			)}
 
-			{showDeleteModal && selectedExam && (
+			{modalStage === 'delete_exam' && selectedExam && (
 				<DeleteExamModal
 					exam={selectedExam}
 					onClose={closeDeleteModal}
@@ -150,7 +147,7 @@ export default function Exams({
 				/>
 			)}
 
-			{showUpdateModal && selectedExam && (
+			{modalStage === 'update_exam' && selectedExam && (
 				<UpdateExamModal
 					exam={selectedExam}
 					courses={availableCourses}
@@ -159,7 +156,7 @@ export default function Exams({
 				/>
 			)}
 
-			{showQuestionsModal && selectedExam && (
+			{modalStage === 'add_questions' && selectedExam && (
 				<AddQuestionsModal
 					exam={selectedExam}
 					onClose={closeQuestionsModal}
@@ -170,10 +167,11 @@ export default function Exams({
 				/>
 			)}
 
-			{showViewQuestionsModal && selectedExam && (
+			{modalStage === 'view_questions' && selectedExam && (
 				<ViewQuestionsModal
 					exam={selectedExam}
 					onClose={closeViewQuestionsModal}
+					onAddQuestion={openCreateModal}
 				/>
 			)}
 		</div>

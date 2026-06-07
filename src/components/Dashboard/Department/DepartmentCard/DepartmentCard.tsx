@@ -30,7 +30,7 @@ export const DepartmentCard = ({
 					height={300}
 					className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
 				/>
-				<div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+				<div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent"></div>
 				<div className="absolute bottom-4 left-4 right-4">
 					<h3 className="text-xl font-bold text-white mb-1">
 						{department.name}

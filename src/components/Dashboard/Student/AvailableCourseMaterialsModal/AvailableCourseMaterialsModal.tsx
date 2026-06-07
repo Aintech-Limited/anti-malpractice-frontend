@@ -18,6 +18,8 @@ import {
 	ICOurseMaterialPurchaseInitiateResponse,
 } from './interface';
 import { toast } from 'react-toastify';
+import { formatFileSize } from './utils/utils';
+import MaterialListView from './MaterialListView/MaterialListView';
 
 const AvailableCourseMaterialsModal = ({
 	isOpen,
@@ -154,13 +156,6 @@ const AvailableCourseMaterialsModal = ({
 			default:
 				return <File className="w-5 h-5 text-gray-500" />;
 		}
-	};
-
-	const formatFileSize = (bytes?: number) => {
-		if (!bytes) return '';
-		const sizes = ['B', 'KB', 'MB', 'GB'];
-		const i = Math.floor(Math.log(bytes) / Math.log(1024));
-		return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`;
 	};
 
 	if (!isOpen) return null;
@@ -336,100 +331,22 @@ const AvailableCourseMaterialsModal = ({
 						<div className="space-y-4">
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								{materials.map((material) => (
-									<div
+									<MaterialListView
+										material={material}
+										getMaterialIcon={getMaterialIcon}
+										onPurchase={(material: IAvailableCourseMaterial) =>
+											handlePurchase(material)
+										}
+										onSelectMaterial={(
+											material: IAvailableCourseMaterial | null,
+										) => setSelectedMaterial(material)}
+										onSetViewMode={(mode) => setViewMode(mode)}
+										onViewMaterial={(material: IAvailableCourseMaterial) =>
+											handleViewMaterial(material)
+										}
+										purchasingId={purchasingId}
 										key={material.id}
-										className={`border rounded-lg p-4 transition-all ${
-											material.isPurchased
-												? 'border-green-200 bg-green-50 hover:shadow-md'
-												: 'border-gray-200 bg-white hover:shadow-md'
-										}`}
-									>
-										<div className="flex items-start gap-3">
-											<div className="p-2 bg-white rounded-lg shadow-sm">
-												{getMaterialIcon(material.fileType)}
-											</div>
-											<div className="flex-1 min-w-0">
-												<h3 className="font-medium text-gray-900 truncate">
-													{material.title}
-												</h3>
-												{material.description && (
-													<p className="text-sm text-gray-500 mt-1 line-clamp-2">
-														{material.description}
-													</p>
-												)}
-												<div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
-													<span>{material.fileType.toUpperCase()}</span>
-													{material.size && (
-														<span>
-															{formatFileSize(parseInt(material.size))}
-														</span>
-													)}
-													<span>
-														{material.uploadedAt
-															? new Date(
-																	material.uploadedAt,
-																).toLocaleDateString()
-															: 'N/A'}
-													</span>
-												</div>
-												{material.price && !material.isPurchased && (
-													<p className="text-sm font-semibold text-gray-900 mt-2">
-														${Number(material.price).toFixed(2)}
-													</p>
-												)}
-											</div>
-										</div>
-
-										<div className="flex gap-2 mt-4">
-											{material.isPurchased ? (
-												<>
-													<button
-														onClick={() => handleViewMaterial(material)}
-														className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
-													>
-														<Eye className="w-4 h-4" />
-														View
-													</button>
-													<button
-														onClick={() => {
-															setSelectedMaterial(material);
-															setViewMode('preview');
-														}}
-														className="px-3 py-1.5 border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition-colors"
-													>
-														Details
-													</button>
-												</>
-											) : (
-												<>
-													<button
-														onClick={() => {
-															setSelectedMaterial(material);
-															setViewMode('preview');
-														}}
-														className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors"
-													>
-														<Eye className="w-4 h-4" />
-														Preview
-													</button>
-													<button
-														onClick={() => handlePurchase(material)}
-														disabled={purchasingId === material.id}
-														className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
-													>
-														{purchasingId === material.id ? (
-															<div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-														) : (
-															<>
-																<ShoppingCart className="w-4 h-4" />
-																Purchase
-															</>
-														)}
-													</button>
-												</>
-											)}
-										</div>
-									</div>
+									/>
 								))}
 							</div>
 

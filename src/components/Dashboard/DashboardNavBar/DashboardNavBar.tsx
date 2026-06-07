@@ -5,6 +5,7 @@ import { APP_NAME } from '@/src/lib/data';
 import { Bell, Search } from 'lucide-react';
 import Image from 'next/image';
 import { IDashboardNavBarProps } from './interface';
+import NotificationBell from '../Notifications/NotificationBell/NotificationBell';
 
 const DashboardNavBar = ({ isSidebarOpen }: IDashboardNavBarProps) => {
 	return (
@@ -48,7 +49,8 @@ const DashboardNavBar = ({ isSidebarOpen }: IDashboardNavBarProps) => {
 						className="w-full h-11 pl-12 pr-4 bg-gray-50 border border-gray-100 rounded-xl text-sm placeholder:text-gray-400 focus:ring-1 focus:ring-blue-600 focus:border-blue-600 transition-all"
 					/>
 				</div>
-				<Bell className="w-6 h-6 text-gray-500 cursor-pointer hover:text-gray-900" />
+				<NotificationBell />
+
 				{/* <div className="flex items-center gap-2.5">
                 <Image
                   src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?&w=64&h=64&auto=format&fit=crop&crop=faces&q=80"

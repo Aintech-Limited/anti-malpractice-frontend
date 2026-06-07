@@ -14,6 +14,8 @@ export interface ICourse {
 	credits: number;
 	semester: number;
 	level: number;
+	registeredAt?: string; // date
+	isRegistered: boolean;
 	status: 'registered' | 'active' | 'available' | 'locked';
 	prerequisite?: string[];
 	courseSchedules?: {

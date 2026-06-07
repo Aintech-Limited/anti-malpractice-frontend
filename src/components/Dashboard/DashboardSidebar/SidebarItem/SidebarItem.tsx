@@ -69,11 +69,11 @@ const SidebarItem = ({ item }: { item: INavGroup }) => {
 				}`}
 			>
 				<div className="pl-12 space-y-1 pb-2">
-					{item.children.map((child: { name: string; path: string }) => {
+					{item.children.map((child) => {
 						return (
 							<Link
 								key={child.name}
-								href={`${conformPath}${child.path}`}
+								href={`${conformPath}${item.path}${child.path}`}
 								className={`block py-2 text-xs font-medium text-blue-100 hover:text-white transition-colors border-l border-white/20 pl-4 hover:border-white ${conformPath === pathname ? 'text-green-400' : ''}`}
 							>
 								{child.name}

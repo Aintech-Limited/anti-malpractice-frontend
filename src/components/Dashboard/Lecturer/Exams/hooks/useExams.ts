@@ -11,15 +11,32 @@ export const useExams = (initialExams: IExam[], initialMeta: any) => {
 	const [meta, setMeta] = useState<IExamsApiResponse['meta']>(initialMeta);
 	const [loading, setLoading] = useState(false);
 	const [selectedExam, setSelectedExam] = useState<IExam | null>(null);
-	const [showCreateModal, setShowCreateModal] = useState(false);
-	const [showDeleteModal, setShowDeleteModal] = useState(false);
-	const [showUpdateModal, setShowUpdateModal] = useState(false);
-	const [showQuestionsModal, setShowQuestionsModal] = useState(false);
-	const [showViewQuestionsModal, setShowViewQuestionsModal] = useState(false);
+
 	const [showViewRegistrations, setShowViewRegistrations] = useState(false);
 
-	const updateExams = (newExams: IExam[], newMeta: any) => {
+	const [modalStage, setModalStage] = useState<
+		| 'create_exam'
+		| 'delete_exam'
+		| 'update_exam'
+		| 'show_questions'
+		| 'view_questions'
+		| 'add_questions'
+		| ''
+	>('');
+
+	const updateExams = (
+		newExams: IExam[],
+		newMeta: any,
+		isNew: boolean = false,
+	) => {
 		setExams(newExams);
+		if (isNew) {
+			setMeta((prevMeta) => ({
+				...prevMeta,
+				totalItems: prevMeta.totalItems + 1,
+			}));
+			return;
+		}
 		setMeta(newMeta);
 	};
 
@@ -27,8 +44,12 @@ export const useExams = (initialExams: IExam[], initialMeta: any) => {
 		setLoading(isLoading);
 	};
 
-	const openCreateModal = () => setShowCreateModal(true);
-	const closeCreateModal = () => setShowCreateModal(false);
+	const openCreateModal = () => {
+		setModalStage('create_exam');
+	};
+	const closeCreateModal = () => {
+		setModalStage('');
+	};
 
 	const viewRegistrations = (exam: IExam) => {
 		setSelectedExam(exam);
@@ -36,37 +57,37 @@ export const useExams = (initialExams: IExam[], initialMeta: any) => {
 	};
 	const openDeleteModal = (exam: IExam) => {
 		setSelectedExam(exam);
-		setShowDeleteModal(true);
+		setModalStage('delete_exam');
 	};
 	const closeDeleteModal = () => {
-		setShowDeleteModal(false);
+		setModalStage('');
 		setSelectedExam(null);
 	};
 
 	const openUpdateModal = (exam: IExam) => {
 		setSelectedExam(exam);
-		setShowUpdateModal(true);
+		setModalStage('update_exam');
 	};
 	const closeUpdateModal = () => {
-		setShowUpdateModal(false);
 		setSelectedExam(null);
+		setModalStage('');
 	};
 
 	const openQuestionsModal = (exam: IExam) => {
 		setSelectedExam(exam);
-		setShowQuestionsModal(true);
+		setModalStage('add_questions');
 	};
 	const closeQuestionsModal = () => {
-		setShowQuestionsModal(false);
+		setModalStage('');
 		setSelectedExam(null);
 	};
 
 	const openViewQuestionsModal = (exam: IExam) => {
 		setSelectedExam(exam);
-		setShowViewQuestionsModal(true);
+		setModalStage('view_questions');
 	};
 	const closeViewQuestionsModal = () => {
-		setShowViewQuestionsModal(false);
+		setModalStage('');
 		setSelectedExam(null);
 	};
 
@@ -83,11 +104,8 @@ export const useExams = (initialExams: IExam[], initialMeta: any) => {
 		meta,
 		loading,
 		selectedExam,
-		showCreateModal,
-		showDeleteModal,
-		showUpdateModal,
-		showQuestionsModal,
-		showViewQuestionsModal,
+		modalStage,
+
 		viewRegistrations,
 		updateExams,
 		setLoadingState,

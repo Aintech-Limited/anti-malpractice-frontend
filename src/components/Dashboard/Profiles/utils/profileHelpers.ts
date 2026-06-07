@@ -1,6 +1,7 @@
 'use client';
 
-import { IUserProfile, IFormData } from '../interface';
+import { IUserModel } from '@/src/types/user';
+import { IFormData } from '../interface';
 
 export const formatDateForInput = (dateString: string): string => {
 	if (!dateString) return '';
@@ -25,12 +26,12 @@ export const formatValue = (value: string | boolean): string => {
 	return value || 'Not provided';
 };
 
-export const createFormDataFromUser = (user: IUserProfile): IFormData => ({
+export const createFormDataFromUser = (user: IUserModel): IFormData => ({
 	firstName: user.firstName,
 	lastName: user.lastName,
-	dob: user.dob,
-	sex: user.sex,
-	phoneContact: user.phoneContact,
+	dob: user.dob ?? '',
+	sex: user.sex ?? '',
+	phoneContact: user.phoneContact ?? '',
 });
 
 export const convertDateToDobFormat = (dateString: string): string => {

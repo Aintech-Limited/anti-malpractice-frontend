@@ -1,6 +1,7 @@
 import { ArrowLeft, Download } from 'lucide-react';
 import Link from 'next/link';
 import { IRegistrationsHeaderProps } from './interface';
+import { ProtectedRouteEnum } from '@/src/lib/enums';
 
 export const RegistrationsHeader = ({
 	examTitle,
@@ -12,7 +13,7 @@ export const RegistrationsHeader = ({
 		<div className="mb-8">
 			<div className="flex items-center gap-4 mb-4">
 				<Link
-					href="/dashboard/lecturer/exams"
+					href={ProtectedRouteEnum.LECTURERS + '/exams'}
 					className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
 				>
 					<ArrowLeft className="w-5 h-5" />

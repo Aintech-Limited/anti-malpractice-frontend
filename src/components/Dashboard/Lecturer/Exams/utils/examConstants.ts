@@ -42,6 +42,6 @@ export const PUBLISHED_OPTIONS = ['True', 'False', 'All'] as const;
 
 export const QUESTION_TYPES = [
 	{ value: 'MCQ', label: 'Multiple Choice' },
-	{ value: 'SHORT_ANSWER', label: 'Short Answer' },
+	{ value: 'SHORT', label: 'Short Answer' },
 	{ value: 'ESSAY', label: 'Essay' },
 ] as const;

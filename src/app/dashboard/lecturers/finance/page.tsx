@@ -1,14 +1,6 @@
-import { EmptyState } from '@/src/components/common/EmptyState/EmptyState';
+import { ProtectedRouteEnum } from '@/src/lib/enums';
+import { redirect } from 'next/navigation';
 
 export default async function PaymentsPage() {
-	return (
-		<EmptyState
-			title="PAYMENTS"
-			action={{
-				label: 'Dashboard',
-				variant: 'primary',
-			}}
-			description="Nothing to see here!"
-		/>
-	);
+	redirect(ProtectedRouteEnum.LECTURERS + '/finance/history');
 }

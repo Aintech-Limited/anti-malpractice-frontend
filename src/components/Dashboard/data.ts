@@ -36,7 +36,7 @@ export const StudentNavGroups: INavGroup[] = [
 	{
 		name: 'Results',
 		icon: ReceiptTextIcon,
-		path: '/results',
+		path: '/exam-results',
 		children: [],
 	},
 	{
@@ -68,9 +68,15 @@ export const LecturerNavGroups: INavGroup[] = [
 		icon: Edit,
 		path: '/exams',
 		children: [
-			{ name: 'Registered Exams', path: '/registered' },
+			// { name: 'Registered Exams', path: '/registered' },
 			{ name: 'Exams', path: '' },
 		],
+	},
+	{
+		name: 'Results',
+		icon: ReceiptTextIcon,
+		path: '/exam-results',
+		children: [],
 	},
 	{
 		name: 'Finance',
@@ -95,6 +101,11 @@ export const AdminNavGroups: INavGroup[] = [
 		// children: [{ name: 'Exams', path: '' }],
 		children: [],
 	},
-
+	{
+		name: 'Results',
+		icon: ReceiptTextIcon,
+		path: '/exam-results',
+		children: [],
+	},
 	{ name: 'Profile', icon: Settings, path: '/profile', children: [] },
 ];

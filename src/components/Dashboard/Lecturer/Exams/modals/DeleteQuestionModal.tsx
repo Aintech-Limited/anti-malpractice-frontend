@@ -37,7 +37,7 @@ export const DeleteQuestionModal = ({
 	};
 
 	return (
-		<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn p-4">
+		<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10 animate-fadeIn p-4">
 			<div className="bg-white rounded-2xl max-w-md w-full">
 				<div className="border-b border-gray-200 p-6">
 					<div className="flex items-center gap-3">

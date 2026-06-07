@@ -42,7 +42,7 @@ export default function Profile({ initialUserData }: IProfileClientProps) {
 		setShowOldPassword,
 		setShowConfirmPassword,
 		setLoadingState: setPasswordLoading,
-	} = usePassword(user.hasPassword);
+	} = usePassword(user.hasPassword ?? false);
 
 	const handleUpdateProfile = async () => {
 		setProfileLoading(true);
@@ -56,7 +56,11 @@ export default function Profile({ initialUserData }: IProfileClientProps) {
 			const data = await response.json();
 
 			if (data.success) {
-				updateUser({ ...user, ...formData });
+				updateUser({
+					...user,
+					...formData,
+					sex: (user.sex ?? formData.sex) as 'FEMALE' | 'MALE',
+				});
 				cancelEditing();
 				showNotification('success', 'Profile updated successfully!');
 			} else {
@@ -120,7 +124,11 @@ export default function Profile({ initialUserData }: IProfileClientProps) {
 				/>
 
 				<div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-					<EmailBanner email={user.email} isVerified={user.emailVerified} />
+					<EmailBanner
+						email={user.email}
+						isVerified={user.emailVerified ?? false}
+					/>
+					{/* TODO: Add departmentId */}
 
 					<div className="p-8">
 						<ProfileForm
@@ -130,7 +138,7 @@ export default function Profile({ initialUserData }: IProfileClientProps) {
 						/>
 
 						<PasswordSection
-							hasPassword={user.hasPassword}
+							hasPassword={user.hasPassword ?? false}
 							onOpenModal={openPasswordModal}
 						/>
 
@@ -141,7 +149,7 @@ export default function Profile({ initialUserData }: IProfileClientProps) {
 
 			{showPasswordModal && (
 				<PasswordModal
-					hasPassword={user.hasPassword}
+					hasPassword={user.hasPassword ?? false}
 					showPassword={showPassword}
 					showOldPassword={showOldPassword}
 					showConfirmPassword={showConfirmPassword}

@@ -25,8 +25,9 @@ export const ActionButton = ({
 		);
 	}
 	const now = new Date();
+	const passedDeadline = new Date(exam.registrationDeadline) < now;
 
-	if (new Date(exam.registrationDeadline) < now) {
+	if (passedDeadline) {
 		return (
 			<button
 				disabled

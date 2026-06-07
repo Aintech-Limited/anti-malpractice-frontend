@@ -29,6 +29,7 @@ export interface IViewQuestionsModalProps {
 	exam: IExam;
 	onClose: () => void;
 	onQuestionUpdated?: () => void;
+	onAddQuestion: () => void;
 }
 
 export interface IEditQuestionModalProps {

@@ -1,5 +1,5 @@
-import { IUserProfile } from '../interface';
+import { IUserModel } from '@/src/types/user';
 
 export interface IInfoGridProps {
-	user: IUserProfile;
+	user: IUserModel;
 }

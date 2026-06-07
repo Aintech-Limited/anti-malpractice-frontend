@@ -1,10 +1,10 @@
-export interface CustomPDFViewerProps {
+export interface IPDFViewerProps {
 	url: string;
 	onPageChange?: (pageNumber: number, totalPages: number) => void;
 	onProgress?: (currentPage: number, totalPages: number) => void;
 }
 
-export interface PageView {
+export interface IPageView {
 	pageNumber: number;
 	renderTask: any;
 }
