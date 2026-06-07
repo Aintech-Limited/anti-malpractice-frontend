@@ -70,7 +70,7 @@ export interface IUpdateMaterialPayload {
 export interface IMaterialsApiResponse {
 	message: string;
 	success: boolean;
-	data: ICourseMaterial[];
+	data: { materials: ICourseMaterial[]; totalRevenue: number };
 	meta: {
 		page: number;
 		limit: number;
@@ -99,8 +99,8 @@ export interface IUploadResponse {
 }
 
 export interface ICourseMaterialsProps {
-	initialMaterials: ICourseMaterial[];
-	initialMeta: any;
+	initialMaterials: IMaterialsApiResponse['data'];
+	initialMeta: IMaterialsApiResponse['meta'];
 	assignedCourses: IAssignedCourse[];
 	initialFilters: {
 		page: number;
