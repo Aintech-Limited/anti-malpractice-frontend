@@ -1,10 +1,10 @@
 'use client';
 
-import { ChevronRight, Download, Star, X } from 'lucide-react';
+import { ChevronRight, Star, X } from 'lucide-react';
 import Image from 'next/image';
 import { IMaterialCardProps } from './interface';
 import { useState } from 'react';
-import CustomPDFViewer from './CustomPDFViewer/CustomPDFViewer';
+import PDFViewer from './PDFViewer/PDFViewer';
 
 const MaterialCard = ({ material }: { material: IMaterialCardProps }) => {
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -134,10 +134,10 @@ const MaterialCard = ({ material }: { material: IMaterialCardProps }) => {
 						>
 							{material.progress > 0 ? 'Continue Reading?' : 'Start Reading?'}
 						</button>
-						<button className="w-full h-9 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-2 transition-shadow shadow-md shadow-blue-100">
+						{/* <button className="w-full h-9 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-2 transition-shadow shadow-md shadow-blue-100">
 							<Download className="w-3.5 h-3.5" />
 							Download
-						</button>
+						</button> */}
 					</div>
 
 					<div className="flex gap-0.5 mt-2">
@@ -177,7 +177,7 @@ const MaterialCard = ({ material }: { material: IMaterialCardProps }) => {
 
 						{/* Modal Body - PDF Viewer */}
 						<div className="flex-1 overflow-hidden">
-							<CustomPDFViewer
+							<PDFViewer
 								url={material.fileURL}
 								onPageChange={handlePageChange}
 								onProgress={handleProgress}
