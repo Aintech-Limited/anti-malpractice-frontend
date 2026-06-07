@@ -3,6 +3,7 @@ import MaterialCard from './MaterialCard/MaterialCard';
 import { courseStats } from './data';
 import { getPurchasedCourseMaterials } from '@/src/lib/serverHelper';
 import { ICourseMaterialsQuery } from './interface';
+import { EmptyState } from '@/src/components/common/EmptyState/EmptyState';
 
 const CourseMaterials = async ({
 	limit,
@@ -26,7 +27,7 @@ const CourseMaterials = async ({
 			</header>
 
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-				{courseStats.map((stat) => {
+				{courseStats?.map((stat) => {
 					const count =
 						stat.id === 'total'
 							? (courseData?.data?.stats?.total ?? 0)
@@ -41,10 +42,13 @@ const CourseMaterials = async ({
 			</div>
 
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-				{courseData?.data?.materials.map((material, idx) => (
+				{courseData?.data?.materials?.map((material, idx) => (
 					<MaterialCard key={idx} material={material} />
 				))}
 			</div>
+			{!courseData?.data?.materials?.length && (
+				<EmptyState title="No purchased Material" />
+			)}
 		</div>
 	);
 };
