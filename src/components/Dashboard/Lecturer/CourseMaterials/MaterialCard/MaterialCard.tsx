@@ -29,6 +29,7 @@ export const MaterialCard = ({
 }: IMaterialCardProps) => {
 	const fileTypeConfig = getFileTypeConfig(material.fileType);
 	const [showMenu, setShowMenu] = useState<boolean>(false);
+	// console.log('material price: ', material.price);
 
 	const getFileIcon = () => {
 		switch (material.fileType) {
@@ -82,20 +83,23 @@ export const MaterialCard = ({
 
 							{/* Description */}
 							<p className="text-sm text-gray-600 mb-3 line-clamp-2">
-								{material.description}
+								{material?.description ?? ''}
 							</p>
 
 							{/* Stats Row */}
 							<div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
 								<span className="flex items-center gap-1">
 									<Download className="w-4 h-4" />
-									{material.downloadCount.toLocaleString()} downloads
+									{material?.downloadCount?.toLocaleString() ?? 0} downloads
 								</span>
 								<span className="flex items-center gap-1">
 									<Star className="w-4 h-4 text-yellow-400" />
-									{material.averageRating.toFixed(1)} ({material.ratingCount})
+									{material?.averageRating?.toFixed(1) ?? 0} (
+									{material?.ratingCount ?? 0})
 								</span>
-								<span>{formatFileSize(material.fileSize)}</span>
+								<span>
+									{material.fileSize ? formatFileSize(material.fileSize) : ''}
+								</span>
 								<span>{formatDate(material.createdAt)}</span>
 							</div>
 						</div>
