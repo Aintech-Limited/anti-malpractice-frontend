@@ -1,7 +1,29 @@
+import { TNotificationTypeEnum } from '@/src/lib/enums';
+
 export interface IAdminDashboardProps {
-	initialData: {
-		notifications: { title: string; date: string; time: string }[];
-		examStats: { label: string; value: number }[];
-		lecturerStats: { label: string; value: number }[];
+	initialData: IAdminDashboardResponse;
+}
+
+export interface IDashboardStatItem {
+	label: string;
+	value: number;
+}
+
+export interface IAdminNotification {
+	id: string;
+	isRead: boolean;
+	title: string;
+	message: string;
+	type: TNotificationTypeEnum;
+	createdAt: string; // ISO Date String
+}
+
+export interface IAdminDashboardResponse {
+	data: {
+		notifications: IAdminNotification[];
+		examStats: IDashboardStatItem[];
+		lecturerStats: IDashboardStatItem[];
 	};
+	message: string;
+	success: boolean;
 }
