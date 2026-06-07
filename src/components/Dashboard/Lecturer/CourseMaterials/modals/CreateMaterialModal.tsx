@@ -164,14 +164,14 @@ export const CreateMaterialModal = ({
 				setFileData({
 					publicId: response.data.publicId,
 					url: response.data.url,
-					fileSize: response.data.fileSize,
+					fileSize: response.data.fileSize, // in bytes
 					fileInfo: response.data.fileInfo,
 				});
 				setFormData((prev) => ({
 					...prev,
 					fileURL: response.data.url,
 					publicId: response.data.publicId,
-					fileSize: response.data.fileSize,
+					fileSize: response.data.fileSize, // in bytes
 				}));
 			} else {
 				setError(response.message || 'Failed to upload file');
@@ -248,7 +248,7 @@ export const CreateMaterialModal = ({
 	const selectedCourse = courses.find((c) => c.id === formData.courseId);
 
 	return (
-		<div className="fixed inset-0 backdrop-blur-md bg-black/20 bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn p-4">
+		<div className="fixed inset-0 backdrop-blur-md bg-black/20 bg-opacity-50 flex items-center justify-center z-10 animate-fadeIn p-4">
 			<div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
 				<div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
 					<div className="flex items-center gap-3">
@@ -347,11 +347,15 @@ export const CreateMaterialModal = ({
 							}
 							className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
 						>
-							{Object.entries(FILE_TYPES).map(([key, { label }]) => (
+							<option value="" disabled>
+								Select a file type
+							</option>
+							<option value="PDF">PDF</option>
+							{/* {Object.entries(FILE_TYPES).map(([key, { label }]) => (
 								<option key={key} value={key}>
 									{label}
 								</option>
-							))}
+							))} */}
 						</select>
 					</div>
 
