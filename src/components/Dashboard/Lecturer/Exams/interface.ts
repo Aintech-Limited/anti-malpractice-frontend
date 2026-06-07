@@ -79,11 +79,14 @@ export interface ICreateExamPayload {
 	startTime: string;
 	endTime: string;
 	type_: 'ONLINE' | 'PHYSICAL';
-	status: 'UPCOMING' | 'ONGOING' | 'COMPLETED' | 'CANCELLED';
 	mcqMarks: number;
 	shortMarks: number;
 	published: boolean;
 	registrationDeadline: string;
+	mcqDurationMinutes?: number;
+	shortDurationMinutes?: number;
+	fee: number;
+	instructions: string[];
 }
 
 export interface IAddQuestionsPayload {
@@ -95,13 +98,18 @@ export interface IQuestionInput {
 	questionText: string;
 	type: 'MCQ' | 'SHORT' | 'ESSAY';
 	marks: number;
-	options?: IOptionInput[];
+	mcqOptions?: IMCQOptionInput[];
+	shortOptions?: IShortOptionInput;
 }
 
-export interface IOptionInput {
+export interface IMCQOptionInput {
 	optionText: string;
 	isCorrect: boolean;
 	displayOrder: number;
+}
+export interface IShortOptionInput {
+	maxLength?: number;
+	keywords?: string[];
 }
 
 export interface IExamsApiResponse {
