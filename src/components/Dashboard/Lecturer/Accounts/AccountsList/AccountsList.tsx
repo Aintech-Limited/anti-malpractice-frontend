@@ -7,6 +7,7 @@ import { EmptyState } from '@/src/components/common/EmptyState/EmptyState';
 export default function AccountsList({
 	accounts,
 	onDeleteAccount,
+	onSetDefault,
 }: IAccountsListProps) {
 	if (accounts.length === 0) {
 		return (
@@ -31,6 +32,7 @@ export default function AccountsList({
 					key={account.id}
 					account={account}
 					onDelete={onDeleteAccount}
+					onSetDefault={onSetDefault}
 				/>
 			))}
 		</div>
