@@ -11,6 +11,7 @@ import DeleteAccountModal from './modals/DeleteAccountModal';
 import SetupPINModal from './modals/SetupPINModal';
 import VerifyTokenModal from './modals/VerifyTokenModal';
 import NotificationToast from './NotificationToast/NotificationToast';
+import SetDefaultAccountModal from './modals/SetDefaultAccountModal/SetDefaultAccountModal';
 
 export default function Accounts({
 	initialAccounts,
@@ -23,10 +24,7 @@ export default function Accounts({
 		hasPIN,
 		loading,
 		notification,
-		showDeleteModal,
 		showSetupPINModal,
-		showChangePINModal,
-		showVerifyTokenModal,
 		selectedAccount,
 		pin,
 		newPIN,
@@ -34,15 +32,13 @@ export default function Accounts({
 		token,
 		formData,
 		verifyingAccount,
+		modalStage,
 
 		// Setters
 		setAccounts,
 		setHasPIN,
 		setLoading,
-		setShowDeleteModal,
 		setShowSetupPINModal,
-		setShowChangePINModal,
-		setShowVerifyTokenModal,
 		setSelectedAccount,
 		setPin,
 		setNewPIN,
@@ -50,6 +46,7 @@ export default function Accounts({
 		setToken,
 		setFormData,
 		setVerifyingAccount,
+		setModalStage,
 
 		// Actions
 		showNotification,
@@ -164,9 +161,9 @@ export default function Accounts({
 				toast.error(data.message);
 			}
 
-			if (data || data.success) {
+			if (data && data.success) {
 				setAccounts(accounts.filter((acc) => acc.id !== selectedAccount.id));
-				setShowDeleteModal(false);
+				setModalStage('');
 				resetPINStates();
 				setSelectedAccount(null);
 				showNotification('success', 'Account deleted successfully!');
@@ -175,6 +172,48 @@ export default function Accounts({
 			}
 		} catch (error) {
 			showNotification('error', 'Failed to delete account');
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleSetDefaultAccount = async () => {
+		if (!selectedAccount) return;
+
+		setLoading(true);
+		try {
+			const response = await fetch(`/api/v1/accounts`, {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ accountId: selectedAccount.id }),
+			});
+
+			const data = await response.json();
+
+			if (!response.ok) {
+				showNotification('error', data.message);
+				toast.error(data.message);
+			}
+
+			if (data || data.success) {
+				const newDefault = accounts.map((a) => {
+					if (a.id === data.data.accountId) {
+						return { ...a, isDefault: true };
+					}
+					return { ...a, isDefault: false };
+				});
+				setAccounts(newDefault);
+				setModalStage('');
+				setSelectedAccount(null);
+				showNotification('success', 'Account successfully set as new default!');
+			} else {
+				showNotification(
+					'error',
+					data.message || 'Failed to set account as default',
+				);
+			}
+		} catch (error) {
+			showNotification('error', 'Failed to set account as default');
 		} finally {
 			setLoading(false);
 		}
@@ -239,8 +278,8 @@ export default function Accounts({
 			}
 
 			if (data.success) {
-				setShowChangePINModal(false);
-				setShowVerifyTokenModal(true);
+				setModalStage('');
+				setModalStage('');
 				showNotification('success', 'Verification token sent to your email!');
 			} else {
 				showNotification(
@@ -289,7 +328,7 @@ export default function Accounts({
 			}
 
 			if (data.success) {
-				setShowVerifyTokenModal(false);
+				setModalStage('');
 				resetPINStates();
 				showNotification('success', 'PIN changed successfully!');
 			} else {
@@ -340,7 +379,7 @@ export default function Accounts({
 					accountsCount={accounts.length}
 					maxAccounts={3}
 					hasPIN={hasPIN}
-					onOpenChangePIN={() => setShowChangePINModal(true)}
+					onOpenChangePIN={() => setModalStage('change_pin')}
 				/>
 
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -353,7 +392,11 @@ export default function Accounts({
 							accounts={accounts}
 							onDeleteAccount={(account) => {
 								setSelectedAccount(account);
-								setShowDeleteModal(true);
+								setModalStage('delete_account');
+							}}
+							onSetDefault={(account) => {
+								setSelectedAccount(account);
+								setModalStage('new_default');
 							}}
 						/>
 					</div>
@@ -374,7 +417,7 @@ export default function Accounts({
 			</div>
 
 			{/* Modals */}
-			{showDeleteModal && (
+			{modalStage === 'delete_account' && (
 				<DeleteAccountModal
 					account={selectedAccount}
 					pin={pin}
@@ -386,8 +429,19 @@ export default function Accounts({
 					}}
 					onConfirm={handleDeleteAccount}
 					onCancel={() => {
-						setShowDeleteModal(false);
+						setModalStage('');
 						resetPINStates();
+						setSelectedAccount(null);
+					}}
+				/>
+			)}
+			{modalStage === 'new_default' && (
+				<SetDefaultAccountModal
+					account={selectedAccount}
+					loading={loading}
+					onConfirm={handleSetDefaultAccount}
+					onCancel={() => {
+						setModalStage('');
 						setSelectedAccount(null);
 					}}
 				/>
@@ -413,15 +467,15 @@ export default function Accounts({
 				/>
 			)}
 
-			{showChangePINModal && (
+			{modalStage === 'change_pin' && (
 				<ChangePINModal
 					loading={loading}
 					onConfirm={handleRequestPINChange}
-					onCancel={() => setShowChangePINModal(false)}
+					onCancel={() => setModalStage('')}
 				/>
 			)}
 
-			{showVerifyTokenModal && (
+			{modalStage === 'verify_token' && (
 				<VerifyTokenModal
 					token={token}
 					newPIN={newPIN}
@@ -438,7 +492,7 @@ export default function Accounts({
 					}}
 					onConfirm={handleVerifyTokenAndChangePIN}
 					onCancel={() => {
-						setShowVerifyTokenModal(false);
+						setModalStage('');
 						resetPINStates();
 					}}
 					onResendOTP={handleResendOTP}

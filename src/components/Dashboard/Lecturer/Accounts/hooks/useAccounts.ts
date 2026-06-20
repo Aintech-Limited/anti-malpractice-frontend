@@ -11,11 +11,17 @@ export function useAccounts(
 	const [hasPIN, setHasPIN] = useState(initialHasPIN);
 	const [loading, setLoading] = useState(false);
 	const [notification, setNotification] = useState<INotification | null>(null);
-	const [showDeleteModal, setShowDeleteModal] = useState(false);
-	const [showPINModal, setShowPINModal] = useState(false);
+
 	const [showSetupPINModal, setShowSetupPINModal] = useState(!initialHasPIN);
-	const [showChangePINModal, setShowChangePINModal] = useState(false);
-	const [showVerifyTokenModal, setShowVerifyTokenModal] = useState(false);
+	const [modalStage, setModalStage] = useState<
+		| 'delete_account'
+		| 'show_pin'
+		| 'new_default'
+		| 'change_pin'
+		| 'verify_token'
+		| ''
+	>('');
+
 	const [selectedAccount, setSelectedAccount] = useState<IAccount | null>(null);
 	const [pin, setPin] = useState(['', '', '', '']);
 	const [newPIN, setNewPIN] = useState(['', '', '', '']);
@@ -67,11 +73,7 @@ export function useAccounts(
 		hasPIN,
 		loading,
 		notification,
-		showDeleteModal,
-		showPINModal,
 		showSetupPINModal,
-		showChangePINModal,
-		showVerifyTokenModal,
 		selectedAccount,
 		pin,
 		newPIN,
@@ -79,16 +81,13 @@ export function useAccounts(
 		token,
 		formData,
 		verifyingAccount,
+		modalStage,
 
 		// Setters
 		setAccounts,
 		setHasPIN,
 		setLoading,
-		setShowDeleteModal,
-		setShowPINModal,
 		setShowSetupPINModal,
-		setShowChangePINModal,
-		setShowVerifyTokenModal,
 		setSelectedAccount,
 		setPin,
 		setNewPIN,
@@ -96,6 +95,7 @@ export function useAccounts(
 		setToken,
 		setFormData,
 		setVerifyingAccount,
+		setModalStage,
 
 		// Actions
 		showNotification,

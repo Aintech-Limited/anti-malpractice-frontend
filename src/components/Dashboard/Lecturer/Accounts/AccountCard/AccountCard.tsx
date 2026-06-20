@@ -3,7 +3,11 @@
 import { Building2, Trash2 } from 'lucide-react';
 import { IAccountCardProps } from './interface';
 
-export default function AccountCard({ account, onDelete }: IAccountCardProps) {
+export default function AccountCard({
+	account,
+	onDelete,
+	onSetDefault,
+}: IAccountCardProps) {
 	return (
 		<div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6">
 			<div className="flex items-start justify-between">
@@ -22,14 +26,29 @@ export default function AccountCard({ account, onDelete }: IAccountCardProps) {
 						<p className="text-xs text-gray-400 mt-2">
 							Added: {new Date(account.createdAt).toLocaleDateString()}
 						</p>
+						{account.isDefault && (
+							<p className="text-xs text-green-900 mt-2 animate-soft-pulse">
+								Default Account
+							</p>
+						)}
 					</div>
 				</div>
-				<button
-					onClick={() => onDelete(account)}
-					className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-				>
-					<Trash2 className="w-5 h-5" />
-				</button>
+				{!account.isDefault && (
+					<button
+						onClick={() => onDelete(account)}
+						className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+					>
+						<Trash2 className="w-5 h-5" />
+					</button>
+				)}
+				{!account.isDefault && (
+					<button
+						onClick={() => onSetDefault(account)}
+						className="p-2 text-blue-600 hover:bg-red-50 rounded-lg transition-colors"
+					>
+						set default
+					</button>
+				)}
 			</div>
 		</div>
 	);
