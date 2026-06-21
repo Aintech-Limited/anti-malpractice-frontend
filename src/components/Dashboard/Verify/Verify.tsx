@@ -8,13 +8,15 @@ import VerificationOption from './VerificationOption/VerificationOptions';
 import SelfieCapture from './SelfieCapture/SelfieCapture';
 import { useAuth } from '@/src/providers/auth/AuthContext';
 import { useRouter } from 'next/navigation';
+import { ProfileTypeEnum, ProtectedRouteEnum } from '@/src/lib/enums';
 
 export default function Verify() {
 	const router = useRouter();
 	const { user } = useAuth();
 	useEffect(() => {
 		if (user?.isIdVerified) window.history.back();
-		if (user?.profileType === 'STUDENT') router.push('/students');
+		if (user?.profileType === ProfileTypeEnum.STUDENT)
+			router.push(ProtectedRouteEnum.DASHBOARD);
 	}, [user, router]);
 
 	const [stage, setstage] = useState<TVerifyStage>('VERIFICATION_OPTIONS');

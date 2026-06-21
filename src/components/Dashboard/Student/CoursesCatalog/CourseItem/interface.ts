@@ -6,6 +6,9 @@ export interface ICourseItemProps {
 	isExpanded: boolean;
 	isRegistering?: boolean;
 	onToggleDetails: () => void;
-	onCourseSelect: (course: ICourse) => void;
+	onCourseSelect: (
+		course: ICourse,
+		action: 'register' | 'continue_learning',
+	) => void;
 	onRegister: (course: ICourse) => void;
 }

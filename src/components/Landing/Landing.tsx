@@ -1,3 +1,4 @@
+import FooterSection from '../FooterSection/FooterSection';
 import ContactAndNewsletter from './ContactAndNewsletter/ContactAndNewsletter';
 import FAQ from './FAQ/FAQ';
 import HeroSection from './HeroSection/HeroSection';
@@ -12,6 +13,7 @@ const Landing = () => {
 			<TestimonialSection />
 			<FAQ />
 			<ContactAndNewsletter />
+			<FooterSection />
 		</div>
 	);
 };

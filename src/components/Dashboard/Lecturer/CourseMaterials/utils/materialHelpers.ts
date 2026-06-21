@@ -18,6 +18,7 @@ export const formatPrice = (
 	isFree: boolean,
 ): string => {
 	if (isFree) return 'Free';
+	if (!price) return `₦0`;
 	const numPrice = typeof price === 'string' ? parseFloat(price) : price;
 	return `₦${numPrice.toLocaleString()}`;
 };
@@ -30,6 +31,7 @@ export const calculateTotalSize = (materials: ICourseMaterial[]): string => {
 export const calculateAverageRating = (
 	materials: ICourseMaterial[],
 ): number => {
+	if (!materials) return 0;
 	const totalRating = materials.reduce(
 		(sum, m) => sum + m.averageRating * m.ratingCount,
 		0,
@@ -39,6 +41,15 @@ export const calculateAverageRating = (
 };
 
 export const getMaterialStats = (materials: ICourseMaterial[]) => {
+	if (!materials) {
+		return {
+			total: 0,
+			freeCount: 0,
+			paidCount: 0,
+			totalDownloads: 0,
+			totalRevenue: 0,
+		};
+	}
 	const total = materials.length;
 	const freeCount = materials.filter((m) => m.isFree).length;
 	const paidCount = total - freeCount;

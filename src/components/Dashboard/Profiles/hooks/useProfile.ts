@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { IUserProfile, IFormData, INotification } from '../interface';
+import { IFormData, INotification } from '../interface';
 import { createFormDataFromUser } from '../utils/profileHelpers';
 import { NOTIFICATION_DURATION } from '../utils/profileConstants';
+import { IUserModel } from '@/src/types/user';
 
-export const useProfile = (initialUserData: IUserProfile) => {
-	const [user, setUser] = useState<IUserProfile>(initialUserData);
+export const useProfile = (initialUserData: IUserModel) => {
+	const [user, setUser] = useState<IUserModel>(initialUserData);
 	const [isEditing, setIsEditing] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [notification, setNotification] = useState<INotification | null>(null);
@@ -24,7 +25,7 @@ export const useProfile = (initialUserData: IUserProfile) => {
 		}
 	}, [notification]);
 
-	const updateUser = (updates: Partial<IUserProfile>) => {
+	const updateUser = (updates: Partial<IUserModel>) => {
 		setUser((prev) => ({ ...prev, ...updates }));
 	};
 

@@ -6,6 +6,11 @@ import { INavGroup } from './interface';
 import { useAuth } from '@/src/providers/auth/AuthContext';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
+import {
+	ProtectedRouteEnum,
+	UnProtectedRouteEnum,
+	UserRoleTypeEnum,
+} from '@/src/lib/enums';
 
 const SidebarItem = ({ item }: { item: INavGroup }) => {
 	const pathname = usePathname();
@@ -13,7 +18,12 @@ const SidebarItem = ({ item }: { item: INavGroup }) => {
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 	const hasChildren = item.children && item.children.length > 0;
 
-	const conformPath = `/${userData?.role === 'STAFF' ? 'dashboard/lecturers' : 'dashboard/students'}${item.path!}`;
+	const conformPath =
+		userData?.role === UserRoleTypeEnum.STAFF
+			? ProtectedRouteEnum.LECTURERS
+			: userData?.role === UserRoleTypeEnum.USER
+				? ProtectedRouteEnum.STUDENTS
+				: ProtectedRouteEnum.ADMINS;
 	// console.log(conformPath, pathname);
 
 	const baseItemStyles = `flex items-center justify-between w-full h-12 px-4 rounded-xl transition-all hover:bg-white/10 group mb-1 ${pathname === conformPath ? 'text-green' : ''}`;
@@ -23,7 +33,11 @@ const SidebarItem = ({ item }: { item: INavGroup }) => {
 	if (!hasChildren) {
 		return (
 			<Link
-				href={item.path === '/support' ? '/support' : conformPath}
+				href={
+					item.path === UnProtectedRouteEnum.SUPPORT
+						? UnProtectedRouteEnum.SUPPORT
+						: `${conformPath}${item.path!}`
+				}
 				className={`${baseItemStyles} ${hoverClasses} text-white/90 hover:text-white`}
 			>
 				<div className="flex items-center gap-4">
@@ -55,11 +69,11 @@ const SidebarItem = ({ item }: { item: INavGroup }) => {
 				}`}
 			>
 				<div className="pl-12 space-y-1 pb-2">
-					{item.children.map((child: { name: string; path: string }) => {
+					{item.children.map((child) => {
 						return (
 							<Link
 								key={child.name}
-								href={`${conformPath}${child.path}`}
+								href={`${conformPath}${item.path}${child.path}`}
 								className={`block py-2 text-xs font-medium text-blue-100 hover:text-white transition-colors border-l border-white/20 pl-4 hover:border-white ${conformPath === pathname ? 'text-green-400' : ''}`}
 							>
 								{child.name}

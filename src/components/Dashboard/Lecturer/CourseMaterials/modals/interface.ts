@@ -19,4 +19,5 @@ export interface IDeleteMaterialModalProps {
 export interface IViewMaterialModalProps {
 	material: ICourseMaterial;
 	onClose: () => void;
+	onPreviewPDF: (pdfUrl: string) => void;
 }

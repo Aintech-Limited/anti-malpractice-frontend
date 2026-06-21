@@ -19,6 +19,8 @@ import {
 import { useState } from 'react';
 import { IExamCardProps } from './interface';
 import { formatDate } from '@/src/lib/helper';
+import { ProtectedRouteEnum } from '@/src/lib/enums';
+import { useRouter } from 'next/navigation';
 
 export const ExamCard = ({
 	exam,
@@ -28,6 +30,7 @@ export const ExamCard = ({
 	onDelete,
 	onViewRegistrations,
 }: IExamCardProps) => {
+	const router = useRouter();
 	const status = getExamStatus(exam.status);
 	const type = getExamType(exam.type_);
 	const [showMenu, setShowMenu] = useState<boolean>(false);
@@ -139,6 +142,18 @@ export const ExamCard = ({
 								>
 									<View className="w-4 h-4" />
 									View Registrations
+								</button>
+								<button
+									onClick={() => {
+										router.push(
+											ProtectedRouteEnum.LECTURERS + `/grade-exams/${exam.id}`,
+										);
+										setShowMenu(false);
+									}}
+									className="w-full flex items-center gap-2 px-4 py-2 text-sm text-green-600 hover:bg-red-50 rounded-b-lg"
+								>
+									<View className="w-4 h-4" />
+									Grade Exam
 								</button>
 							</div>
 						)}

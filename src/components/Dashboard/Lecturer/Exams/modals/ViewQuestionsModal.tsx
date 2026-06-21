@@ -20,6 +20,7 @@ export const ViewQuestionsModal = ({
 	exam,
 	onClose,
 	onQuestionUpdated,
+	onAddQuestion,
 }: IViewQuestionsModalProps) => {
 	const [loading, setLoading] = useState(true);
 	const [questions, setQuestions] = useState<IExamQuestion[]>([]);
@@ -32,7 +33,6 @@ export const ViewQuestionsModal = ({
 	);
 	const [deletingQuestion, setDeletingQuestion] =
 		useState<IExamQuestion | null>(null);
-	const [showAddModal, setShowAddModal] = useState(false);
 
 	const fetchQuestions = async () => {
 		setLoading(true);
@@ -87,12 +87,6 @@ export const ViewQuestionsModal = ({
 		onQuestionUpdated?.();
 	};
 
-	const handleQuestionAdded = () => {
-		fetchQuestions();
-		setShowAddModal(false);
-		onQuestionUpdated?.();
-	};
-
 	const totalMarks = questions.reduce((sum, q) => sum + q.marks, 0);
 
 	return (
@@ -118,7 +112,7 @@ export const ViewQuestionsModal = ({
 						</div>
 						<div className="flex items-center gap-3">
 							<button
-								onClick={() => setShowAddModal(true)}
+								onClick={onAddQuestion}
 								className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
 							>
 								<Plus className="w-4 h-4" />
@@ -160,7 +154,7 @@ export const ViewQuestionsModal = ({
 							<div className="text-center py-12">
 								<p className="text-gray-500 mb-4">No questions added yet.</p>
 								<button
-									onClick={() => setShowAddModal(true)}
+									onClick={onAddQuestion}
 									className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
 								>
 									Add Your First Question

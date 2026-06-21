@@ -9,6 +9,13 @@ export interface IDeleteAccountModalProps {
 	onCancel: () => void;
 }
 
+export interface ISetDefaultAccountModalProps {
+	account: IAccount | null;
+	loading: boolean;
+	onConfirm: () => void;
+	onCancel: () => void;
+}
+
 export interface ISetupPINModalProps {
 	newPIN: string[];
 	confirmPIN: string[];

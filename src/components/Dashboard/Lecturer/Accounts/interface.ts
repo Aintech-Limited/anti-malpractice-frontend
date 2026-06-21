@@ -12,6 +12,7 @@ export interface IAccount {
 	bankCode: string;
 	bankName: string;
 	createdAt: string;
+	isDefault: boolean;
 }
 
 export interface IAccountsResponse {

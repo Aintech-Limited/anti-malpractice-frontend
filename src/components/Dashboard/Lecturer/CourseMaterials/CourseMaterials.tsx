@@ -19,6 +19,7 @@ import { CreateMaterialModal } from './modals/CreateMaterialModal';
 import { EditMaterialModal } from './modals/EditMaterialModal';
 import { DeleteMaterialModal } from './modals/DeleteMaterialModal';
 import { ViewMaterialModal } from './modals/ViewMaterialModal';
+import PDFViewer from '../../Student/CourseMaterial/MaterialCard/PDFViewer/PDFViewer';
 
 export default function CourseMaterials({
 	initialMaterials,
@@ -26,15 +27,15 @@ export default function CourseMaterials({
 	assignedCourses,
 	initialFilters,
 }: ICourseMaterialsProps) {
+	console.log('initialMaterials: ', initialMaterials);
 	const {
 		materials,
 		meta,
 		loading,
 		selectedMaterial,
-		showCreateModal,
-		showEditModal,
-		showDeleteModal,
-		showViewModal,
+		PdfURL,
+		modalStage,
+
 		updateMaterials,
 		setLoadingState,
 		openCreateModal,
@@ -45,7 +46,9 @@ export default function CourseMaterials({
 		closeDeleteModal,
 		openViewModal,
 		closeViewModal,
-	} = useCourseMaterials(initialMaterials, initialMeta);
+		closeViewPDFModal,
+		openViewPDFModal,
+	} = useCourseMaterials(initialMaterials.materials, initialMeta);
 
 	const {
 		filters,
@@ -59,9 +62,11 @@ export default function CourseMaterials({
 
 	const { courses: availableCourses } = useAssignedCourses(assignedCourses);
 
-	const [stats, setStats] = useState(() => getMaterialStats(initialMaterials));
+	const [stats, setStats] = useState(() =>
+		getMaterialStats(initialMaterials.materials),
+	);
 	const [avgRating, setAvgRating] = useState(() =>
-		calculateAverageRating(initialMaterials),
+		calculateAverageRating(initialMaterials.materials),
 	);
 
 	useEffect(() => {
@@ -77,7 +82,7 @@ export default function CourseMaterials({
 	};
 
 	const handleMaterialCreated = (newMaterial: ICourseMaterial) => {
-		updateMaterials([newMaterial, ...materials], meta);
+		updateMaterials([newMaterial, ...materials], meta, true);
 		closeCreateModal();
 	};
 
@@ -109,7 +114,7 @@ export default function CourseMaterials({
 				<MaterialsStats
 					totalMaterials={stats.total}
 					totalDownloads={stats.totalDownloads}
-					totalRevenue={stats.totalRevenue}
+					totalRevenue={initialMaterials.totalRevenue}
 					averageRating={avgRating}
 				/>
 
@@ -143,7 +148,7 @@ export default function CourseMaterials({
 			</div>
 
 			{/* Modals */}
-			{showCreateModal && (
+			{modalStage === 'create_material' && (
 				<CreateMaterialModal
 					courses={availableCourses}
 					onClose={closeCreateModal}
@@ -151,7 +156,7 @@ export default function CourseMaterials({
 				/>
 			)}
 
-			{showEditModal && selectedMaterial && (
+			{modalStage === 'edit_material' && selectedMaterial && (
 				<EditMaterialModal
 					material={selectedMaterial}
 					onClose={closeEditModal}
@@ -159,7 +164,7 @@ export default function CourseMaterials({
 				/>
 			)}
 
-			{showDeleteModal && selectedMaterial && (
+			{modalStage === 'delete_material' && selectedMaterial && (
 				<DeleteMaterialModal
 					material={selectedMaterial}
 					onClose={closeDeleteModal}
@@ -167,11 +172,30 @@ export default function CourseMaterials({
 				/>
 			)}
 
-			{showViewModal && selectedMaterial && (
+			{modalStage === 'view_material' && selectedMaterial && (
 				<ViewMaterialModal
 					material={selectedMaterial}
 					onClose={closeViewModal}
+					onPreviewPDF={openViewPDFModal}
 				/>
+			)}
+			{modalStage === 'view_pdf' && PdfURL && (
+				<div
+					className="fixed inset-0 backdrop-blur-md bg-black/20 bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn p-4"
+					onClick={closeViewPDFModal}
+				>
+					<div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+						<div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
+							<h2
+								className="text-xl font-normal text-gray-800 cursor-pointer hover:text-gray-600 transition-colors"
+								onClick={closeViewPDFModal}
+							>
+								Close
+							</h2>
+							<PDFViewer url={PdfURL} />
+						</div>
+					</div>
+				</div>
 			)}
 		</div>
 	);

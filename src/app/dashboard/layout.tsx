@@ -1,11 +1,26 @@
 import { ReactNode } from 'react';
 import Layout from '@/src/components/Dashboard/DashboardLayout';
 import FooterSection from '@/src/components/FooterSection/FooterSection';
+import { AuthProvider } from '@/src/providers/auth/AuthContext';
+import { getUserProfile } from '@/src/lib/serverHelper';
+import { redirect } from 'next/navigation';
+import { UnProtectedRouteEnum } from '@/src/lib/enums';
+import { NotificationProvider } from '@/src/providers/notifications/NotificationProvider';
 
-export default function DashboardLayout({ children }: { children: ReactNode }) {
+export default async function DashboardLayout({
+	children,
+}: {
+	children: ReactNode;
+}) {
+	const user = await getUserProfile();
+	if (!user) redirect(UnProtectedRouteEnum.SIGNIN);
 	return (
-		<Layout>
-			{children} <FooterSection />
-		</Layout>
+		<AuthProvider userData={user.data}>
+			<NotificationProvider>
+				<Layout>
+					{children} <FooterSection />
+				</Layout>
+			</NotificationProvider>
+		</AuthProvider>
 	);
 }

@@ -17,9 +17,12 @@ import { formatDate } from '@/src/lib/helper';
 export const ViewMaterialModal = ({
 	material,
 	onClose,
+	onPreviewPDF,
 }: IViewMaterialModalProps) => {
 	const handlePreview = () => {
-		window.open(material.fileURL, '_blank');
+		// window.open(material.fileURL, '_blank');
+		console.log('viewing PDF');
+		onPreviewPDF(material.fileURL);
 	};
 
 	const handleDownload = () => {

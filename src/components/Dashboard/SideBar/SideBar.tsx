@@ -4,6 +4,7 @@ import { useAuth } from '@/src/providers/auth/AuthContext';
 import { useState } from 'react';
 import { ChevronDown, Link } from 'lucide-react';
 import { INavGroup } from '../DashboardSidebar/SidebarItem/interface';
+import { ProtectedRouteEnum } from '@/src/lib/enums';
 
 const SidebarItem = ({ item }: { item: INavGroup }) => {
 	const { user: userData } = useAuth();
@@ -17,7 +18,7 @@ const SidebarItem = ({ item }: { item: INavGroup }) => {
 	if (!hasChildren) {
 		return (
 			<Link
-				href={`/${userData?.role === 'STAFF' ? 'dashboard/lecturers' : 'dashboard/students'}${item.path!}`}
+				href={`/${userData?.role === 'STAFF' ? ProtectedRouteEnum.LECTURERS : ProtectedRouteEnum.STUDENTS}${item.path!}`}
 				className={`${baseItemStyles} ${hoverClasses} text-white/90 hover:text-white`}
 			>
 				<div className="flex items-center gap-4">
@@ -52,7 +53,7 @@ const SidebarItem = ({ item }: { item: INavGroup }) => {
 					{item.children.map((child: any) => (
 						<a
 							key={child.name}
-							href={`/${userData?.role === 'STAFF' ? 'dashboard/lecturers' : 'dashboard/students'}${child.path}`}
+							href={`${userData?.role === 'STAFF' ? ProtectedRouteEnum.LECTURERS : ProtectedRouteEnum.STUDENTS}${child.path}`}
 							className="block py-2 text-xs font-medium text-blue-100 hover:text-white transition-colors border-l border-white/20 pl-4 hover:border-white"
 						>
 							{child.name}

@@ -1,3 +1,5 @@
+'use client';
+
 import { memo } from 'react';
 import { Scan, Camera, X } from 'lucide-react';
 import { IFaceIDSetupModalProps } from './interface';

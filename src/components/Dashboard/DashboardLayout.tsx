@@ -5,14 +5,20 @@ import { Menu } from 'lucide-react';
 import { DashboardLayoutProps } from './interface';
 import DashboardNavBar from './DashboardNavBar/DashboardNavBar';
 import DashboardSidebar from './DashboardSidebar/DashboardSidebar';
+import { usePathname } from 'next/navigation';
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+	const pathname = usePathname();
 	const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 	const [isMobileOpen, setIsMobileOpen] = useState(false);
 
+	const examPattern =
+		/^\/dashboard\/students\/exams\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+	const isExamPage = examPattern.test(pathname);
+
 	useLayoutEffect(() => {
 		const handleResize = () => {
-			if (window.innerWidth < 1024) {
+			if (window.innerWidth < 1024 || isExamPage) {
 				setIsSidebarOpen(false);
 			} else {
 				setIsSidebarOpen(true);
@@ -21,7 +27,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 		handleResize();
 		window.addEventListener('resize', handleResize);
 		return () => window.removeEventListener('resize', handleResize);
-	}, []);
+	}, [isExamPage]);
 
 	const toggleSidebar = () => {
 		if (window.innerWidth < 1024) {

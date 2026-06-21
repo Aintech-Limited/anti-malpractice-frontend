@@ -8,6 +8,9 @@ export interface IDepartmentItemProps {
 	isRegistering?: boolean;
 	onToggleDepartment: () => void;
 	onToggleCourseDetails: (courseId: string) => void;
-	onCourseSelect: (course: ICourse) => void;
+	onCourseSelect: (
+		course: ICourse,
+		action: 'register' | 'continue_learning',
+	) => void;
 	onRegister: (course: ICourse) => void;
 }

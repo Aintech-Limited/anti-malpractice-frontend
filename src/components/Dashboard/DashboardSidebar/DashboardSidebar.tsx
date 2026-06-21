@@ -3,7 +3,7 @@
 import { CircleXIcon, LogOut } from 'lucide-react';
 import Image from 'next/image';
 import SidebarItem from './SidebarItem/SidebarItem';
-import { LecturerNavGroups, StudentNavGroups } from '../data';
+import { LecturerNavGroups, StudentNavGroups, AdminNavGroups } from '../data';
 import { APP_NAME } from '@/src/lib/data';
 import { aintechLogo } from '@/public/assetLinks';
 import { useAuth } from '@/src/providers/auth/AuthContext';
@@ -14,9 +14,11 @@ import { useEffect, useState } from 'react';
 import { signOut as GoogleSinOut } from 'next-auth/react';
 
 import {
+	ProfileTypeEnum,
 	ProtectedRouteEnum,
 	ProtectedRouteEnumValue,
 	UnProtectedRouteEnum,
+	UserRoleTypeEnum,
 } from '@/src/lib/enums';
 import {
 	clearFaceAuthState,
@@ -27,6 +29,7 @@ import {
 	clearVerification,
 } from '@/src/redux/features/lecturerVerificationImages/lecturerVerificationImages';
 import FaceIDSetupModal from '../FaceIDSetupModal/FaceIDSetupModal';
+import Link from 'next/link';
 
 const DashboardSidebar = ({
 	toggleSidebar,
@@ -45,59 +48,18 @@ const DashboardSidebar = ({
 			!Object.values(ProtectedRouteEnum).includes(
 				pathname as ProtectedRouteEnumValue,
 			)
-		) {
-			if (
-				[UnProtectedRouteEnum.SIGNUP, UnProtectedRouteEnum.SIGNIN].includes(
-					pathname as any,
-				)
-			) {
-				signOut();
-			}
-			return;
-		}
-
-		const timer = setTimeout(() => {
-			if (!userData || userData === undefined) {
-				const getUserData = async () => {
-					try {
-						const res = await fetch('/api/v1/users', {
-							method: 'GET',
-							credentials: 'include',
-						});
-
-						if (res.ok) {
-							const data = await res.json();
-							signIn(data.data);
-						}
-					} catch (error) {
-						console.error((error as Error).message);
-					}
-				};
-
-				getUserData();
-			}
-		}, 3_000);
-
-		return () => clearTimeout(timer);
-	}, [pathname, signIn, signOut, userData]);
-
-	useEffect(() => {
-		if (
-			!Object.values(ProtectedRouteEnum).includes(
-				pathname as ProtectedRouteEnumValue,
-			)
 		)
 			return;
 		if (
-			userData?.profileType === 'LECTURER' &&
+			userData?.profileType === ProfileTypeEnum.LECTURER &&
 			userData?.idRecorded === false
 		) {
-			router.push('/dashboard/verify');
+			router.push(ProtectedRouteEnum.DASHBOARD_VERIFY);
 			return;
 		}
 		if (
 			!userData?.faceAuthEnabled &&
-			userData?.profileType === 'STUDENT' &&
+			userData?.profileType === ProfileTypeEnum.STUDENT &&
 			!SkipFaceAuth
 		) {
 			const enableFaceAuth = () => {
@@ -135,10 +97,13 @@ const DashboardSidebar = ({
 				dispatch(clearFaceAuthState());
 				dispatch(clearVerification());
 				dispatch(clearSelfieImageId());
-				GoogleSinOut({ redirect: true, callbackUrl: '/signin' });
+				GoogleSinOut({
+					redirect: true,
+					callbackUrl: UnProtectedRouteEnum.SIGNIN,
+				});
 
 				console.log('User logged out');
-				router.push('/signin');
+				router.push(UnProtectedRouteEnum.SIGNIN);
 				return;
 			} else {
 				console.log(await res.json());
@@ -149,7 +114,11 @@ const DashboardSidebar = ({
 	};
 
 	const navGroups =
-		userData?.role === 'STAFF' ? LecturerNavGroups : StudentNavGroups;
+		userData?.role === UserRoleTypeEnum.STAFF
+			? LecturerNavGroups
+			: userData?.role === UserRoleTypeEnum.USER
+				? StudentNavGroups
+				: AdminNavGroups;
 
 	return (
 		<div>
@@ -159,17 +128,20 @@ const DashboardSidebar = ({
 			/>
 			{/*  Desktop Sidebar  */}
 			<aside
-				className={`fixed inset-y-0 left-0 z-50 w-64 bg-blue-600 flex flex-col p-6 transition-transform duration-300 transform select-none ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:absolute lg:top-0 lg:left-0 lg:block lg:w-64 lg:h-full lg:opacity-0 lg:pointer-events-none'}`}
+				className={`fixed inset-y-0 left-0 z-1000 w-64 bg-blue-600 flex flex-col p-6 transition-transform duration-300 transform select-none ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:absolute lg:top-0 lg:left-0 lg:block lg:w-64 lg:h-full lg:opacity-0 lg:pointer-events-none'}`}
 			>
 				<div className="flex items-center justify-between mb-10">
 					<h2 className="text-2xl font-black text-white tracking-tighter">
-						<Image
-							alt={`${APP_NAME} LOGO`}
-							src={aintechLogo}
-							width={80}
-							height={40}
-						/>
-						{APP_NAME}
+						<Link href="/dashboard" className="cursor-pointer">
+							<Image
+								alt={`${APP_NAME} LOGO`}
+								src={aintechLogo}
+								width={80}
+								height={40}
+								className="cursor-pointer"
+							/>
+							{APP_NAME}
+						</Link>
 					</h2>
 					<CircleXIcon
 						onClick={toggleSidebar}
@@ -193,7 +165,10 @@ const DashboardSidebar = ({
 
 				<div className="flex items-center gap-4 border-t border-white/20 pt-6">
 					<Image
-						src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?&w=64&h=64&auto=format&fit=crop&crop=faces&q=80"
+						src={
+							userData?.avatarURL ??
+							'https://images.unsplash.com/photo-1599566150163-29194dcaad36?&w=64&h=64&auto=format&fit=crop&crop=faces&q=80'
+						}
 						alt="Student"
 						className="w-12 h-12 rounded-xl border border-white/20"
 						height={30}

@@ -14,11 +14,23 @@ export const StatusButton = ({
 	if (user?.role === 'STAFF') {
 		return null;
 	}
+
+	if (course.isRegistered) {
+		return (
+			<button
+				onClick={() => onCourseSelect(course, 'continue_learning')}
+				className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+			>
+				Continue Learning
+			</button>
+		);
+	}
+
 	switch (status) {
 		case 'registered':
 			return (
 				<button
-					onClick={() => onCourseSelect(course)}
+					onClick={() => onCourseSelect(course, 'continue_learning')}
 					className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
 				>
 					Continue Learning
@@ -27,7 +39,7 @@ export const StatusButton = ({
 		case 'active':
 			return (
 				<button
-					onClick={() => onCourseSelect(course)}
+					onClick={() => onCourseSelect(course, 'register')}
 					className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
 				>
 					Start Course

@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { ICourseMaterial } from '../interface';
+import { ICourseMaterial, ICourseMaterialsProps } from '../interface';
+import { toast } from 'react-toastify';
 
 export const useCourseMaterials = (
 	initialMaterials: ICourseMaterial[],
-	initialMeta: any,
+	initialMeta: ICourseMaterialsProps['initialMeta'],
 ) => {
 	const [materials, setMaterials] =
 		useState<ICourseMaterial[]>(initialMaterials);
@@ -13,13 +14,29 @@ export const useCourseMaterials = (
 	const [loading, setLoading] = useState(false);
 	const [selectedMaterial, setSelectedMaterial] =
 		useState<ICourseMaterial | null>(null);
-	const [showCreateModal, setShowCreateModal] = useState(false);
-	const [showEditModal, setShowEditModal] = useState(false);
-	const [showDeleteModal, setShowDeleteModal] = useState(false);
-	const [showViewModal, setShowViewModal] = useState(false);
+	const [PdfURL, setPdfURL] = useState<string | null>(null);
+	const [modalStage, setModalStage] = useState<
+		| 'create_material'
+		| 'edit_material'
+		| 'delete_material'
+		| 'view_material'
+		| 'view_pdf'
+		| ''
+	>('');
 
-	const updateMaterials = (newMaterials: ICourseMaterial[], newMeta: any) => {
+	const updateMaterials = (
+		newMaterials: ICourseMaterial[],
+		newMeta: any,
+		isNew: boolean = false,
+	) => {
 		setMaterials(newMaterials);
+		if (isNew) {
+			setMeta((prevMeta) => ({
+				...prevMeta,
+				totalItems: prevMeta.totalItems + 1,
+			}));
+			return;
+		}
 		setMeta(newMeta);
 	};
 
@@ -27,34 +44,51 @@ export const useCourseMaterials = (
 		setLoading(isLoading);
 	};
 
-	const openCreateModal = () => setShowCreateModal(true);
-	const closeCreateModal = () => setShowCreateModal(false);
+	const openCreateModal = () => {
+		setModalStage('create_material');
+	};
+	const closeCreateModal = () => {
+		setModalStage('');
+	};
 
 	const openEditModal = (material: ICourseMaterial) => {
 		setSelectedMaterial(material);
-		setShowEditModal(true);
+		setModalStage('edit_material');
 	};
 	const closeEditModal = () => {
-		setShowEditModal(false);
+		setModalStage('');
 		setSelectedMaterial(null);
 	};
 
 	const openDeleteModal = (material: ICourseMaterial) => {
 		setSelectedMaterial(material);
-		setShowDeleteModal(true);
+		setModalStage('delete_material');
 	};
 	const closeDeleteModal = () => {
-		setShowDeleteModal(false);
+		setModalStage('');
 		setSelectedMaterial(null);
 	};
 
 	const openViewModal = (material: ICourseMaterial) => {
 		setSelectedMaterial(material);
-		setShowViewModal(true);
+		setModalStage('view_material');
 	};
 	const closeViewModal = () => {
-		setShowViewModal(false);
+		setModalStage('');
 		setSelectedMaterial(null);
+	};
+
+	const openViewPDFModal = (pdfURL: string) => {
+		setModalStage('view_pdf');
+		if (!pdfURL) {
+			toast.error('No PDF URL available for this material');
+			return;
+		}
+		setPdfURL(pdfURL);
+	};
+	const closeViewPDFModal = () => {
+		setModalStage('');
+		setPdfURL(null);
 	};
 
 	return {
@@ -62,10 +96,9 @@ export const useCourseMaterials = (
 		meta,
 		loading,
 		selectedMaterial,
-		showCreateModal,
-		showEditModal,
-		showDeleteModal,
-		showViewModal,
+		PdfURL,
+		modalStage,
+
 		updateMaterials,
 		setLoadingState,
 		openCreateModal,
@@ -76,5 +109,8 @@ export const useCourseMaterials = (
 		closeDeleteModal,
 		openViewModal,
 		closeViewModal,
+		setModalStage,
+		openViewPDFModal,
+		closeViewPDFModal,
 	};
 };

@@ -7,6 +7,7 @@ import { useCourseRegistration } from './hooks/useCourseRegistration';
 import { SearchAndFilterBar } from './SearchAndFilterBar/SearchAndFilterBar';
 import { DepartmentList } from './DepartmentList/DepartmentList';
 import { Legend } from './Legend/Legend';
+import { CourseRegistrationModal } from './modals/CourseRegistrationModal';
 
 const CourseCatalog = ({
 	departments,
@@ -22,6 +23,9 @@ const CourseCatalog = ({
 		isRegistering,
 		handleCourseSelect,
 		handleRegister,
+		setShowRegisterCourseModal,
+		showRegisterCOurseModal,
+		selectedCourse,
 	} = useCourseRegistration();
 
 	const {
@@ -89,6 +93,13 @@ const CourseCatalog = ({
 					onClearFilters={() => setSearchQuery('')}
 				/>
 			</div>
+
+			<CourseRegistrationModal
+				courseTitle={selectedCourse?.title ?? ''}
+				onClose={() => setShowRegisterCourseModal(false)}
+				onConfirm={handleRegister}
+				isOpen={showRegisterCOurseModal}
+			/>
 		</div>
 	);
 };

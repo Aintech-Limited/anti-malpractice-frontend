@@ -50,6 +50,16 @@ export const CourseModal = ({ payment, onClose }: ICourseModalProps) => {
 							<p className="text-sm text-gray-500 mb-1">Course Title</p>
 							<p className="text-lg text-gray-800">{course.title}</p>
 						</div>
+						{payment?.student && (
+							<div>
+							<p className="text-sm text-gray-500 mb-1">Student INFO</p>
+							<p className="text-lg text-green-600">
+								{payment?.student?.firstName ?? 'N/A'}{' '}
+								{payment?.student?.lastName ?? 'N/A'}
+							</p>
+						</div>
+						)}
+						
 
 						{payment.courseMaterial && (
 							<div>
