@@ -7,6 +7,9 @@ import {
 	Settings,
 	ReceiptTextIcon,
 	TentIcon,
+	CreditCardIcon,
+	UserPenIcon,
+	FormIcon,
 } from 'lucide-react';
 import { INavGroup } from './DashboardSidebar/SidebarItem/interface';
 
@@ -37,6 +40,12 @@ export const StudentNavGroups: INavGroup[] = [
 		name: 'Results',
 		icon: ReceiptTextIcon,
 		path: '/exam-results',
+		children: [],
+	},
+	{
+		name: 'Complaints',
+		icon: FormIcon,
+		path: '/complaints',
 		children: [],
 	},
 	{
@@ -108,4 +117,12 @@ export const AdminNavGroups: INavGroup[] = [
 		children: [],
 	},
 	{ name: 'Profile', icon: Settings, path: '/profile', children: [] },
+	{ name: 'Earnings', icon: CreditCardIcon, path: '/earnings', children: [] },
+	{ name: 'Students', icon: UserPenIcon, path: '/students', children: [] },
+	{
+		name: 'Complaints',
+		icon: FormIcon,
+		path: '/complaints',
+		children: [],
+	},
 ];
