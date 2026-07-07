@@ -2,6 +2,7 @@
 
 import { Filter, Search } from 'lucide-react';
 import { ISearchFilterProps } from './interface';
+import { ComplaintCategoryEnum, ComplaintStatusEnum } from '@/src/lib/enums';
 
 export const SearchFilter = ({
 	setSearchQuery,
@@ -9,6 +10,8 @@ export const SearchFilter = ({
 	setStatusFilter,
 	statusFilter,
 	setCurrentPage,
+	setCategoryFilter,
+	categoryFilter,
 }: ISearchFilterProps) => {
 	return (
 		<div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -39,9 +42,35 @@ export const SearchFilter = ({
 					className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:bg-white cursor-pointer"
 				>
 					<option value="All">All Complaints</option>
-					<option value="Pending">Pending Only</option>
-					<option value="In Progress">In Progress</option>
-					<option value="Resolved">Resolved</option>
+					<option value={ComplaintStatusEnum.PENDING}>Pending Only</option>
+					<option value={ComplaintStatusEnum.IN_PROGRESS}>In Progress</option>
+					<option value={ComplaintStatusEnum.RESOLVED}>Resolved</option>
+				</select>
+			</div>
+			<div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+				<div className="flex items-center gap-1.5 text-xs text-slate-500 font-bold">
+					<Filter className="w-3.5 h-3.5" /> Category:
+				</div>
+				<select
+					value={categoryFilter}
+					onChange={(e) => {
+						setCategoryFilter(e.target.value);
+						setCurrentPage(1);
+					}}
+					className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:bg-white cursor-pointer"
+				>
+					<option value="All">All Categories</option>
+					<option value={ComplaintCategoryEnum.INFRASTRUCTURE}>
+						INFRASTRUCTURE
+					</option>
+					<option value={ComplaintCategoryEnum.OTHERS}>OTHERS</option>
+					<option value={ComplaintCategoryEnum.SANITATION}>SANITATION</option>
+					<option value={ComplaintCategoryEnum.SECURITY}>SECURITY</option>
+					<option value={ComplaintCategoryEnum.SEXUAL_ASSULT}>
+						SEXUAL ASSULT
+					</option>
+					<option value={ComplaintCategoryEnum.UTILITY}>UTILITY</option>
+					<option value={ComplaintCategoryEnum.VIOLENCE}>VIOLENCE</option>
 				</select>
 			</div>
 		</div>
