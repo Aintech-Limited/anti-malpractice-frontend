@@ -7,7 +7,7 @@ export const PaginationAction = ({
 	currentPage,
 	filteredRecords,
 	itemsPerPage,
-	setCurrentPage,
+	handlePageChange,
 	totalPages,
 }: IPaginationActionProps) => {
 	return (
@@ -31,7 +31,7 @@ export const PaginationAction = ({
 			<div className="flex items-center gap-1">
 				<button
 					disabled={currentPage === 1}
-					onClick={() => setCurrentPage((p) => p - 1)}
+					onClick={() => handlePageChange(currentPage - 1)}
 					className="p-1.5 border border-slate-200 rounded-lg bg-white disabled:opacity-40 transition hover:bg-slate-50"
 				>
 					<ChevronLeft className="w-4 h-4" />
@@ -39,7 +39,7 @@ export const PaginationAction = ({
 				{Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pg) => (
 					<button
 						key={pg}
-						onClick={() => setCurrentPage(pg)}
+						onClick={() => handlePageChange(pg)}
 						className={`w-7 h-7 text-xs font-bold rounded-lg transition-all ${
 							currentPage === pg
 								? 'bg-blue-600 text-white'
@@ -51,7 +51,7 @@ export const PaginationAction = ({
 				))}
 				<button
 					disabled={currentPage === totalPages}
-					onClick={() => setCurrentPage((p) => p + 1)}
+					onClick={() => handlePageChange(currentPage + 1)}
 					className="p-1.5 border border-slate-200 rounded-lg bg-white disabled:opacity-40 transition hover:bg-slate-50"
 				>
 					<ChevronRight className="w-4 h-4" />
