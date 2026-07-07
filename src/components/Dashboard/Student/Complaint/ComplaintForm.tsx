@@ -3,24 +3,47 @@
 import { useState } from 'react';
 import { FileText, CheckCircle2 } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { ComplaintCategoryEnum, TComplaintCategoryEnum } from '@/src/lib/enums';
 
 export default function ComplaintForm() {
-	const [category, setCategory] = useState('');
+	const [category, setCategory] = useState<TComplaintCategoryEnum>(
+		ComplaintCategoryEnum.OTHERS,
+	);
 	const [location, setLocation] = useState('');
 	const [description, setDescription] = useState('');
 	const [isSubmitted, setIsSubmitted] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 
 	const CHARACTER_LIMIT = 500;
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
+		setIsLoading(true);
 		if (!category || !description) {
 			toast.error('Please fill out all required fields.');
+			setIsLoading(false);
 			return;
 		}
 
-		console.log({ category, location, description });
-		setIsSubmitted(true);
+		try {
+			const response = await fetch('/api/v1/complaints', {
+				method: 'POST',
+				body: JSON.stringify({ category, location, description }),
+			});
+
+			const data = await response.json();
+			if (data.success || response.ok) {
+				setIsSubmitted(true);
+				return;
+			}
+			setIsSubmitted(false);
+			toast.error(data.error || 'Error submitting Complaint');
+		} catch (error) {
+			setIsSubmitted(false);
+			toast.error('Error submitting Complaint');
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	if (isSubmitted) {
@@ -77,11 +100,22 @@ export default function ComplaintForm() {
 							<option value="" disabled hidden>
 								Select Complaint Category
 							</option>
-							<option value="infrastructure">Infrastructure Breakdown</option>
-							<option value="utility">Utility Failure (Water/Power)</option>
-							<option value="sanitation">Sanitation & Waste</option>
-							<option value="security">Safety & Security Concern</option>
-							<option value="others">Others</option>
+							<option value={ComplaintCategoryEnum.INFRASTRUCTURE}>
+								Infrastructure Breakdown
+							</option>
+							<option value={ComplaintCategoryEnum.UTILITY}>
+								Utility Failure (Water/Power)
+							</option>
+							<option value={ComplaintCategoryEnum.SANITATION}>
+								Sanitation & Waste
+							</option>
+							<option value={ComplaintCategoryEnum.SECURITY}>
+								Safety & Security Concern
+							</option>
+							<option value={ComplaintCategoryEnum.SEXUAL_ASSULT}>
+								Sexual Assualt
+							</option>
+							<option value={ComplaintCategoryEnum.OTHERS}>Others</option>
 						</select>
 						<div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400">
 							<svg
@@ -142,9 +176,11 @@ export default function ComplaintForm() {
 				<div className="pt-4">
 					<button
 						type="submit"
+						disabled={isLoading}
 						className="w-full py-3.5 bg-[#0000FF] hover:bg-blue-700 text-white font-bold text-sm rounded-xl transition shadow-md shadow-blue-600/10 flex items-center justify-center gap-2 tracking-wide cursor-pointer"
 					>
-						<CheckCircle2 className="w-4 h-4" /> Submit Complaints
+						<CheckCircle2 className="w-4 h-4" />{' '}
+						{isLoading ? 'Submitting...' : 'Submit Complaints'}
 					</button>
 				</div>
 
