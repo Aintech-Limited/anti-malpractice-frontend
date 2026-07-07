@@ -1,62 +1,508 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { MoreVertical, TrendingUp } from 'lucide-react';
 import {
-	MoreVertical,
-	Eye,
-	UserCheck,
-	CheckSquare,
-	TrendingUp,
-} from 'lucide-react';
-import { IAdminComplaintsManagerProps, IComplaintRecord } from './interface';
+	IAdminComplaintResponse,
+	IAdminComplaintsManagerProps,
+	IComplaintRecord,
+	TAssigneeAdmins,
+} from './interface';
 import { ComplaintAnalytics } from './ComplaitAnalytics/ComplaintAnalytics';
 import { SearchFilter } from './SearchFilter/SearchFilter';
 import { PaginationAction } from './PaginationAction/PaginationAction';
 import { SidedrawerModal } from './SidedrawerModal/SidedrawerModal';
+import {
+	ComplaintPriorityEnum,
+	ComplaintStatusEnum,
+	TComplaintCategoryEnum,
+	TComplaintStatusEnum,
+} from '@/src/lib/enums';
+import { toast } from 'react-toastify';
+import LoadingOverlay from '@/src/components/common/LoadingOverlay/LoadingOverlay';
+import { useAuth } from '@/src/providers/auth/AuthContext';
+import ActiveComplaintMenu from './ActiveComplaintMenu/ActiveComplaintMenu';
 
 export default function AdminComplaintsManager({
 	initialComplaints,
+	message,
+	meta: initialMeta,
+	success,
 }: IAdminComplaintsManagerProps) {
-	const [complaints, setComplaints] = useState<IComplaintRecord[]>(
-		initialComplaints ?? [],
+	const { user: currentUser } = useAuth();
+
+	const [unfilteredComplaints, setUnfilteredComplaints] = useState<
+		IComplaintRecord[]
+	>(() => {
+		if (!success) {
+			toast.error(message || 'Failed to load complaints');
+			return [];
+		}
+		return initialComplaints ?? [];
+	});
+
+	const [filteredComplaints, setFilteredComplaints] = useState<
+		IComplaintRecord[]
+	>([]);
+
+	const [unfilteredMeta, setUnfilteredMeta] = useState<
+		IAdminComplaintResponse['meta']
+	>(
+		initialMeta ?? {
+			hasNextPage: false,
+			hasPreviousPage: false,
+			limit: 20,
+			page: 1,
+			totalItems: 0,
+			totalPages: 0,
+		},
 	);
+	const [filteredMeta, setFilteredMeta] = useState<
+		IAdminComplaintResponse['meta'] | null
+	>(null);
+
 	const [searchQuery, setSearchQuery] = useState('');
-	const [statusFilter, setStatusFilter] = useState<string>('All');
+	const [statusFilter, setStatusFilter] = useState<
+		'All' | TComplaintStatusEnum
+	>('All');
+	const [categoryFilter, setCategoryFilter] = useState<
+		'All' | TComplaintCategoryEnum
+	>('All');
 	const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
-	const [currentPage, setCurrentPage] = useState(1);
+	const [currentPage, setCurrentPage] = useState(initialMeta?.page ?? 1);
 	const [selectedComplaint, setSelectedComplaint] =
 		useState<IComplaintRecord | null>(null);
+	const [isLoading, setIsLoading] = useState(false);
+	const [isMarkingAsResolvedLoading, setIsMarkingAsResolvedLoading] =
+		useState(false);
+	const [isAssigninToMeLoading, setIsAssigninToMeLoading] = useState(false);
+	const [isEscalateLoading, setIsEscalateLoading] = useState(false);
+	const [isInProgressLoading, setIsInProgressLoading] = useState(false);
+	const [admins, setAdmins] = useState<TAssigneeAdmins[]>([]);
 
-	const itemsPerPage = 5;
+	const itemsPerPage = 10;
 
-	const filteredRecords = useMemo(() => {
-		return complaints.filter((item) => {
-			const matchesSearch =
-				item.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				item.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				item.category.toLowerCase().includes(searchQuery.toLowerCase());
+	const isFilteringActive = useMemo(() => {
+		return (
+			searchQuery.trim() !== '' ||
+			statusFilter !== 'All' ||
+			categoryFilter !== 'All'
+		);
+	}, [searchQuery, statusFilter, categoryFilter]);
 
-			const matchesStatus =
-				statusFilter === 'All' || item.status === statusFilter;
+	useEffect(() => {
+		setCurrentPage(1);
+		setFilteredComplaints([]);
+		setFilteredMeta(null);
 
-			return matchesSearch && matchesStatus;
-		});
-	}, [complaints, searchQuery, statusFilter]);
+		if (isFilteringActive) {
+			fetchFilteredServerPage(1);
+		}
+	}, [searchQuery, statusFilter, categoryFilter, isFilteringActive]);
 
-	const totalPages = Math.ceil(filteredRecords.length / itemsPerPage);
-	const paginatedRecords = useMemo(() => {
+	useEffect(() => {
+		const fetchAdmins = async () => {
+			try {
+				const response = await fetch('/api/v1/users/admins', {
+					method: 'GET',
+				});
+
+				const data = (await response.json()) as {
+					message: string;
+					success: boolean;
+					data: TAssigneeAdmins[];
+				};
+
+				if (data.success) {
+					setAdmins(data.data);
+				} else {
+					toast.error(data?.message ?? 'Could not retrieved Admins');
+				}
+			} catch (error) {
+				console.error('error: ', error);
+			}
+		};
+
+		fetchAdmins();
+	}, []);
+
+	const fetchNextUnfilteredPage = async (nextServerPage: number) => {
+		if (isLoading) return;
+		setIsLoading(true);
+		try {
+			const response = await fetch(
+				`/api/v1/complaints/admins?page=${nextServerPage}&limit=${unfilteredMeta.limit}`,
+			);
+			const result: IAdminComplaintResponse = await response.json();
+
+			if (result?.success) {
+				setUnfilteredComplaints((prev) => {
+					const existingIds = new Set(prev.map((c) => c.id));
+					const uniques = result.data.filter((c) => !existingIds.has(c.id));
+					return [...prev, ...uniques];
+				});
+				setUnfilteredMeta(result.meta);
+			}
+		} catch (error) {
+			toast.error('Network error fetching more records');
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const fetchFilteredServerPage = async (targetPage: number) => {
+		setIsLoading(true);
+		try {
+			const queryParams = new URLSearchParams();
+			queryParams.append('page', `${targetPage}`);
+			queryParams.append('limit', `${unfilteredMeta.limit}`);
+			if (searchQuery.trim()) queryParams.append('search', searchQuery);
+			if (statusFilter !== 'All') queryParams.append('status', statusFilter);
+			if (categoryFilter !== 'All')
+				queryParams.append('category', categoryFilter);
+
+			const response = await fetch(
+				`/api/v1/complaints/admins?${queryParams.toString()}`,
+			);
+			const result: IAdminComplaintResponse = await response.json();
+
+			if (result?.success) {
+				setFilteredComplaints(result.data);
+				setFilteredMeta(result.meta);
+			}
+		} catch (error) {
+			toast.error('Error evaluating search query parameters');
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const displayRecords = useMemo(() => {
+		if (isFilteringActive) {
+			return filteredComplaints;
+		}
 		const startIndex = (currentPage - 1) * itemsPerPage;
-		return filteredRecords.slice(startIndex, startIndex + itemsPerPage);
-	}, [filteredRecords, currentPage]);
+		return unfilteredComplaints.slice(startIndex, startIndex + itemsPerPage);
+	}, [
+		isFilteringActive,
+		filteredComplaints,
+		unfilteredComplaints,
+		currentPage,
+	]);
+
+	const totalPages = useMemo(() => {
+		if (isFilteringActive) {
+			return filteredMeta
+				? Math.ceil(filteredMeta.totalItems / itemsPerPage)
+				: 1;
+		}
+		return Math.ceil(unfilteredMeta.totalItems / itemsPerPage);
+	}, [isFilteringActive, filteredMeta, unfilteredMeta.totalItems]);
+
+	const handlePageChange = (newPage: number) => {
+		if (isFilteringActive) {
+			fetchFilteredServerPage(newPage).then(() => {
+				setCurrentPage(newPage);
+			});
+		} else {
+			const requiredItemIndex = (newPage - 1) * itemsPerPage;
+			if (
+				requiredItemIndex >= unfilteredComplaints.length &&
+				unfilteredComplaints.length < unfilteredMeta.totalItems
+			) {
+				const nextServerPage =
+					Math.floor(unfilteredComplaints.length / unfilteredMeta.limit) + 1;
+				fetchNextUnfilteredPage(nextServerPage).then(() => {
+					setCurrentPage(newPage);
+				});
+			} else {
+				setCurrentPage(newPage);
+			}
+		}
+	};
 
 	const metrics = useMemo(() => {
 		return {
-			total: complaints.length,
-			pending: complaints.filter((c) => c.status === 'Pending').length,
-			inProgress: complaints.filter((c) => c.status === 'In Progress').length,
-			resolved: complaints.filter((c) => c.status === 'Resolved').length,
+			total: unfilteredMeta.totalItems,
+			pending: unfilteredComplaints.filter(
+				(c) => c.status === ComplaintStatusEnum.PENDING,
+			).length,
+			inProgress: unfilteredComplaints.filter(
+				(c) => c.status === ComplaintStatusEnum.IN_PROGRESS,
+			).length,
+			resolved: unfilteredComplaints.filter(
+				(c) => c.status === ComplaintStatusEnum.RESOLVED,
+			).length,
 		};
-	}, [complaints]);
+	}, [unfilteredComplaints, unfilteredMeta.totalItems]);
+
+	const handleMarkAsResolved = async (record: IComplaintRecord) => {
+		try {
+			if (record.status === ComplaintStatusEnum.RESOLVED) {
+				toast.error('Complaint already marked as resolved!');
+				return;
+			}
+			if (record?.assignedTo?.id !== currentUser?.id) {
+				toast.error('Cannot resolve Complaint. Complaint not assigned to you!');
+				return;
+			}
+			setIsMarkingAsResolvedLoading(true);
+			setActiveMenuId(null);
+
+			const response = await fetch(`/api/v1/complaints/admins`, {
+				method: 'PATCH',
+				body: JSON.stringify({
+					status: ComplaintStatusEnum.RESOLVED,
+					id: record.id,
+				}),
+			});
+
+			const data = await response.json();
+
+			if (!data.success) {
+				toast.error(data.message ?? 'Could not mark complaint as resolved');
+				return;
+			}
+
+			toast.success('Complaint status marked as resolved');
+			setUnfilteredComplaints((prev) =>
+				prev.map((item) =>
+					item.id === record.id
+						? {
+								...item,
+								status: ComplaintStatusEnum.RESOLVED,
+							}
+						: item,
+				),
+			);
+
+			if (filteredComplaints.length > 0) {
+				setFilteredComplaints((prev) =>
+					prev.map((item) =>
+						item.id === record.id
+							? {
+									...item,
+									status: ComplaintStatusEnum.RESOLVED,
+								}
+							: item,
+					),
+				);
+			}
+		} catch (error) {
+			console.error('error: ', error);
+		} finally {
+			setIsMarkingAsResolvedLoading(false);
+		}
+	};
+
+	const handleAssignToMe = async (record: IComplaintRecord) => {
+		try {
+			if (record.status === ComplaintStatusEnum.RESOLVED) {
+				toast.error('Cannot reassign resolved Complaint!');
+				return;
+			}
+			if (record?.assignedTo?.id === currentUser?.id) {
+				toast.info('Complaint already assigned to you!');
+				return;
+			}
+			if (record.assignedTo) {
+				toast.error(
+					'Cannot reassign Complaint to self, Complaint already assigned!',
+				);
+				return;
+			}
+
+			setIsAssigninToMeLoading(true);
+			setActiveMenuId(null);
+
+			const response = await fetch(`/api/v1/complaints/admins`, {
+				method: 'PATCH',
+				body: JSON.stringify({
+					assignedToId: currentUser?.id,
+					status: ComplaintStatusEnum.IN_PROGRESS,
+					id: record.id,
+				}),
+			});
+
+			const data = await response.json();
+
+			if (!data.success) {
+				toast.error(data.message ?? 'Could not assign complaint to you');
+				return;
+			}
+
+			toast.success('Complaint assigned to you');
+			const updatedAssignee = {
+				id: currentUser?.id ?? '',
+				firstName: currentUser?.firstName ?? '',
+				lastName: currentUser?.lastName ?? '',
+			};
+
+			setUnfilteredComplaints((prev) =>
+				prev.map((item) =>
+					item.id === record.id
+						? {
+								...item,
+								status: ComplaintStatusEnum.IN_PROGRESS,
+								assignedTo: updatedAssignee,
+							}
+						: item,
+				),
+			);
+
+			if (filteredComplaints.length > 0) {
+				setFilteredComplaints((prev) =>
+					prev.map((item) =>
+						item.id === record.id
+							? {
+									...item,
+									status: ComplaintStatusEnum.IN_PROGRESS,
+									assignedTo: updatedAssignee,
+								}
+							: item,
+					),
+				);
+			}
+		} catch (error) {
+			console.error('error: ', error);
+		} finally {
+			setIsAssigninToMeLoading(false);
+		}
+	};
+
+	const handleSetInProgress = async (record: IComplaintRecord) => {
+		try {
+			if (record.status === ComplaintStatusEnum.RESOLVED) {
+				toast.error('Cannot modify resolved Complaint!');
+				return;
+			}
+			if (record.status === ComplaintStatusEnum.IN_PROGRESS) {
+				toast.error('Complaint is already in progress!');
+				return;
+			}
+			if (record?.assignedTo?.id !== currentUser?.id) {
+				toast.error('Complaint is not assigned to you!');
+				return;
+			}
+			setIsInProgressLoading(true);
+			setActiveMenuId(null);
+
+			const response = await fetch(`/api/v1/complaints/admins`, {
+				method: 'PATCH',
+				body: JSON.stringify({
+					status: ComplaintStatusEnum.IN_PROGRESS,
+					id: record.id,
+				}),
+			});
+
+			const data = await response.json();
+
+			if (!data.success) {
+				toast.error(data.message ?? 'Could not set status as in progress');
+				return;
+			}
+
+			toast.success('Complaint status updated to in progress');
+			if (filteredComplaints.length > 0) {
+				setFilteredComplaints(() =>
+					displayRecords.map((mappedRecord) => {
+						return {
+							...mappedRecord,
+							status:
+								mappedRecord.id === record.id
+									? ComplaintStatusEnum.IN_PROGRESS
+									: record.status,
+						};
+					}),
+				);
+			} else {
+				setUnfilteredComplaints(() =>
+					displayRecords.map((mappedRecord) => {
+						return {
+							...mappedRecord,
+							status:
+								mappedRecord.id === record.id
+									? ComplaintStatusEnum.IN_PROGRESS
+									: record.status,
+						};
+					}),
+				);
+			}
+		} catch (error) {
+		} finally {
+			setIsInProgressLoading(false);
+		}
+	};
+
+	const handleEscalateComplaint = async (
+		record: IComplaintRecord,
+		assignee: TAssigneeAdmins,
+	) => {
+		try {
+			setSelectedComplaint(null);
+			setIsEscalateLoading(true);
+
+			if (assignee?.id === currentUser?.id) {
+				toast.error('Cannot escalate Complaint to yourself!');
+				return;
+			}
+			if (record.assignedTo && record?.assignedTo?.id !== currentUser?.id) {
+				toast.error('Cannot escalate Complaint not assigned to you!');
+				return;
+			}
+			if (record.status === ComplaintStatusEnum.RESOLVED) {
+				toast.error('Cannot escalate resolved Complaint!');
+				return;
+			}
+
+			const response = await fetch(`/api/v1/complaints/admins`, {
+				method: 'PATCH',
+				body: JSON.stringify({
+					assignedToId: assignee?.id,
+					status: ComplaintStatusEnum.PENDING,
+					id: record.id,
+				}),
+			});
+
+			const data = await response.json();
+
+			if (!data.success) {
+				toast.error(data.message ?? 'Could not assign Complaint ');
+				return;
+			}
+
+			toast.success('Complaint assigned successfully.');
+			setUnfilteredComplaints((prev) =>
+				prev.map((item) =>
+					item.id === record.id
+						? {
+								...item,
+								status: ComplaintStatusEnum.PENDING,
+								assignedTo: assignee,
+							}
+						: item,
+				),
+			);
+
+			if (filteredComplaints.length > 0) {
+				setFilteredComplaints((prev) =>
+					prev.map((item) =>
+						item.id === record.id
+							? {
+									...item,
+									status: ComplaintStatusEnum.PENDING,
+									assignedTo: assignee,
+								}
+							: item,
+					),
+				);
+			}
+		} catch (error) {
+			console.error('error: ', error);
+		} finally {
+			setIsEscalateLoading(false);
+		}
+	};
 
 	return (
 		<div className="min-h-screen bg-[#F8FAFC] p-6 lg:p-10 font-sans text-slate-800">
@@ -77,6 +523,15 @@ export default function AdminComplaintsManager({
 			<ComplaintAnalytics metrics={metrics} />
 
 			<div className="bg-white rounded-3xl border border-slate-200/60 shadow-xs overflow-visible">
+				{isLoading && <LoadingOverlay message="Syncing data engine" />}
+				{isMarkingAsResolvedLoading && (
+					<LoadingOverlay message="Marking as resolved" />
+				)}
+				{isAssigninToMeLoading && <LoadingOverlay message="Assigning to me" />}
+				{isEscalateLoading && <LoadingOverlay message="Escalating Complaint" />}
+				{isInProgressLoading && (
+					<LoadingOverlay message="Setting in progress" />
+				)}
 				<div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
 					<SearchFilter
 						searchQuery={searchQuery}
@@ -84,6 +539,8 @@ export default function AdminComplaintsManager({
 						setSearchQuery={setSearchQuery}
 						setStatusFilter={setStatusFilter}
 						statusFilter={statusFilter}
+						setCategoryFilter={setCategoryFilter}
+						categoryFilter={categoryFilter}
 					/>
 				</div>
 
@@ -101,8 +558,8 @@ export default function AdminComplaintsManager({
 							</tr>
 						</thead>
 						<tbody className="divide-y divide-slate-100 text-xs font-medium">
-							{paginatedRecords.length > 0 ? (
-								paginatedRecords.map((record) => (
+							{displayRecords.length > 0 ? (
+								displayRecords.map((record) => (
 									<tr
 										key={record.id}
 										className="hover:bg-slate-50/60 transition-colors group"
@@ -113,7 +570,7 @@ export default function AdminComplaintsManager({
 										</td>
 
 										<td className="py-4 px-4 text-slate-900 font-semibold">
-											{record.category}
+											{record.category.replaceAll('_', ' ')}
 										</td>
 
 										<td className="py-4 px-4 text-slate-500 max-w-45 truncate">
@@ -123,23 +580,23 @@ export default function AdminComplaintsManager({
 										<td className="py-4 px-4">
 											<span
 												className={`inline-flex items-center px-2.5 py-1 rounded-full font-bold text-[10px] ${
-													record.status === 'Pending'
+													record.status === ComplaintStatusEnum.PENDING
 														? 'bg-rose-50 text-rose-600 border border-rose-100'
-														: record.status === 'In Progress'
+														: record.status === ComplaintStatusEnum.IN_PROGRESS
 															? 'bg-amber-50 text-amber-600 border border-amber-100'
 															: 'bg-emerald-50 text-emerald-600 border border-emerald-100'
 												}`}
 											>
-												{record.status}
+												{record.status?.replaceAll('_', ' ')}
 											</span>
 										</td>
 
 										<td className="py-4 px-4">
 											<span
 												className={`font-bold ${
-													record.priority === 'High'
+													record.priority === ComplaintPriorityEnum.HIGH
 														? 'text-rose-500'
-														: record.priority === 'Medium'
+														: record.priority === ComplaintPriorityEnum.MEDIUM
 															? 'text-amber-500'
 															: 'text-slate-400'
 												}`}
@@ -149,7 +606,7 @@ export default function AdminComplaintsManager({
 										</td>
 
 										<td className="py-4 px-4 text-slate-600 font-semibold">
-											{record.assignedTo}
+											{`${record?.assignedTo?.firstName ?? ''} ${record?.assignedTo?.lastName ?? ''}`}
 										</td>
 
 										<td className="py-4 px-6 text-right relative">
@@ -165,46 +622,14 @@ export default function AdminComplaintsManager({
 											</button>
 
 											{activeMenuId === record.id && (
-												<>
-													<div
-														className="fixed inset-0 z-10"
-														onClick={() => setActiveMenuId(null)}
-													/>
-													<div className="absolute right-6 top-10 w-44 bg-white border border-slate-100 rounded-xl shadow-xl py-1.5 z-20 text-left">
-														<button
-															onClick={() => {
-																setSelectedComplaint(record);
-																setActiveMenuId(null);
-															}}
-															className="w-full px-4 py-2 hover:bg-slate-50 text-slate-700 font-semibold flex items-center gap-2"
-														>
-															<Eye className="w-3.5 h-3.5 text-blue-500" /> View
-															Details
-														</button>
-														<button
-															onClick={() => {
-																alert(
-																	`Assigning case ${record.id} to current user.`,
-																);
-																setActiveMenuId(null);
-															}}
-															className="w-full px-4 py-2 hover:bg-slate-50 text-slate-700 font-semibold flex items-center gap-2"
-														>
-															<UserCheck className="w-3.5 h-3.5 text-indigo-500" />{' '}
-															Assign to Me
-														</button>
-														<button
-															onClick={() => {
-																alert(`Marking case ${record.id} as resolved.`);
-																setActiveMenuId(null);
-															}}
-															className="w-full px-4 py-2 hover:bg-slate-50 text-emerald-600 font-bold flex items-center gap-2 border-t border-slate-100"
-														>
-															<CheckSquare className="w-3.5 h-3.5 text-emerald-500" />{' '}
-															Mark Resolved
-														</button>
-													</div>
-												</>
+												<ActiveComplaintMenu
+													handleAssignToMe={handleAssignToMe}
+													handleMarkAsResolved={handleMarkAsResolved}
+													handleSetInProgress={handleSetInProgress}
+													record={record}
+													setActiveMenuId={setActiveMenuId}
+													setSelectedComplaint={setSelectedComplaint}
+												/>
 											)}
 										</td>
 									</tr>
@@ -226,9 +651,9 @@ export default function AdminComplaintsManager({
 				{totalPages > 1 && (
 					<PaginationAction
 						currentPage={currentPage}
-						filteredRecords={filteredRecords}
+						filteredRecords={displayRecords}
 						itemsPerPage={itemsPerPage}
-						setCurrentPage={setCurrentPage}
+						handlePageChange={handlePageChange}
 						totalPages={totalPages}
 					/>
 				)}
@@ -238,6 +663,9 @@ export default function AdminComplaintsManager({
 				<SidedrawerModal
 					selectedComplaint={selectedComplaint}
 					setSelectedComplaint={setSelectedComplaint}
+					handleEscalateComplaint={handleEscalateComplaint}
+					admins={admins}
+					currentUser={currentUser!}
 				/>
 			)}
 		</div>
