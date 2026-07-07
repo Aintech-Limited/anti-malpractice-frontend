@@ -7,6 +7,7 @@ import { IModalWrapperProps } from './interface';
 export const ModalWrapper = ({
 	onSetModalState,
 	modalState,
+	handleSuspend,
 }: IModalWrapperProps) => {
 	return (
 		<div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-10 p-4 animate-in fade-in duration-200">
@@ -20,15 +21,15 @@ export const ModalWrapper = ({
 
 				<div className="flex flex-col items-center text-center mt-2">
 					<img
-						src={modalState.student?.avatarUrl ?? '/a.png'}
-						alt={modalState?.student?.name ?? 'Student Image'}
+						src={modalState.student?.imageURL ?? '/a.png'}
+						alt={modalState?.student?.firstName ?? 'Student Image'}
 						className="w-16 h-16 rounded-full object-cover shadow-md mb-3 border-2 border-slate-50"
 					/>
 					<h3 className="text-lg font-bold text-slate-900">
-						{modalState?.student?.name ?? 'Student Image'}
+						{modalState?.student?.firstName ?? 'Student Image'}
 					</h3>
 					<p className="text-xs text-slate-400 font-medium mb-4">
-						{modalState?.student?.studentId ?? 'N/A'} •{' '}
+						{modalState?.student?.id ?? 'N/A'} •{' '}
 						{modalState?.student?.level ?? 'N/A'}
 					</p>
 
@@ -40,7 +41,11 @@ export const ModalWrapper = ({
 							{modalState.type} Action Request
 						</p>
 						<p className="text-xs text-slate-500 mt-1 leading-relaxed">
-							placeholder text.
+							{modalState.type === 'suspend'
+								? 'Suspend Student?'
+								: modalState.type === 'unsuspend'
+									? 'Unsuspend Student'
+									: ''}
 						</p>
 					</div>
 
@@ -51,23 +56,30 @@ export const ModalWrapper = ({
 						>
 							Cancel
 						</button>
-						<button
-							onClick={() => {
-								alert(
-									`Action "${modalState.type}" successfully updated for ${modalState.student?.name}`,
-								);
-								onSetModalState({ type: null, student: null });
-							}}
-							className={`flex-1 py-2.5 text-xs font-bold text-white rounded-xl shadow-md transition ${
-								modalState.type === 'block'
-									? 'bg-rose-600 hover:bg-rose-700 shadow-rose-200'
-									: modalState.type === 'suspend'
-										? 'bg-amber-500 hover:bg-amber-600 shadow-amber-200'
-										: 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'
-							}`}
-						>
-							Confirm Action
-						</button>
+						{modalState.type !== 'view' && (
+							<button
+								onClick={() => {
+									onSetModalState({
+										student: modalState.student,
+										type: modalState.type,
+									});
+									if (modalState.type === 'view') return;
+									handleSuspend(
+										modalState.student!,
+										modalState.type as 'suspend' | 'unsuspend',
+									);
+								}}
+								className={`flex-1 py-2.5 text-xs font-bold text-white rounded-xl shadow-md transition ${
+									modalState.type === 'suspend'
+										? 'bg-rose-600 hover:bg-rose-700 shadow-rose-200'
+										: modalState.type === 'unsuspend'
+											? 'bg-amber-500 hover:bg-amber-600 shadow-amber-200'
+											: 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'
+								}`}
+							>
+								Confirm Action
+							</button>
+						)}
 					</div>
 				</div>
 			</div>
