@@ -1,6 +1,5 @@
 import { ReactNode } from 'react';
 import Layout from '@/src/components/Dashboard/DashboardLayout';
-import FooterSection from '@/src/components/FooterSection/FooterSection';
 import { AuthProvider } from '@/src/providers/auth/AuthContext';
 import { getUserProfile } from '@/src/lib/serverHelper';
 import { redirect } from 'next/navigation';
@@ -18,7 +17,7 @@ export default async function DashboardLayout({
 		<AuthProvider userData={user.data}>
 			<NotificationProvider>
 				<Layout>
-					{children} <FooterSection />
+					{children}
 				</Layout>
 			</NotificationProvider>
 		</AuthProvider>
