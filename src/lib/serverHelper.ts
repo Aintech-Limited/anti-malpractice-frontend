@@ -64,6 +64,9 @@ import {
 } from '../components/Dashboard/Lecturer/GradeExam/interface';
 import { revalidatePath } from 'next/cache';
 import { ILecturerDashboardResponse } from '../components/Dashboard/Lecturer/interface';
+import { IAdminComplaintResponse } from '../components/Dashboard/Admin/ComplaintManager/interface';
+import { IStudentManagenementResponse } from '../components/Dashboard/Admin/Students/interface';
+import { IEarningDataResponse } from '../components/Dashboard/Admin/Earnings/interface';
 
 const API_BASE_URL = process.env.BACKEND_API_URL;
 /**
@@ -222,9 +225,6 @@ export const getPurchasedCourseMaterials = async (
 					hasPreviousPage: false,
 				},
 			};
-			// return JSON.parse(
-			// await response.text(),
-			// ) as IPurchasedCourseMaterialsResponse;
 		}
 		const data = (await response.json()) as IPurchasedCourseMaterialsResponse;
 		return data;
@@ -686,6 +686,59 @@ export const fetchStudentLiveExam = async (examId: string) => {
 		return data;
 	} catch (error) {
 		console.error('error fetching live exam: ', error);
+		return { message: 'Internal Server Error', success: false, data: {} };
+	}
+};
+
+export const getAdminComplaints =
+	async (): Promise<IAdminComplaintResponse> => {
+		try {
+			const response = await apiProxy(
+				`${process.env.BACKEND_API_URL}/v1/complaints?page=1&limit=50&sortBy=createdAt&sortOrder=DESC`,
+				{
+					method: 'GET',
+				},
+			);
+
+			const data = await response.json();
+
+			return data;
+		} catch (error) {
+			console.error(error);
+			return {
+				data: [],
+				message: 'Error fetchung complaints',
+				success: false,
+				meta: {
+					hasNextPage: false,
+					hasPreviousPage: false,
+					limit: 0,
+					page: 1,
+					totalItems: 0,
+					totalPages: 0,
+				},
+			};
+		}
+	};
+
+export const getStudentComplaints = async (params: Record<string, any>) => {
+	try {
+		const queryString = new URLSearchParams(params).toString();
+		const response = await apiProxy(
+			`${API_BASE_URL}/v1/complaints/students?${queryString}`,
+			{
+				method: 'GET',
+				credentials: 'include',
+			},
+		);
+		if (!response.ok) {
+			const error = await response.json();
+			return error;
+		}
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error('error fetching student complaints: ', error);
 		return { message: 'Internal Server Error', success: false, data: {} };
 	}
 };
@@ -1567,6 +1620,83 @@ export async function fetchDashboard(
 	}
 }
 
+export const getStudentManagenemt =
+	async (): Promise<IStudentManagenementResponse> => {
+		try {
+			const response = await apiProxy(
+				`${process.env.BACKEND_API_URL}/v1/students-management?page=1&limit=50&sortBy=createdAt&sortOrder=DESC`,
+				{
+					method: 'GET',
+				},
+			);
+
+			const data = await response.json();
+			// console.log('data: ', data);
+
+			return data;
+		} catch (error) {
+			console.error(error);
+			return {
+				data: [],
+				message: 'Error fetching students management',
+				success: false,
+				meta: {
+					hasNextPage: false,
+					hasPreviousPage: false,
+					limit: 0,
+					page: 1,
+					totalItems: 0,
+					totalPages: 0,
+				},
+			};
+		}
+	};
+
+export const getAdminEarnings = async (): Promise<IEarningDataResponse> => {
+	try {
+		const response = await apiProxy(
+			`${process.env.BACKEND_API_URL}/v1/earnings?salesAnalytics=true&salesByCountry=true&incomeStreams=true&productType=COURSE_MATERIAL`,
+			{
+				method: 'GET',
+			},
+		);
+
+		const data = await response.json();
+
+		return data;
+	} catch (error) {
+		console.error(error);
+		return {
+			data: {
+				incomeStreams: {
+					bonus: 0,
+					finance: 0,
+					income: 0,
+					percentageComparison: 0,
+					salary: 0,
+					todaysEarning: 0,
+					total: 0,
+					yesterdaysEarning: 0,
+				},
+				salesAnalytics: {
+					activeCustomers: 0,
+					newRevenue: 0,
+					productSold: 0,
+					totalSales: 0,
+				},
+				salesByCountry: {
+					offices: [],
+					period: '6 Months',
+					revenueGrowth: 0,
+					topPerforming: 0,
+				},
+			},
+			message: 'Error retrieving Earning data',
+			success: false,
+		};
+	}
+};
+
 export const apiProxy = async (
 	input: RequestInfo | URL,
 	init?: RequestInit,
@@ -1678,6 +1808,8 @@ export default async function serverAction() {
 			fetchAdminDashboard,
 			fetchAdminDeptSelect,
 			fetchAdminCourseSelect,
+			getAdminComplaints,
+			getAdminEarnings,
 		},
 	};
 }
