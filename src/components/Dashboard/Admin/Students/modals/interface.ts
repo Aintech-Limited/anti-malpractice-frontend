@@ -12,4 +12,9 @@ export interface IModalWrapperProps {
 		type: TActionType;
 		student: IStudent | null;
 	};
+	handleSuspend: (
+		student: IStudent,
+		action: 'suspend' | 'unsuspend',
+		reason?: string,
+	) => Promise<void>;
 }
