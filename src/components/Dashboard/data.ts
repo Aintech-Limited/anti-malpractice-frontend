@@ -46,7 +46,7 @@ export const StudentNavGroups: INavGroup[] = [
 		name: 'Complaints',
 		icon: FormIcon,
 		path: '/complaints',
-		children: [],
+		children: [{ name: 'View Complaints', path: '/all' }],
 	},
 	{
 		name: 'Finance',

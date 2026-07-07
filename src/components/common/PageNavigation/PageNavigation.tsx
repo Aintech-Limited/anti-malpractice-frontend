@@ -3,12 +3,13 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { IStudentNavigationProps } from './interface';
 
-export const StudentNavigation = ({
+const PageNavigation = ({
 	currentPage,
 	itemsPerPage,
-	filteredStudents,
+	filteredData,
 	totalPages,
-	onSetCurrentPage,
+	handlePageChange,
+	dataType,
 }: IStudentNavigationProps) => {
 	return (
 		<div className="flex items-center justify-between border-t border-slate-100 pt-6 mt-6">
@@ -19,19 +20,17 @@ export const StudentNavigation = ({
 				</span>{' '}
 				to{' '}
 				<span className="font-bold text-slate-700">
-					{Math.min(currentPage * itemsPerPage, filteredStudents.length)}
+					{Math.min(currentPage * itemsPerPage, filteredData.length)}
 				</span>{' '}
 				of{' '}
-				<span className="font-bold text-slate-700">
-					{filteredStudents.length}
-				</span>{' '}
-				students
+				<span className="font-bold text-slate-700">{filteredData.length}</span>{' '}
+				{dataType}
 			</span>
 
 			<div className="flex items-center gap-2">
 				<button
 					disabled={currentPage === 1}
-					onClick={() => onSetCurrentPage((prev) => Math.max(prev - 1, 1))}
+					onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
 					className="p-2 border border-slate-200 rounded-xl hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-transparent transition-colors shadow-sm"
 				>
 					<ChevronLeft className="w-4 h-4" />
@@ -41,7 +40,7 @@ export const StudentNavigation = ({
 					{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
 						<button
 							key={page}
-							onClick={() => onSetCurrentPage(page)}
+							onClick={() => handlePageChange(page)}
 							className={`w-8 h-8 rounded-xl text-xs font-bold transition-all ${
 								currentPage === page
 									? 'bg-neutral-900 text-white shadow-sm shadow-neutral-900/10'
@@ -56,7 +55,7 @@ export const StudentNavigation = ({
 				<button
 					disabled={currentPage === totalPages}
 					onClick={() =>
-						onSetCurrentPage((prev) => Math.min(prev + 1, totalPages))
+						handlePageChange(Math.min(currentPage + 1, totalPages))
 					}
 					className="p-2 border border-slate-200 rounded-xl hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-transparent transition-colors shadow-sm"
 				>
@@ -66,3 +65,5 @@ export const StudentNavigation = ({
 		</div>
 	);
 };
+
+export default PageNavigation;

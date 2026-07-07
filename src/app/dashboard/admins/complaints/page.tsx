@@ -1,6 +1,14 @@
 import AdminComplaintsManager from '@/src/components/Dashboard/Admin/ComplaintManager/ComplaintManager';
-import { initialComplaints } from '@/src/components/Dashboard/Admin/ComplaintManager/data';
+import { getAdminComplaints } from '@/src/lib/serverHelper';
 
-export default function ComplaintFormPage() {
-	return <AdminComplaintsManager initialComplaints={initialComplaints} />;
+export default async function ComplaintFormPage() {
+	const complaints = await getAdminComplaints();
+	return (
+		<AdminComplaintsManager
+			initialComplaints={complaints?.data || []}
+			message={complaints?.message ?? ''}
+			meta={complaints?.meta}
+			success={complaints?.success}
+		/>
+	);
 }

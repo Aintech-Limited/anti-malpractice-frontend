@@ -192,3 +192,31 @@ export const DepartmentUserRoleEnum = {
 };
 export type TDepartmentUserRoleEnum =
 	(typeof DepartmentUserRoleEnum)[keyof typeof DepartmentUserRoleEnum];
+
+export const ComplaintCategoryEnum = {
+	INFRASTRUCTURE: 'INFRASTRUCTURE',
+	UTILITY: 'UTILITY',
+	SANITATION: 'SANITATION',
+	SECURITY: 'SECURITY',
+	VIOLENCE: 'VIOLENCE',
+	SEXUAL_ASSULT: 'SEXUAL_ASSULT',
+	OTHERS: 'OTHERS',
+};
+export type TComplaintCategoryEnum =
+	(typeof ComplaintCategoryEnum)[keyof typeof ComplaintCategoryEnum];
+
+export const ComplaintStatusEnum = {
+	PENDING: 'PENDING',
+	IN_PROGRESS: 'IN_PROGRESS',
+	RESOLVED: 'RESOLVED',
+};
+export type TComplaintStatusEnum =
+	(typeof ComplaintStatusEnum)[keyof typeof ComplaintStatusEnum];
+
+export const ComplaintPriorityEnum = {
+	LOW: 'LOW',
+	MEDIUM: 'MEDIUM',
+	HIGH: 'HIGH',
+};
+export type TComplaintPriorityEnum =
+	(typeof ComplaintPriorityEnum)[keyof typeof ComplaintPriorityEnum];
