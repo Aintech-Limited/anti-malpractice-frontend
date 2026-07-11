@@ -26,3 +26,16 @@ export interface BackupCode {
 	code: string;
 	used: boolean;
 }
+
+export interface IFaceVerificationResponse {
+	success: boolean;
+	message: string; // 'Face Verification successfull',
+	data: {
+		success: boolean;
+		authenticated: boolean; // this decides if verification was successful
+		similarity: number;
+		confidence: number;
+		qualityScore: number;
+		requiresFallback: boolean;
+	};
+}
