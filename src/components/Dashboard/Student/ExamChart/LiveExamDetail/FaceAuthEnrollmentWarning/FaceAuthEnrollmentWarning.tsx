@@ -41,7 +41,7 @@ const FaceAuthEnrollmentWarning = ({
 	};
 
 	const handleEnrollNowFromEncourage = () => {
-		toast.info('✅ Starting face verification enrollment process...');
+		toast.info('Starting face verification enrollment process...');
 		router.push(ProtectedRouteEnum.FACE_CAPTURE);
 	};
 
