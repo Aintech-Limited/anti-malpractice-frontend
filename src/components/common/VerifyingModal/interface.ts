@@ -1,5 +1,5 @@
 export interface IVerifyingModalProps {
-	initialProgress?: number;
-	onComplete?: () => void;
-	message?: string;
+  initialProgress?: number;
+  onComplete?: () => void;
+  message?: string;
 }

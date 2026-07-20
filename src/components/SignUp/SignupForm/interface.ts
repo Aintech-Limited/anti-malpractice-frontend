@@ -1,18 +1,18 @@
-import { TSignupStage } from '../interface';
+import { TSignupStage } from "../interface";
 
 export interface ISignupFormProps {
-	setStage: (stage: TSignupStage) => void;
+  setStage: (stage: TSignupStage) => void;
 }
 export interface ISignupFormValues {
-	email: string;
-	fullName: string;
-	acceptTerms: boolean;
-	confirmPassword: string;
-	password: string;
+  email: string;
+  fullName: string;
+  acceptTerms: boolean;
+  confirmPassword: string;
+  password: string;
 }
 export interface ISignupFormErrors {
-	email: string;
-	fullName: string;
-	acceptTerms: boolean;
-	confirmPassword: string;
+  email: string;
+  fullName: string;
+  acceptTerms: boolean;
+  confirmPassword: string;
 }

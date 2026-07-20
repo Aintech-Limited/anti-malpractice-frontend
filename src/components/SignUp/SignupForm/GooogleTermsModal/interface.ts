@@ -1,5 +1,5 @@
 export interface IGoogleTermsModalProps {
-	isOpen: boolean;
-	onClose: () => void;
-	onAccept: () => void;
+  isOpen: boolean;
+  onClose: () => void;
+  onAccept: () => void;
 }
