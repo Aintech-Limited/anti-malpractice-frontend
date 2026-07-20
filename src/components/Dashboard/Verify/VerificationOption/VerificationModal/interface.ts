@@ -1,3 +1,3 @@
 export interface VerificationModalProps {
-	onClose: () => void;
+  onClose: () => void;
 }

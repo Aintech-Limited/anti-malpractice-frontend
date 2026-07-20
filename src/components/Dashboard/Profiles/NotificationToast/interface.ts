@@ -1,5 +1,5 @@
-import { INotification } from '../interface';
+import { INotification } from "../interface";
 
 export interface INotificationToastProps {
-	notification: INotification | null;
+  notification: INotification | null;
 }

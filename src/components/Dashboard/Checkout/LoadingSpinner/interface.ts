@@ -1,4 +1,4 @@
 export interface ILoadingSpinnerProps {
-	size?: 'sm' | 'md' | 'lg';
-	color?: string;
+  size?: "sm" | "md" | "lg";
+  color?: string;
 }

@@ -1,4 +1,4 @@
 export interface IFailureStateProps {
-	error: string | null;
-	onRetry: () => void;
+  error: string | null;
+  onRetry: () => void;
 }

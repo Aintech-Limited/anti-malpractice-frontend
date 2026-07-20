@@ -1,4 +1,4 @@
 export interface IFaceIDSetupModalProps {
-	isOpen: boolean;
-	onClose: () => void;
+  isOpen: boolean;
+  onClose: () => void;
 }

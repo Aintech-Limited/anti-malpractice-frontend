@@ -1,29 +1,29 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 
 export const useCountdown = (
-	initialSeconds: number,
-	onComplete: () => void,
+  initialSeconds: number,
+  onComplete: () => void,
 ) => {
-	const [countdown, setCountdown] = useState(initialSeconds);
+  const [countdown, setCountdown] = useState(initialSeconds);
 
-	useEffect(() => {
-		if (countdown <= 0) {
-			onComplete();
-			return;
-		}
+  useEffect(() => {
+    if (countdown <= 0) {
+      onComplete();
+      return;
+    }
 
-		const timer = setInterval(() => {
-			setCountdown((prev) => prev - 1);
-		}, 1000);
+    const timer = setInterval(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
 
-		return () => clearInterval(timer);
-	}, [countdown, onComplete]);
+    return () => clearInterval(timer);
+  }, [countdown, onComplete]);
 
-	const resetCountdown = useCallback(() => {
-		setCountdown(initialSeconds);
-	}, [initialSeconds]);
+  const resetCountdown = useCallback(() => {
+    setCountdown(initialSeconds);
+  }, [initialSeconds]);
 
-	return { countdown, resetCountdown };
+  return { countdown, resetCountdown };
 };
