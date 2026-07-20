@@ -9,11 +9,7 @@ import CustomLoadingIcon from '../../common/LoadingIcon/LoadingIcon';
 import { useAppDispatch, useAppSelector } from '@/src/redux/reduxStore';
 import { toast } from 'react-toastify';
 import { clearPasswordEmailState } from '@/src/redux/features/forgotPassword/forgotPasswordSlice';
-
-export interface IPasswordUpdateForm {
-	password: string;
-	confirmPassword: string;
-}
+import { IPasswordUpdateForm } from './interface';
 
 const CreateNewPassword = () => {
 	const { passwordEmail } = useAppSelector((state) => state.aforgotPassword);
