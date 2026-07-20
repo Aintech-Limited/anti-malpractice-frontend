@@ -1,6 +1,6 @@
-import { IExamRegistration } from '../interface';
+import { IExamRegistration } from "../interface";
 
 export interface IExamCardProps {
-	exam: IExamRegistration;
-	onContinuePayment: (exam: IExamRegistration) => void;
+  exam: IExamRegistration;
+  onContinuePayment: (exam: IExamRegistration) => void;
 }

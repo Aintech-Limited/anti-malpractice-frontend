@@ -1,6 +1,6 @@
-import { IExamRegistration } from '../interface';
+import { IExamRegistration } from "../interface";
 
 export interface IExamsListProps {
-	exams: IExamRegistration[];
-	onContinuePayment: (exam: IExamRegistration) => void;
+  exams: IExamRegistration[];
+  onContinuePayment: (exam: IExamRegistration) => void;
 }

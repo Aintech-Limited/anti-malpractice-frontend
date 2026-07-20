@@ -1,7 +1,7 @@
-import { SetStateAction } from 'react';
-import { IComplaint } from '../interface';
+import { SetStateAction } from "react";
+import { IComplaint } from "../interface";
 
 export interface IComplaintDetailsProps {
-	setSelectedComplaint: (value: SetStateAction<IComplaint | null>) => void;
-	selectedComplaint: IComplaint;
+  setSelectedComplaint: (value: SetStateAction<IComplaint | null>) => void;
+  selectedComplaint: IComplaint;
 }
