@@ -1,6 +1,6 @@
 export interface IMaterialsStatsProps {
-	totalMaterials: number;
-	totalDownloads: number;
-	totalRevenue: number;
-	averageRating: number;
+  totalMaterials: number;
+  totalDownloads: number;
+  totalRevenue: number;
+  averageRating: number;
 }

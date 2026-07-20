@@ -1,6 +1,6 @@
 export interface IGradingProgressProps {
-	totalQuestions: number;
-	gradedQuestions: number;
-	totalAnswers: number;
-	gradedAnswers: number;
+  totalQuestions: number;
+  gradedQuestions: number;
+  totalAnswers: number;
+  gradedAnswers: number;
 }
