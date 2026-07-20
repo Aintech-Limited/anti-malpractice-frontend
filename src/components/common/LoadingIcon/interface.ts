@@ -1,4 +1,4 @@
 export interface LoadingIconProps {
-	size?: 'sm' | 'md' | 'lg';
-	color?: string;
+  size?: "sm" | "md" | "lg";
+  color?: string;
 }

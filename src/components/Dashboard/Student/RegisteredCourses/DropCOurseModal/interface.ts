@@ -1,5 +1,5 @@
 export interface IDropCOurseModalProps {
-	registeredCourseId: string;
-	close: () => void;
-	onSuccess: () => void;
+  registeredCourseId: string;
+  close: () => void;
+  onSuccess: () => void;
 }

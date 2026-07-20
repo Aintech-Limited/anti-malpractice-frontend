@@ -120,7 +120,9 @@ const Signin = () => {
 					setLoading(false);
 					setDisabled(false);
 					if (data?.message?.includes('Account does not have a set password')) {
-						toast.error('Account does not have a set password. Please signin with Google');
+						toast.error(
+							'Account does not have a set password. Please signin with Google',
+						);
 						setLoading(false);
 						return;
 					}

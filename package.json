@@ -8,8 +8,14 @@
     "postinstall": "cp node_modules/pdfjs-dist/build/pdf.worker.min.mjs public/pdfjs/ || mkdir -p public/pdfjs && cp node_modules/pdfjs-dist/build/pdf.worker.min.mjs public/pdfjs/",
     "dev": "next dev",
     "build": "next build",
+    "prepare": "husky install",
     "start": "cross-env NODE_ENV=production next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "npx jest --detectOpenHandles --forceExit",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
+    "prettier:fix": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,css}\" \"!node_modules\" \"!.next\" \"!build\" \"!dist\"",
+    "prettier:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md,css}\" \"!node_modules\" \"!.next\" \"!build\" \"!dist\""
   },
   "dependencies": {
     "@mediapipe/face_detection": "^0.4.1646425229",
@@ -22,6 +28,7 @@
     "dayjs": "^1.11.21",
     "dexie": "^4.4.2",
     "framer-motion": "^12.29.0",
+    "husky": "^9.1.7",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
     "lucide-react": "^0.562.0",
@@ -37,15 +44,40 @@
     "redux-persist": "^6.0.0",
     "socket.io-client": "^4.8.3"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "overrides": {
+    "inflight": "npm:lru-cache@latest",
+    "glob": "^10.3.10"
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.2",
     "@types/node": "^20",
     "@types/react": "^19",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@types/jest": "^30.0.0",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.5.0",
     "cross-env": "^10.1.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-next": "^0.0.0",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.2.0",
+    "prettier": "^3.8.0",
     "postcss": "^8.5.10",
     "tailwindcss": "^4.2.2",
     "typescript": "^5"

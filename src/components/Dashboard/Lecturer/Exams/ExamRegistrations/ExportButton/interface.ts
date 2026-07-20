@@ -1,6 +1,6 @@
-import { IExamRegistration } from '../interface';
+import { IExamRegistration } from "../interface";
 
 export interface IExportButtonProps {
-	registrations: IExamRegistration[];
-	examTitle: string;
+  registrations: IExamRegistration[];
+  examTitle: string;
 }

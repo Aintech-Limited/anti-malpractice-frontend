@@ -1,49 +1,49 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
-	try {
-		const cookieHeader = request.headers.get('cookie');
-		const formData = await request.formData();
-		// console.log([...formData.keys()]);
+  try {
+    const cookieHeader = request.headers.get("cookie");
+    const formData = await request.formData();
+    // console.log([...formData.keys()]);
 
-		if (!formData.has('file')) {
-			return NextResponse.json({ message: 'Missing image' }, { status: 400 });
-		}
+    if (!formData.has("file")) {
+      return NextResponse.json({ message: "Missing image" }, { status: 400 });
+    }
 
-		const response = await fetch(
-			`${process.env.BACKEND_API_URL}/v1/auth/face/enroll`,
-			{
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-					...(cookieHeader && { cookie: cookieHeader }),
-				},
-				body: formData,
-			},
-		);
+    const response = await fetch(
+      `${process.env.BACKEND_API_URL}/v1/auth/face/enroll`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          ...(cookieHeader && { cookie: cookieHeader }),
+        },
+        body: formData,
+      },
+    );
 
-		if (!response.ok) {
-			return NextResponse.json(
-				{ ...(await response.json()) },
-				{ status: response.status },
-			);
-		}
-		const data = await response.json();
+    if (!response.ok) {
+      return NextResponse.json(
+        { ...(await response.json()) },
+        { status: response.status },
+      );
+    }
+    const data = await response.json();
 
-		const setCookieHeader = response.headers.get('set-cookie');
+    const setCookieHeader = response.headers.get("set-cookie");
 
-		const nextResponse = NextResponse.json(data, { status: response.status });
+    const nextResponse = NextResponse.json(data, { status: response.status });
 
-		if (setCookieHeader) {
-			nextResponse.headers.set('set-cookie', setCookieHeader);
-		}
+    if (setCookieHeader) {
+      nextResponse.headers.set("set-cookie", setCookieHeader);
+    }
 
-		return nextResponse;
-	} catch (error) {
-		console.error('error face enroll: ', error);
-		return NextResponse.json(
-			{ message: 'face enroll failed' },
-			{ status: 500 },
-		);
-	}
+    return nextResponse;
+  } catch (error) {
+    console.error("error face enroll: ", error);
+    return NextResponse.json(
+      { message: "face enroll failed" },
+      { status: 500 },
+    );
+  }
 }

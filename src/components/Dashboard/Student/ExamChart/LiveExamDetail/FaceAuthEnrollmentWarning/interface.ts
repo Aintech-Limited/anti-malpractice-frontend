@@ -1,4 +1,4 @@
 export interface FaceAuthEnrollmentWarningProps {
-	isOpen: boolean;
-	onClose?: () => void;
+  isOpen: boolean;
+  onClose?: () => void;
 }

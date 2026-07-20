@@ -1,43 +1,43 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
-	try {
-		const body = await request.json();
+  try {
+    const body = await request.json();
 
-		const response = await fetch(
-			`${process.env.BACKEND_API_URL}/v1/auth/signin/google`,
-			{
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(body),
-			},
-		);
+    const response = await fetch(
+      `${process.env.BACKEND_API_URL}/v1/auth/signin/google`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      },
+    );
 
-		if (!response.ok) {
-			return NextResponse.json(
-				{ ...(await response.json()) },
-				{ status: response.status },
-			);
-		}
-		const data = await response.json();
+    if (!response.ok) {
+      return NextResponse.json(
+        { ...(await response.json()) },
+        { status: response.status },
+      );
+    }
+    const data = await response.json();
 
-		const setCookieHeader = response.headers.get('set-cookie');
+    const setCookieHeader = response.headers.get("set-cookie");
 
-		const nextResponse = NextResponse.json(data, { status: response.status });
+    const nextResponse = NextResponse.json(data, { status: response.status });
 
-		if (setCookieHeader) {
-			nextResponse.headers.set('set-cookie', setCookieHeader);
-		}
+    if (setCookieHeader) {
+      nextResponse.headers.set("set-cookie", setCookieHeader);
+    }
 
-		return nextResponse;
-	} catch (error) {
-		console.error('error signin via google: ', error);
-		return NextResponse.json(
-			{ message: 'Internal server error', success: false },
-			{ status: 500 },
-		);
-	}
+    return nextResponse;
+  } catch (error) {
+    console.error("error signin via google: ", error);
+    return NextResponse.json(
+      { message: "Internal server error", success: false },
+      { status: 500 },
+    );
+  }
 }

@@ -1,4 +1,4 @@
 export interface IPasswordSectionProps {
-	hasPassword: boolean;
-	onOpenModal: () => void;
+  hasPassword: boolean;
+  onOpenModal: () => void;
 }

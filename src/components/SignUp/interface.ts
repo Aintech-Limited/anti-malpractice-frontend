@@ -1,1 +1,1 @@
-export type TSignupStage = 'form' | 'profileSelector';
+export type TSignupStage = "form" | "profileSelector";

@@ -1,5 +1,5 @@
-import Verify from '@/src/components/Verify/Verify';
+import Verify from "@/src/components/Verify/Verify";
 
 export default function VerifyPage() {
-	return <Verify />;
+  return <Verify />;
 }

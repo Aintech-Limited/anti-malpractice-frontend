@@ -1,8 +1,10 @@
-import { IAdminExam } from '../interface';
+import { IAdminExam } from "../interface";
 
 export interface IAdminExamCardProps {
-	exam: IAdminExam;
-	onViewDetails: (exam: IAdminExam) => void;
-	onApprove: (exam: IAdminExam) => void;
-	onRequestChanges: (exam: IAdminExam) => void;
+  exam: IAdminExam;
+  onViewDetails: (exam: IAdminExam) => void;
+  onApprove: (exam: IAdminExam) => void;
+  onRequestChanges: (exam: IAdminExam) => void;
+  onGradeExam: (exam: IAdminExam) => void;
+  onReleaseResult: (exam: IAdminExam) => void;
 }

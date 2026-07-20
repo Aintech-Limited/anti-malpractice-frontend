@@ -1,4 +1,4 @@
 export interface IEmailBannerProps {
-	email: string;
-	isVerified: boolean;
+  email: string;
+  isVerified: boolean;
 }

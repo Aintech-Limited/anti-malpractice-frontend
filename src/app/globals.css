@@ -1,109 +1,109 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 :root {
-	/* BLACK */
-	--main_black: #171717;
+  /* BLACK */
+  --main_black: #171717;
 
-	/* WHITE */
-	--main_white: #ffffff;
+  /* WHITE */
+  --main_white: #ffffff;
 }
 
 @theme inline {
-	--color-background: var(--main_white);
-	--color-foreground: var(--main_white);
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
+  --color-background: var(--main_white);
+  --color-foreground: var(--main_white);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
-	:root {
-		--background: #0a0a0a;
-		--background: #ededed;
-	}
+  :root {
+    --background: #0a0a0a;
+    --background: #ededed;
+  }
 }
 
 body {
-	background: var(--main_white);
-	color: var(--main_black);
-	font-family: Arial, Helvetica, sans-serif;
+  background: var(--main_white);
+  color: var(--main_black);
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 @keyframes custom-spin {
-	from {
-		transform: rotate(0deg);
-	}
-	to {
-		transform: rotate(360deg);
-	}
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .animate-icon-spin {
-	animation: custom-spin 1s linear infinite;
+  animation: custom-spin 1s linear infinite;
 }
 /* In globals.css */
-input[type='date']::before {
-	content: attr(placeholder);
-	width: 100%;
-	color: #cbd5e1; /* slate-300 */
+input[type="date"]::before {
+  content: attr(placeholder);
+  width: 100%;
+  color: #cbd5e1; /* slate-300 */
 }
 
-input[type='date']:focus::before,
-input[type='date']:valid::before {
-	display: none;
+input[type="date"]:focus::before,
+input[type="date"]:valid::before {
+  display: none;
 }
 
 @keyframes slideIn {
-	from {
-		transform: translateX(100%);
-	}
-	to {
-		transform: translateX(0);
-	}
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 .animate-slideIn {
-	animation: slideIn 0.25s ease-out forwards;
+  animation: slideIn 0.25s ease-out forwards;
 }
 
 .scanner-line {
-	position: absolute;
-	width: 100%;
-	height: 2px;
-	background: linear-gradient(to right, transparent, #2563eb, transparent);
-	animation: scan 2.5s linear infinite;
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, transparent, #2563eb, transparent);
+  animation: scan 2.5s linear infinite;
 }
 
 @keyframes scan {
-	0% {
-		top: 0%;
-	}
-	100% {
-		top: 100%;
-	}
+  0% {
+    top: 0%;
+  }
+  100% {
+    top: 100%;
+  }
 }
 
 @keyframes ellipsis {
-	0% {
-		content: '';
-	}
-	25% {
-		content: '.';
-	}
-	50% {
-		content: '..';
-	}
-	75% {
-		content: '...';
-	}
-	100% {
-		content: '';
-	}
+  0% {
+    content: "";
+  }
+  25% {
+    content: ".";
+  }
+  50% {
+    content: "..";
+  }
+  75% {
+    content: "...";
+  }
+  100% {
+    content: "";
+  }
 }
 
 .animate-ellipsis::after {
-	content: '';
-	display: inline-block;
-	animation: ellipsis 1s infinite steps(4, end);
+  content: "";
+  display: inline-block;
+  animation: ellipsis 1s infinite steps(4, end);
 }
 
 @keyframes fadeUp {
@@ -119,24 +119,32 @@ input[type='date']:valid::before {
 
 /* HERO SECTION */
 
-
 @keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
-  100% { transform: translateY(0px); }
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
 }
 
 .animate-fade-up {
   animation: fadeUp 0.8s ease-out forwards;
-	
 }
 
 .animate-float {
   animation: float 4s ease-in-out infinite;
 }
 
-.delay-1 { animation-delay: 0.2s; }
-.delay-2 { animation-delay: 0.4s; }
+.delay-1 {
+  animation-delay: 0.2s;
+}
+.delay-2 {
+  animation-delay: 0.4s;
+}
 
 @keyframes heroEntranceAndColor {
   0% {
@@ -177,31 +185,65 @@ input[type='date']:valid::before {
 
 /* PRODUCT */
 @keyframes roam-1 {
-  0% { transform: translate(0, 0); }
-  25% { transform: translate(120px, 40px); }
-  50% { transform: translate(60px, 150px); }
-  75% { transform: translate(-40px, 80px); }
-  100% { transform: translate(0, 0); }
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(120px, 40px);
+  }
+  50% {
+    transform: translate(60px, 150px);
+  }
+  75% {
+    transform: translate(-40px, 80px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
 
 @keyframes roam-2 {
-  0% { transform: translate(0, 0); }
-  30% { transform: translate(-100px, 60px); }
-  60% { transform: translate(20px, -40px); }
-  85% { transform: translate(150px, 100px); }
-  100% { transform: translate(0, 0); }
+  0% {
+    transform: translate(0, 0);
+  }
+  30% {
+    transform: translate(-100px, 60px);
+  }
+  60% {
+    transform: translate(20px, -40px);
+  }
+  85% {
+    transform: translate(150px, 100px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
 
 @keyframes roam-3 {
-  0% { transform: translate(0, 0); }
-  40% { transform: translate(80px, -80px); }
-  70% { transform: translate(-120px, 120px); }
-  100% { transform: translate(0, 0); }
+  0% {
+    transform: translate(0, 0);
+  }
+  40% {
+    transform: translate(80px, -80px);
+  }
+  70% {
+    transform: translate(-120px, 120px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
 
-.animate-cursor-1 { animation: roam-1 12s ease-in-out infinite; }
-.animate-cursor-2 { animation: roam-2 15s ease-in-out infinite; }
-.animate-cursor-3 { animation: roam-3 18s ease-in-out infinite; }
+.animate-cursor-1 {
+  animation: roam-1 12s ease-in-out infinite;
+}
+.animate-cursor-2 {
+  animation: roam-2 15s ease-in-out infinite;
+}
+.animate-cursor-3 {
+  animation: roam-3 18s ease-in-out infinite;
+}
 
 /* Payments */
 @keyframes fadeIn {

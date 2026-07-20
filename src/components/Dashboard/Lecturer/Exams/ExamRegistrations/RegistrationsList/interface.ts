@@ -1,5 +1,5 @@
-import { IExamRegistration } from '../interface';
+import { IExamRegistration } from "../interface";
 
 export interface IRegistrationsListProps {
-	registrations: IExamRegistration[];
+  registrations: IExamRegistration[];
 }

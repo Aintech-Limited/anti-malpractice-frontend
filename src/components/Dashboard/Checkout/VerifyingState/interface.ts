@@ -1,3 +1,3 @@
 export interface IVerifyingStateProps {
-	transactionRef: string;
+  transactionRef: string;
 }

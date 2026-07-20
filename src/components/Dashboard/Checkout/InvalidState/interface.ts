@@ -1,4 +1,4 @@
 export interface IInvalidStateProps {
-	transactionRef: string;
-	onRetry: () => void;
+  transactionRef: string;
+  onRetry: () => void;
 }

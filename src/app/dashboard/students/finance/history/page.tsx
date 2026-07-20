@@ -1,25 +1,28 @@
-import { IPaymentsPageProps } from '@/src/components/Dashboard/Student/Payments/interface';
-import { Suspense } from 'react';
-import { fetchPayments } from '@/src/lib/serverHelper';
-import PaymentsSkeleton from '@/src/components/Dashboard/Student/Payments/PaymentsSkeleton/PaymentsSkeleton';
-import Payment from '@/src/components/Dashboard/Student/Payments/Payment';
+import { IPaymentsPageProps } from "@/src/components/Dashboard/Student/Payments/interface";
+import { fetchPayments } from "@/src/lib/serverHelper";
+import Payment from "@/src/components/Dashboard/Student/Payments/Payment";
 
 export default async function PaymentsPage({
-	searchParams,
+  searchParams,
 }: IPaymentsPageProps) {
-	const data = await fetchPayments(searchParams);
+  const data = await fetchPayments(searchParams);
 
-	return (
-		<Suspense fallback={<PaymentsSkeleton />}>
-			<Payment
-				initialData={data}
-				initialFilters={{
-					type: (await searchParams).type || '',
-					sortBy: (await searchParams).sortBy || 'createdAt',
-					page: parseInt((await searchParams).page || '1'),
-					limit: parseInt((await searchParams).limit || '50'),
-				}}
-			/>
-		</Suspense>
-	);
+  const {
+    limit = "50",
+    page = "1",
+    sortBy = "createdAt",
+    type = "",
+  } = await searchParams;
+
+  return (
+    <Payment
+      initialData={data}
+      initialFilters={{
+        type,
+        sortBy,
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10),
+      }}
+    />
+  );
 }

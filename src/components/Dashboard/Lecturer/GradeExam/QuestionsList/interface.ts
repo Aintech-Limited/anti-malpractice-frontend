@@ -1,7 +1,7 @@
-import { IUngradedQuestion } from '../interface';
+import { IUngradedQuestion } from "../interface";
 
 export interface IQuestionsListProps {
-	questions: IUngradedQuestion[];
-	onSelectQuestion: (questionId: string) => void;
-	selectedQuestionId?: string;
+  questions: IUngradedQuestion[];
+  onSelectQuestion: (questionId: string) => void;
+  selectedQuestionId?: string;
 }

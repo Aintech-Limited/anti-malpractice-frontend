@@ -1,3 +1,3 @@
-import { IExamCardProps } from '../ExamCard/interface';
+import { IExamCardProps } from "../ExamCard/interface";
 
 export type IExamSectionProps = IExamCardProps;
