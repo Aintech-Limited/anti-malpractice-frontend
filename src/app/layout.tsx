@@ -1,29 +1,29 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { Providers } from "../providers/Providers";
-import { APP_NAME } from "../lib/data";
-import { ReactNode } from "react";
-import { AuthProvider } from "../providers/auth/AuthContext";
+import type { Metadata } from 'next';
+import './globals.css';
+import { Providers } from '../providers/Providers';
+import { APP_NAME } from '../lib/data';
+import { ReactNode } from 'react';
+import { AuthProvider } from '../providers/auth/AuthContext';
 
 export const metadata: Metadata = {
-  title: `${APP_NAME.toUpperCase()} MVP`,
-  description: "A FINDU Educationational Platform for Students and Lecturers.",
+	title: `${APP_NAME.toUpperCase()} Educational App`,
+	description: 'A FINDU Educationational Platform for Students and Lecturers.',
 };
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: ReactNode;
+	children: ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body>
-        <Providers>
-          <AuthProvider userData={null}>
-            <main>{children}</main>
-          </AuthProvider>
-        </Providers>
-      </body>
-    </html>
-  );
+	return (
+		<html lang="en">
+			<body>
+				<Providers>
+					<AuthProvider userData={null}>
+						<main>{children}</main>
+					</AuthProvider>
+				</Providers>
+			</body>
+		</html>
+	);
 }
