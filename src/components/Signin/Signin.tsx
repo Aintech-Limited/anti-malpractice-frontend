@@ -14,13 +14,22 @@ import { toast } from 'react-toastify';
 import CustomLoadingIcon from '../common/LoadingIcon/LoadingIcon';
 import { isEmail, isStrongPassword } from 'class-validator';
 import { aintechLogo } from '@/public/assetLinks';
-import { useAppDispatch } from '@/src/redux/reduxStore';
+import { useAppDispatch, useAppSelector } from '@/src/redux/reduxStore';
 import { setOTPEmailState } from '@/src/redux/features/otpExpiry/otpExpirySlice';
 import { APP_NAME } from '@/src/lib/data';
 import BlockedWarningModal from './BlockedWarningModal/BlockedWarningModal';
+import {
+	clearSignupState,
+	clearSignupTokenState,
+	clearSignupTypeState,
+} from '@/src/redux/features/signup/signup';
+import { ProtectedRouteEnum } from '@/src/lib/enums';
 
 const Signin = () => {
 	const router = useRouter();
+	const { signup, signupToken, signupType } = useAppSelector(
+		(state) => state.asignup,
+	);
 	const dispatch = useAppDispatch();
 	const { data: googleOauth2Session } = useSession();
 	const { signIn: AuthProviderSignIn } = useAuth();
@@ -34,9 +43,26 @@ const Signin = () => {
 	const [showBlockedWarning, setShowBlockedWarning] = useState<boolean>(false);
 
 	useEffect(() => {
+		if (signup) {
+			dispatch(clearSignupState());
+		}
+		if (signupToken) {
+			dispatch(clearSignupTokenState());
+		}
+		if (signupType) {
+			dispatch(clearSignupTypeState());
+		}
+	}, [dispatch, signup, signupToken, signupType]);
+
+	useEffect(() => {
 		if (!googleOauth2Session) return;
 		if (!googleOauth2Session?.idToken || googleOauth2Session?.idToken === '')
 			return;
+
+		// console.log(
+		// 	'signin googleOauth2Session?.idToken: ',
+		// 	googleOauth2Session?.idToken,
+		// );
 
 		const signinWithGoogle = async () => {
 			try {
@@ -53,7 +79,7 @@ const Signin = () => {
 					console.warn(data.message);
 
 					if (res.status === 401) {
-						GoogleSignout();
+						await GoogleSignout();
 						toast.error('Unauthorized. Try signin again.');
 						return;
 					}
@@ -65,14 +91,16 @@ const Signin = () => {
 
 				AuthProviderSignIn(data.data);
 
-				router.push('/dashboard');
+				if (window) {
+					window.location.href = ProtectedRouteEnum.DASHBOARD;
+				}
 			} catch (e) {
 				console.error('error signing google in user: ', e);
 			}
 		};
 
 		if (googleOauth2Session.idToken.length > 0) signinWithGoogle();
-	}, [AuthProviderSignIn, googleOauth2Session, router]);
+	}, [AuthProviderSignIn, googleOauth2Session]);
 
 	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
@@ -130,6 +158,14 @@ const Signin = () => {
 						dispatch(setOTPEmailState({ email }));
 						toast.success('Check your email for an otp to verify your account');
 						router.push('/verify');
+						return;
+					}
+					if (res.status === 400) {
+						const message = Array.isArray(data?.message)
+							? data?.message?.join(', ')
+							: 'Signin failed';
+						toast.error(message);
+						setLoading(false);
 						return;
 					}
 					if (res.status === 403) {
