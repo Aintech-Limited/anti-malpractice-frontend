@@ -26,7 +26,7 @@ export default function StudentExamResults({
 		downloadResults,
 		setError,
 	} = useExamResults({
-		role: UserRoleTypeEnum.USER,
+		role: UserRoleTypeEnum.STUDENT,
 		initialFilters: { courseCode: '' },
 		initialPage,
 		initialLimit,

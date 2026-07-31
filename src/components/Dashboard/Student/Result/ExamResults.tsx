@@ -12,7 +12,7 @@ export default function ExamResults({
 }: IExamResultsProps) {
 	const { getUserRole } = useAuth();
 	const role = getUserRole()!;
-	if (role === UserRoleTypeEnum.USER) {
+	if (role === UserRoleTypeEnum.STUDENT) {
 		return (
 			<StudentExamResults
 				initialPage={initialPage}
