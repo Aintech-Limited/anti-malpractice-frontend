@@ -36,7 +36,7 @@ export function useExamResults({
 	}>({ download: '', network: '', search: '' });
 	const [filters, setFilters] = useState<IStaffFilters | IStudentFilters>(
 		initialFilters ||
-			(role === UserRoleTypeEnum.USER ? { courseCode: '' } : {}),
+			(role === UserRoleTypeEnum.STUDENT ? { courseCode: '' } : {}),
 	);
 	const [page, setPage] = useState(initialPage);
 	const [limit] = useState(initialLimit);
@@ -48,7 +48,7 @@ export function useExamResults({
 		try {
 			const queryParams = new URLSearchParams();
 
-			if (role === UserRoleTypeEnum.USER) {
+			if (role === UserRoleTypeEnum.STUDENT) {
 				const studentFilters = filters as IStudentFilters;
 				if (studentFilters.courseCode) {
 					queryParams.append('courseCode', studentFilters.courseCode);
@@ -75,7 +75,7 @@ export function useExamResults({
 			queryParams.append('limit', limit.toString());
 
 			const endpoint =
-				role === UserRoleTypeEnum.USER
+				role === UserRoleTypeEnum.STUDENT
 					? `/api/v1/exam-results?${queryParams.toString()}`
 					: `/api/v1/exam-results/staffs?${queryParams.toString()}`;
 
@@ -84,7 +84,7 @@ export function useExamResults({
 
 			if (result.success) {
 				setData(
-					role === UserRoleTypeEnum.USER
+					role === UserRoleTypeEnum.STUDENT
 						? result.data.map((data) => ({
 								...data,
 								user: {
@@ -117,7 +117,7 @@ export function useExamResults({
 	}, [fetchResults]);
 
 	useEffect(() => {
-		if (UserRoleTypeEnum.USER === role) return;
+		if (UserRoleTypeEnum.STUDENT === role) return;
 		const getExamsAndDepartments = async () => {
 			try {
 				const deptResponse = await fetch(
