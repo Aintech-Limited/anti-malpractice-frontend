@@ -116,7 +116,7 @@ export const VendorNavGroups: INavGroup[] = [
 		name: 'Finance',
 		icon: FileText,
 		path: '/finance',
-		children: [{ name: 'Payment History', path: '/history' }],
+		children: [],
 	},
 	{ name: 'Profile', icon: Settings, path: '/profile', children: [] },
 ];
