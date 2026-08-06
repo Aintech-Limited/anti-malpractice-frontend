@@ -8,6 +8,7 @@ export default async function VendorPaymentsViewPage({
 	searchParams,
 }: IPaymentsPageProps) {
 	const data = await fetchPayments(searchParams);
+	// TODO: validate all search params
 
 	return (
 		<Suspense fallback={<PaymentsSkeleton />}>
