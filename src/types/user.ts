@@ -8,7 +8,7 @@ export interface IUserModel {
 	faceAuthEnabled: boolean;
 	emailVerified?: boolean | null;
 	role?: UserRoleTypeEnumValue;
-	profileType?: UserRoleTypeEnumValue | 'ADMIN';
+	profileType?: UserRoleTypeEnumValue;
 	idRecorded?: boolean;
 	isIdVerified?: boolean;
 	avatarURL?: string;
@@ -18,5 +18,9 @@ export interface IUserModel {
 	phoneContact?: string;
 	hasPIN?: boolean;
 	departmentId?: string;
+	departmentName?: string;
 	departmentRole?: TDepartmentUserRoleEnum;
+	institutionId?: string;
+	institutionName?: string;
+	avatar?: string | null;
 }
