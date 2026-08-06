@@ -52,6 +52,22 @@ const DashboardSidebar = ({
 	const { SkipFaceAuth } = useAppSelector((state) => state.afaceAuth);
 	const [showFaceId, setShowFaceId] = useState<boolean>(false);
 
+	const isValidURL = () => {
+		const displayAvatar =
+			userData?.avatar?.trim() !== '' &&
+			userData?.avatar?.trim() !== undefined &&
+			userData?.avatar?.trim() !== null;
+		if (!displayAvatar) return false;
+		try {
+			const link = new URL(userData?.avatar ?? '');
+
+			if (link.protocol !== 'https:') return false;
+		} catch (error) {
+			return false;
+		}
+		return true;
+	};
+
 	useEffect(() => {
 		if (
 			!Object.values(ProtectedRouteEnum).includes(
@@ -147,7 +163,7 @@ const DashboardSidebar = ({
 			<aside
 				className={`fixed inset-y-0 left-0 z-1000 w-64 bg-blue-600 flex flex-col p-6 transition-transform duration-300 transform select-none ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:absolute lg:top-0 lg:left-0 lg:block lg:w-64 lg:h-full lg:opacity-0 lg:pointer-events-none'}`}
 			>
-				<div className="flex items-center justify-between mb-10">
+				<div className="flex items-center justify-between mb-10 shrink-0">
 					<h2 className="text-2xl font-black text-white tracking-tighter">
 						<Link href="/dashboard" className="cursor-pointer">
 							<Image
@@ -166,14 +182,14 @@ const DashboardSidebar = ({
 					/>
 				</div>
 
-				<nav className="flex-1 space-y-2">
+				<nav className="flex-1 space-y-2 overflow-x-auto overflow-y-auto min-h-0 pr-1">
 					{navGroups.map((item) => (
 						<SidebarItem key={item.name} item={item} />
 					))}
 				</nav>
 
 				<button
-					className="flex items-center gap-4 h-12 px-4 w-full text-white text-sm font-semibold rounded-xl bg-white/10 hover:bg-white/15 transition-all mt-auto mb-6 group"
+					className="flex items-center gap-4 h-12 px-4 w-full text-white text-sm font-semibold rounded-xl bg-white/10 hover:bg-white/15 transition-all mt-auto mb-6 group shrink-0"
 					onClick={handleLogout}
 				>
 					<LogOut className="w-5 h-5 text-blue-100 transition-colors group-hover:text-white" />
@@ -181,16 +197,17 @@ const DashboardSidebar = ({
 				</button>
 
 				<div className="flex items-center gap-4 border-t border-white/20 pt-6">
-					<Image
-						src={
-							userData?.avatarURL ??
-							'https://images.unsplash.com/photo-1599566150163-29194dcaad36?&w=64&h=64&auto=format&fit=crop&crop=faces&q=80'
-						}
-						alt="Student"
-						className="w-12 h-12 rounded-xl border border-white/20"
-						height={30}
-						width={70}
-					/>
+					{isValidURL() ? (
+						<Image
+							src={userData!.avatar!}
+							alt="User Avatar"
+							className="w-12 h-12 rounded-xl border border-white/20"
+							height={30}
+							width={70}
+						/>
+					) : (
+						<div className="w-12 h-12 rounded-xl border border-white/20">{`${userData?.firstName?.slice(0, 1) ?? ''} ${userData?.lastName?.slice(0, 1) ?? ''}`}</div>
+					)}
 					<div>
 						<p className="text-sm font-bold text-white">
 							{`${userData?.firstName} ${userData?.lastName}`}
@@ -232,12 +249,9 @@ const DashboardSidebar = ({
 				</button>
 
 				<div className="flex items-center gap-4 border-t border-white/20 pt-6">
-					{userData?.avatarURL ? (
+					{isValidURL() ? (
 						<Image
-							src={
-								userData?.avatarURL ??
-								'https://images.unsplash.com/photo-1599566150163-29194dcaad36?&w=64&h=64&auto=format&fit=crop&crop=faces&q=80'
-							}
+							src={userData!.avatar!}
 							alt="Student"
 							className="w-12 h-12 rounded-xl border border-white/20"
 							height={30}
