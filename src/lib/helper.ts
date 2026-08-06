@@ -1,5 +1,6 @@
-import { isNumber } from 'class-validator';
+import { isNumber, isNumberString } from 'class-validator';
 import { TCourseStatus } from '../components/Dashboard/Student/CoursesCatalog/interface';
+import { IRawMaterialFilters } from '../components/Dashboard/Lecturer/CourseMaterials/interface';
 
 export const compressImage = async (
 	dataUrl: string,
@@ -253,4 +254,28 @@ export const getSafeStringValue = (value: any): string => {
 		return 'N/A';
 	}
 	return String(value);
+};
+
+export const normaliseCourseMaterialsParams = (
+	searchParams: IRawMaterialFilters,
+) => {
+	if (!isNumberString(searchParams.page ?? '1')) {
+		searchParams.page = '1';
+	}
+	if (!isNumberString(searchParams.limit ?? '1')) {
+		searchParams.limit = '1';
+	}
+	if (!['createdAt', 'updatedAt'].includes(searchParams?.sortBy ?? '')) {
+		searchParams.sortBy = 'createdAt';
+	}
+	if (!['DESC', 'ASC'].includes(searchParams?.sortOrder ?? '')) {
+		searchParams.sortOrder = 'DESC';
+	}
+	if (!['DOCUMENT', 'VIDEO', 'PDF'].includes(searchParams?.fileType ?? '')) {
+		searchParams.fileType = undefined;
+	}
+	if (!['true', 'false'].includes(searchParams?.isFree ?? '')) {
+		searchParams.isFree = undefined;
+	}
+	return searchParams;
 };
