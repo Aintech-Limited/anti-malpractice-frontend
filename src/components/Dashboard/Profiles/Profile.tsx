@@ -10,6 +10,7 @@ import { ProfileForm } from "./ProfileForm/ProfileForm";
 import { PasswordModal } from "./modals/PasswordModal";
 import { InfoGrid } from "./InfoGrid/InfoGrid";
 import { PasswordSection } from "./PasswordSection/PasswordSection";
+import AvatarUploader from "./AvatarUploader/AvatarUploader";
 
 export default function Profile({ initialUserData }: IProfileClientProps) {
   const {
@@ -128,7 +129,6 @@ export default function Profile({ initialUserData }: IProfileClientProps) {
             email={user.email}
             isVerified={user.emailVerified ?? false}
           />
-          {/* TODO: Add departmentId */}
 
           <div className="p-8">
             <ProfileForm
@@ -142,7 +142,9 @@ export default function Profile({ initialUserData }: IProfileClientProps) {
               onOpenModal={openPasswordModal}
             />
 
-            <InfoGrid user={user} />
+            <InfoGrid user={user} institution={false} />
+
+            <AvatarUploader avatar={user?.avatar} />
           </div>
         </div>
       </div>

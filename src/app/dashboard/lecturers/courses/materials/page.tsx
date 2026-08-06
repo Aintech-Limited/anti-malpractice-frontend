@@ -1,6 +1,7 @@
 import CourseMaterials from "@/src/components/Dashboard/Lecturer/CourseMaterials/CourseMaterials";
 import { ICourseMaterialsPageProps } from "@/src/components/Dashboard/Lecturer/CourseMaterials/interface";
 import { MaterialsSkeleton } from "@/src/components/Dashboard/Lecturer/CourseMaterials/LoadingSkeleton/LoadingSkeleton";
+import { normaliseCourseMaterialsParams } from "@/src/lib/helper";
 import {
   fetchAssignedCourses,
   fetchCourseMaterials,
@@ -10,8 +11,9 @@ import { Suspense } from "react";
 export default async function CourseMaterialsPage({
   searchParams,
 }: ICourseMaterialsPageProps) {
+  const params = await searchParams;
   const [materialsData, coursesData] = await Promise.all([
-    fetchCourseMaterials(searchParams),
+    fetchCourseMaterials(normaliseCourseMaterialsParams(params) as any),
     fetchAssignedCourses(),
   ]);
 

@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
         credentials: "include",
         body: formData,
       },
+      false,
     );
 
     const data = await response.json();

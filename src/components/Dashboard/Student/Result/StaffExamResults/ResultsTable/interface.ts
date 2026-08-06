@@ -1,5 +1,5 @@
-import { IExamResult } from '../../interface';
+import { IExamResult } from "../../interface";
 
 export interface IResultsTableProps {
-	results: IExamResult[];
+  results: IExamResult[];
 }

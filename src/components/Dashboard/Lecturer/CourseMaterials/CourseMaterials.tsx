@@ -27,7 +27,6 @@ export default function CourseMaterials({
   assignedCourses,
   initialFilters,
 }: ICourseMaterialsProps) {
-  console.log("initialMaterials: ", initialMaterials);
   const {
     materials,
     meta,

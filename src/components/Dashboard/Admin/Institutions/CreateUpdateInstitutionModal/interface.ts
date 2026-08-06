@@ -1,8 +1,8 @@
-import { IInstitution } from '../interface';
+import { IInstitution } from "../interface";
 
 export interface ICreateUpdateInstitutionModalProps {
-	isOpen: boolean;
-	initialData: IInstitution | null;
-	onClose: () => void;
-	onSuccess: () => void;
+  isOpen: boolean;
+  initialData: IInstitution | null;
+  onClose: () => void;
+  onSuccess: () => void;
 }

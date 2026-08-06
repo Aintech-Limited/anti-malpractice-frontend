@@ -121,3 +121,13 @@ export interface IMaterialFilters {
   isFree: string;
   search: string;
 }
+
+export interface IRawMaterialFilters {
+  page?: string;
+  limit?: string;
+  sortBy?: string;
+  sortOrder?: string;
+  fileType?: string;
+  isFree?: string;
+  search?: string;
+}

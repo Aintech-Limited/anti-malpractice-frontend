@@ -1,10 +1,10 @@
-import { IAdminExam } from '../interface';
+import { IAdminExam } from "../interface";
 
 export interface IAdminReleaseResultModalProps {
-	isOpen: boolean;
-	onClose: () => void;
-	exam: IAdminExam | null;
-	onReleaseResult: (
-		examId: string,
-	) => Promise<{ message: string; success: boolean } | null>;
+  isOpen: boolean;
+  onClose: () => void;
+  exam: IAdminExam | null;
+  onReleaseResult: (
+    examId: string,
+  ) => Promise<{ message: string; success: boolean } | null>;
 }

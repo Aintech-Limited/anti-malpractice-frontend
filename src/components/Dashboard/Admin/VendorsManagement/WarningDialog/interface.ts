@@ -1,8 +1,8 @@
-import { IActionModalState } from '../interface';
+import { IActionModalState } from "../interface";
 
 export interface IWarningDialogProps {
-	modal: IActionModalState;
-	closeModal: () => void;
-	actionLoading: boolean;
-	executeAction: () => Promise<void>;
+  modal: IActionModalState;
+  closeModal: () => void;
+  actionLoading: boolean;
+  executeAction: () => Promise<void>;
 }

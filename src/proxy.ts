@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { decodeMyJwt } from "./lib/serverHelper";
 import {
-  ProfileTypeEnum,
   ProtectedRouteEnum,
   UnProtectedRouteEnum,
   UserRoleTypeEnum,
@@ -37,7 +36,7 @@ export async function proxy(request: NextRequest) {
       redirectResponse.cookies.set("visit_count", visitcount.toString(), {
         maxAge: 60 * 60 * 24 * 3650, // 10 year
         path: "/",
-        httpOnly: true,
+        httpOnly: process.env.NODE_ENV === "production",
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
       });
@@ -49,7 +48,7 @@ export async function proxy(request: NextRequest) {
     nextResponse.cookies.set("visit_count", visitcount.toString(), {
       maxAge: 60 * 60 * 24 * 3650, // 10 year
       path: "/",
-      httpOnly: true,
+      httpOnly: process.env.NODE_ENV === "production",
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
     });
@@ -104,10 +103,6 @@ export async function proxy(request: NextRequest) {
   }
 
   if (!token && !refreshToken) {
-    // console.log('missing both tokens. redirecting to signin');
-    // return NextResponse.redirect(
-    // 	new URL(UnProtectedRouteEnum.SIGNIN, request.url),
-    // );
     return NextResponse.next();
   }
 
@@ -135,7 +130,7 @@ export async function proxy(request: NextRequest) {
       redirectResponse.cookies.set("visit_count", visitcount.toString(), {
         maxAge: 60 * 60 * 24 * 3650, // 10 year
         path: "/",
-        httpOnly: true,
+        httpOnly: process.env.NODE_ENV === "production",
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
       });
@@ -147,7 +142,7 @@ export async function proxy(request: NextRequest) {
       nextResponse.cookies.set("visit_count", visitcount.toString(), {
         maxAge: 60 * 60 * 24 * 3650, // 10 year
         path: "/",
-        httpOnly: true,
+        httpOnly: process.env.NODE_ENV === "production",
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
       });
@@ -160,6 +155,8 @@ export async function proxy(request: NextRequest) {
           decodedToken.role === UserRoleTypeEnum.ADMIN) ||
         pathname === ProtectedRouteEnum.FACE_CAPTURE ||
         pathname === ProtectedRouteEnum.DASHBOARD_VERIFY ||
+        (pathname.startsWith(ProtectedRouteEnum.VENDORS) &&
+          decodedToken.role === UserRoleTypeEnum.ADMIN) ||
         (pathname.startsWith(ProtectedRouteEnum.LECTURERS) &&
           decodedToken.role === UserRoleTypeEnum.ADMIN)
       ) {
@@ -169,7 +166,7 @@ export async function proxy(request: NextRequest) {
         redirectResponse.cookies.set("visit_count", visitcount.toString(), {
           maxAge: 60 * 60 * 24 * 3650, // 10 year
           path: "/",
-          httpOnly: true,
+          httpOnly: process.env.NODE_ENV === "production",
           secure: process.env.NODE_ENV === "production",
           sameSite: "lax",
         });
@@ -178,12 +175,14 @@ export async function proxy(request: NextRequest) {
       // lecturers
       if (
         (pathname === ProtectedRouteEnum.DASHBOARD &&
-          decodedToken.role === UserRoleTypeEnum.STAFF) ||
+          decodedToken.role === UserRoleTypeEnum.LECTURER) ||
         (pathname.startsWith(ProtectedRouteEnum.STUDENTS) &&
-          decodedToken.role === UserRoleTypeEnum.STAFF) ||
+          decodedToken.role === UserRoleTypeEnum.LECTURER) ||
         pathname === ProtectedRouteEnum.FACE_CAPTURE ||
         (pathname.startsWith(ProtectedRouteEnum.ADMINS) &&
-          decodedToken.role === UserRoleTypeEnum.STAFF)
+          decodedToken.role === UserRoleTypeEnum.LECTURER) ||
+        (pathname.startsWith(ProtectedRouteEnum.VENDORS) &&
+          decodedToken.role === UserRoleTypeEnum.LECTURER)
       ) {
         const redirectResponse = NextResponse.redirect(
           new URL(ProtectedRouteEnum.LECTURERS, request.url),
@@ -191,7 +190,31 @@ export async function proxy(request: NextRequest) {
         redirectResponse.cookies.set("visit_count", visitcount.toString(), {
           maxAge: 60 * 60 * 24 * 3650, // 10 year
           path: "/",
-          httpOnly: true,
+          httpOnly: process.env.NODE_ENV === "production",
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+        });
+        return redirectResponse;
+      }
+      // vendors
+      if (
+        (pathname === ProtectedRouteEnum.DASHBOARD &&
+          decodedToken.role === UserRoleTypeEnum.VENDOR) ||
+        (pathname.startsWith(ProtectedRouteEnum.STUDENTS) &&
+          decodedToken.role === UserRoleTypeEnum.VENDOR) ||
+        pathname === ProtectedRouteEnum.FACE_CAPTURE ||
+        (pathname.startsWith(ProtectedRouteEnum.ADMINS) &&
+          decodedToken.role === UserRoleTypeEnum.VENDOR) ||
+        (pathname.startsWith(ProtectedRouteEnum.LECTURERS) &&
+          decodedToken.role === UserRoleTypeEnum.VENDOR)
+      ) {
+        const redirectResponse = NextResponse.redirect(
+          new URL(ProtectedRouteEnum.VENDORS, request.url),
+        );
+        redirectResponse.cookies.set("visit_count", visitcount.toString(), {
+          maxAge: 60 * 60 * 24 * 3650, // 10 year
+          path: "/",
+          httpOnly: process.env.NODE_ENV === "production",
           secure: process.env.NODE_ENV === "production",
           sameSite: "lax",
         });
@@ -201,11 +224,13 @@ export async function proxy(request: NextRequest) {
       // students
       if (
         (pathname === ProtectedRouteEnum.DASHBOARD &&
-          decodedToken.role === UserRoleTypeEnum.USER) ||
+          decodedToken.role === UserRoleTypeEnum.STUDENT) ||
         (pathname.startsWith(ProtectedRouteEnum.LECTURERS) &&
-          decodedToken.role === UserRoleTypeEnum.USER) ||
+          decodedToken.role === UserRoleTypeEnum.STUDENT) ||
         (pathname.startsWith(ProtectedRouteEnum.ADMINS) &&
-          decodedToken.role === UserRoleTypeEnum.USER) ||
+          decodedToken.role === UserRoleTypeEnum.STUDENT) ||
+        (pathname.startsWith(ProtectedRouteEnum.LECTURERS) &&
+          decodedToken.role === UserRoleTypeEnum.STUDENT) ||
         pathname === ProtectedRouteEnum.DASHBOARD_VERIFY
       ) {
         const redirectResponse = NextResponse.redirect(
@@ -214,7 +239,7 @@ export async function proxy(request: NextRequest) {
         redirectResponse.cookies.set("visit_count", visitcount.toString(), {
           maxAge: 60 * 60 * 24 * 3650, // 10 year
           path: "/",
-          httpOnly: true,
+          httpOnly: process.env.NODE_ENV === "production",
           secure: process.env.NODE_ENV === "production",
           sameSite: "lax",
         });
@@ -222,7 +247,7 @@ export async function proxy(request: NextRequest) {
       }
       if (
         pathname === ProtectedRouteEnum.DASHBOARD_VERIFY &&
-        decodedToken.profileType !== ProfileTypeEnum.LECTURER
+        decodedToken.profileType !== UserRoleTypeEnum.LECTURER
       ) {
         const redirectResponse = NextResponse.redirect(
           new URL(ProtectedRouteEnum.DASHBOARD, request.url),
@@ -230,7 +255,7 @@ export async function proxy(request: NextRequest) {
         redirectResponse.cookies.set("visit_count", visitcount.toString(), {
           maxAge: 60 * 60 * 24 * 3650, // 10 year
           path: "/",
-          httpOnly: true,
+          httpOnly: process.env.NODE_ENV === "production",
           secure: process.env.NODE_ENV === "production",
           sameSite: "lax",
         });
@@ -238,7 +263,7 @@ export async function proxy(request: NextRequest) {
       }
       if (
         pathname === ProtectedRouteEnum.FACE_CAPTURE &&
-        decodedToken.profileType !== ProfileTypeEnum.STUDENT
+        decodedToken.profileType !== UserRoleTypeEnum.STUDENT
       ) {
         const redirectResponse = NextResponse.redirect(
           new URL(ProtectedRouteEnum.DASHBOARD, request.url),
@@ -246,7 +271,7 @@ export async function proxy(request: NextRequest) {
         redirectResponse.cookies.set("visit_count", visitcount.toString(), {
           maxAge: 60 * 60 * 24 * 3650, // 10 year
           path: "/",
-          httpOnly: true,
+          httpOnly: process.env.NODE_ENV === "production",
           secure: process.env.NODE_ENV === "production",
           sameSite: "lax",
         });
@@ -261,7 +286,7 @@ export async function proxy(request: NextRequest) {
       redirectResponse.cookies.set("visit_count", visitcount.toString(), {
         maxAge: 60 * 60 * 24 * 3650, // 10 year
         path: "/",
-        httpOnly: true,
+        httpOnly: process.env.NODE_ENV === "production",
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
       });
@@ -273,7 +298,7 @@ export async function proxy(request: NextRequest) {
   nextResponse.cookies.set("visit_count", visitcount.toString(), {
     maxAge: 60 * 60 * 24 * 3650, // 10 year
     path: "/",
-    httpOnly: true,
+    httpOnly: process.env.NODE_ENV === "production",
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
   });

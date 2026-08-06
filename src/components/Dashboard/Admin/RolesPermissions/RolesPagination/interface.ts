@@ -1,7 +1,7 @@
-import { IMeta } from '../interface';
+import { IMeta } from "../interface";
 
 export interface IPaginationProps {
-	meta: IMeta;
-	handlePageChange: (page: number) => void;
-	currentPage: number;
+  meta: IMeta;
+  handlePageChange: (page: number) => void;
+  currentPage: number;
 }

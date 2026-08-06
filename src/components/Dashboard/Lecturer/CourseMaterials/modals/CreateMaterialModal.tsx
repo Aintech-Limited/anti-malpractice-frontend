@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { ICreateMaterialPayload, IUploadResponse } from "../interface";
 import { ICreateMaterialModalProps } from "./interface";
-import { FILE_TYPES } from "../utils/materialConstants";
 
 export const CreateMaterialModal = ({
   courses,

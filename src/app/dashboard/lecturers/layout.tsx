@@ -1,15 +1,15 @@
-import { ReactNode } from 'react';
-import { Metadata } from 'next';
+import { ReactNode } from "react";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
-	title: `Lecturers | FINDU Dashboard`,
-	description: 'Lecturers Dashboard.',
+  title: `Lecturers | FINDU Dashboard`,
+  description: "Lecturers Dashboard.",
 };
 
 export default async function LecturersDashboardLayout({
-	children,
+  children,
 }: {
-	children: ReactNode;
+  children: ReactNode;
 }) {
-	return <>{children}</>;
+  return <>{children}</>;
 }

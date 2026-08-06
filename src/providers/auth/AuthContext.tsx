@@ -5,6 +5,8 @@ import { IUserModel } from "@/src/types/user";
 
 const AuthContext = createContext<IAuthContextType | undefined>(undefined);
 
+export const USER_STORAGE_KEY = "finduUser";
+
 export function AuthProvider({
   children,
   userData,
@@ -14,13 +16,13 @@ export function AuthProvider({
 
     if (typeof window !== "undefined") {
       try {
-        const storedUser = localStorage.getItem("finduUser");
+        const storedUser = localStorage.getItem(USER_STORAGE_KEY);
         if (storedUser && storedUser !== "undefined") {
           return JSON.parse(storedUser);
         }
       } catch (error) {
         console.error("Failed to parse stored user:", error);
-        localStorage.removeItem("finduUser");
+        localStorage.removeItem(USER_STORAGE_KEY);
       }
     }
     return null;
@@ -30,9 +32,9 @@ export function AuthProvider({
   useEffect(() => {
     if (typeof window !== "undefined") {
       if (user) {
-        localStorage.setItem("finduUser", JSON.stringify(user));
+        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
       } else {
-        localStorage.removeItem("finduUser");
+        localStorage.removeItem(USER_STORAGE_KEY);
       }
     }
 
@@ -57,7 +59,7 @@ export function AuthProvider({
 
   const signOut = () => {
     setUser(null);
-    localStorage.removeItem("finduUser");
+    localStorage.removeItem(USER_STORAGE_KEY);
     sessionStorage.clear();
   };
 
@@ -74,6 +76,9 @@ export function AuthProvider({
 
     const updatedUser = { ...user, ...userData };
     setUser(updatedUser);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
+    }
   };
 
   const isAuthenticated = !!user;
