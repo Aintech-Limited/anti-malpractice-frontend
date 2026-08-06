@@ -27,7 +27,11 @@ const SidebarItem = ({ item }: { item: INavGroup }) => {
 					? ProtectedRouteEnum.VENDORS
 					: ProtectedRouteEnum.ADMINS;
 
-	const baseItemStyles = `flex items-center justify-between w-full h-12 px-4 rounded-xl transition-all hover:bg-white/10 group mb-1 ${pathname === conformPath ? 'text-green' : ''}`;
+	const fullPath = `${conformPath}${item.path!}`;
+
+	const isActive = fullPath === pathname;
+
+	const baseItemStyles = `flex items-center justify-between w-full h-12 px-4 rounded-xl transition-all hover:bg-white/10 group mb-1 ${isActive ? 'text-green-300 underline' : 'text-white'}`;
 	const activeStyles = isOpen ? 'bg-white/10' : '';
 	const hoverClasses = `hover:bg-white/10 hover:translate-x-1`;
 
@@ -39,11 +43,15 @@ const SidebarItem = ({ item }: { item: INavGroup }) => {
 						? UnProtectedRouteEnum.SUPPORT
 						: `${conformPath}${item.path!}`
 				}
-				className={`${baseItemStyles} ${hoverClasses} text-white/90 hover:text-white`}
+				className={`hover:text-white ${baseItemStyles} ${hoverClasses} `}
 			>
 				<div className="flex items-center gap-4">
 					<item.icon className="w-5 h-5 text-blue-100 group-hover:text-white" />
-					<span className="text-sm font-semibold text-white">{item.name}</span>
+					<span
+						className={`text-sm font-semibold  ${isActive ? 'underline' : 'text-white'}`}
+					>
+						{item.name}
+					</span>
 				</div>
 			</Link>
 		);
