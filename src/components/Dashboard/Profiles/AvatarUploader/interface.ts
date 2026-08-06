@@ -1,13 +1,13 @@
-interface IAvatarUploaderProps {
-	avatar?: string | null;
+export interface IAvatarUploaderProps {
+  avatar?: string | null;
 }
 
-interface IUploadApiResponse {
-	message: string;
-	success: boolean;
-	data: {
-		publicId: string;
-		url: string;
-		fileSize: string;
-	};
+export interface IUploadApiResponse {
+  message: string;
+  success: boolean;
+  data: {
+    publicId: string;
+    url: string;
+    fileSize: string;
+  };
 }

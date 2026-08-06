@@ -1,7 +1,7 @@
-import { SetStateAction } from 'react';
-import { IMetaData } from '../../interface';
+import { SetStateAction } from "react";
+import { IMetaData } from "../../interface";
 
 export interface IExamResultPaginationProps {
-	meta: IMetaData;
-	setPage: (value: SetStateAction<number>) => void;
+  meta: IMetaData;
+  setPage: (value: SetStateAction<number>) => void;
 }

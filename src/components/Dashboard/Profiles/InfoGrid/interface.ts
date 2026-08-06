@@ -1,6 +1,6 @@
-import { IUserModel } from '@/src/types/user';
+import { IUserModel } from "@/src/types/user";
 
 export interface IInfoGridProps {
-	user: IUserModel;
-	institution: boolean;
+  user: IUserModel;
+  institution: boolean;
 }

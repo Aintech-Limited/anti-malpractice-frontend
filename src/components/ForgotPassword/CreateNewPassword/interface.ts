@@ -1,4 +1,4 @@
 export interface IPasswordUpdateForm {
-	password: string;
-	confirmPassword: string;
+  password: string;
+  confirmPassword: string;
 }

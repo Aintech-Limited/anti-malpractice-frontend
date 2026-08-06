@@ -1,15 +1,15 @@
-import { ReactNode } from 'react';
-import { Metadata } from 'next';
+import { ReactNode } from "react";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
-	title: `Admins | FINDU Dashboard`,
-	description: 'Admins Dashboard.',
+  title: `Admins | FINDU Dashboard`,
+  description: "Admins Dashboard.",
 };
 
 export default async function AdminDashboardLayout({
-	children,
+  children,
 }: {
-	children: ReactNode;
+  children: ReactNode;
 }) {
-	return <>{children}</>;
+  return <>{children}</>;
 }

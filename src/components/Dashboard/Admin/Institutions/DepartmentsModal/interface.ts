@@ -1,8 +1,8 @@
-import { IDepartment } from '../interface';
+import { IDepartment } from "../interface";
 
 export interface IDepartmentsModalProps {
-	isOpen: boolean;
-	institutionName: string;
-	departments: IDepartment[];
-	onClose: () => void;
+  isOpen: boolean;
+  institutionName: string;
+  departments: IDepartment[];
+  onClose: () => void;
 }

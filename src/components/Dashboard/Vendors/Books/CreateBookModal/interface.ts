@@ -1,8 +1,8 @@
-import { ICreateMaterialPayload } from '../../../Lecturer/CourseMaterials/interface';
+import { ICreateMaterialPayload } from "../../../Lecturer/CourseMaterials/interface";
 
 export interface ICreateBookModalProps {
-	onClose: () => void;
-	onSuccess: (material: any) => void;
+  onClose: () => void;
+  onSuccess: (material: any) => void;
 }
 
-export type TCreateBookPayload = Omit<ICreateMaterialPayload, 'courseId'>;
+export type TCreateBookPayload = Omit<ICreateMaterialPayload, "courseId">;
