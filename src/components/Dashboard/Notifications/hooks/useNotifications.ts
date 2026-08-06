@@ -151,7 +151,7 @@ export const useNotifications = () => {
 		});
 
 		socketRef.current.on('connect_error', (err: Error) => {
-			console.error('Connection failed:', err.message);
+			console.warn('Connection failed:', err.message);
 			setIsConnected(false);
 		});
 
