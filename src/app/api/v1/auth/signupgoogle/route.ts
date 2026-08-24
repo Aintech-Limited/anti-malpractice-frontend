@@ -1,36 +1,36 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
-	try {
-		const body = await request.json();
-		console.log('google signup body: ', body);
+  try {
+    const body = await request.json();
+    console.log("google signup body: ", body);
 
-		const response = await fetch(
-			`${process.env.BACKEND_API_URL}/v1/auth/signup/google`,
-			{
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(body),
-			},
-		);
+    const response = await fetch(
+      `${process.env.BACKEND_API_URL}/v1/auth/signup/google`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      },
+    );
 
-		if (!response.ok) {
-			return NextResponse.json(
-				{ ...(await response.json()) },
-				{ status: response.status },
-			);
-		}
-		const data = await response.json();
+    if (!response.ok) {
+      return NextResponse.json(
+        { ...(await response.json()) },
+        { status: response.status },
+      );
+    }
+    const data = await response.json();
 
-		return NextResponse.json(data, { status: response.status });
-	} catch (error) {
-		console.error('error signup via google: ', error);
-		return NextResponse.json(
-			{ message: 'Internal server error', success: false },
-			{ status: 500 },
-		);
-	}
+    return NextResponse.json(data, { status: response.status });
+  } catch (error) {
+    console.error("error signup via google: ", error);
+    return NextResponse.json(
+      { message: "Internal server error", success: false },
+      { status: 500 },
+    );
+  }
 }

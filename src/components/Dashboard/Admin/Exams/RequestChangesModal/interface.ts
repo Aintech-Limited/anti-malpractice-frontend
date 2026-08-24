@@ -1,8 +1,8 @@
-import { IAdminExam } from '../interface';
+import { IAdminExam } from "../interface";
 
 export interface IAdminRequestChangesModalProps {
-	isOpen: boolean;
-	onClose: () => void;
-	onConfirm: (examId: string, changes: string) => Promise<void>;
-	exam: IAdminExam | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (examId: string, changes: string) => Promise<void>;
+  exam: IAdminExam | null;
 }

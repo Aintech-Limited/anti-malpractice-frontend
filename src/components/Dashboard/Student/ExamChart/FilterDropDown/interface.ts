@@ -1,4 +1,4 @@
 export interface IFilterDropdownProps {
-	label: string;
-	placeholder: string;
+  label: string;
+  placeholder: string;
 }

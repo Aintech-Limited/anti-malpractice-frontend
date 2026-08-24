@@ -1,6 +1,6 @@
 export interface IExamsStatsProps {
-	total: number;
-	inProgress: number;
-	registered: number;
-	failed: number;
+  total: number;
+  inProgress: number;
+  registered: number;
+  failed: number;
 }

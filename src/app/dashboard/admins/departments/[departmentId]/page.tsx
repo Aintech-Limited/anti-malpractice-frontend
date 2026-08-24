@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation';
+import { redirect } from "next/navigation";
 
 export default async function DepartmentPage() {
-	return redirect('/dashboard/admins/departments');
+  return redirect("/dashboard/admins/departments");
 }

@@ -1,6 +1,6 @@
-import { IPayment } from '../interface';
+import { IPayment } from "../interface";
 
 export interface IPaymentCardProps {
-	payment: IPayment;
-	onViewDetails: (payment: IPayment) => void;
+  payment: IPayment;
+  onViewDetails: (payment: IPayment) => void;
 }

@@ -18,6 +18,7 @@ import { IExamsPageProps } from '../components/Dashboard/Lecturer/Exams/interfac
 import { IIExamRegistrationsPageProps } from '../components/Dashboard/Lecturer/Exams/ExamRegistrations/interface';
 import {
 	ICourseMaterialsPageProps,
+	IMaterialFilters,
 	IMaterialsApiResponse,
 } from '../components/Dashboard/Lecturer/CourseMaterials/interface';
 import { IRegisteredExamsPageProps } from '../components/Dashboard/Student/RegisteredExam/interface';
@@ -55,7 +56,12 @@ import {
 	IAdminDashboardProps,
 	IAdminDashboardResponse,
 } from '../components/Dashboard/Admin/interface';
-import { ProtectedRouteEnum, TEmailTemplateEnum } from './enums';
+import {
+	InstitutionLevelEnum,
+	ProtectedRouteEnum,
+	TEmailTemplateEnum,
+	UnProtectedRouteEnum,
+} from './enums';
 import { IUserModel } from '../types/user';
 import {
 	IBulkGradeRequest,
@@ -64,6 +70,21 @@ import {
 } from '../components/Dashboard/Lecturer/GradeExam/interface';
 import { revalidatePath } from 'next/cache';
 import { ILecturerDashboardResponse } from '../components/Dashboard/Lecturer/interface';
+import { IAdminComplaintResponse } from '../components/Dashboard/Admin/ComplaintManager/interface';
+import { IStudentManagenementResponse } from '../components/Dashboard/Admin/Students/interface';
+import { IEarningDataResponse } from '../components/Dashboard/Admin/Earnings/interface';
+import {
+	IGetGroupedPermissionResponse,
+	IGetRoleResponse,
+} from '../components/Dashboard/Admin/RolesPermissions/interface';
+import {
+	IGetInstitutionApiResponse,
+	IInstitution,
+} from '../components/Dashboard/Admin/Institutions/interface';
+import { IVendorApiResponse } from '../components/Dashboard/Admin/VendorsManagement/interface';
+import { redirect } from 'next/navigation';
+import { TBooksApiResponse } from '../components/Dashboard/Vendors/Books/interface';
+import { IVendorsDashboardProps } from '../components/Dashboard/Vendors/Dashboard/interface';
 
 const API_BASE_URL = process.env.BACKEND_API_URL;
 /**
@@ -91,7 +112,12 @@ export async function fetchSupportArticles(): Promise<ISupportArticlesReponse> {
 		});
 
 		if (!response.ok) {
-			throw new Error('Failed to fetch articles');
+			const error = await response.json();
+			return {
+				message: error?.message ?? 'Error fetching articles',
+				success: false,
+				data: { articles: [], categories: [] },
+			};
 		}
 
 		const data = await response.json();
@@ -222,9 +248,6 @@ export const getPurchasedCourseMaterials = async (
 					hasPreviousPage: false,
 				},
 			};
-			// return JSON.parse(
-			// await response.text(),
-			// ) as IPurchasedCourseMaterialsResponse;
 		}
 		const data = (await response.json()) as IPurchasedCourseMaterialsResponse;
 		return data;
@@ -258,7 +281,20 @@ export async function fetchRegisteredCourses(): Promise<RegisteredCoursesRespons
 		});
 
 		if (!response.ok) {
-			throw new Error(`Failed to fetch registered courses: ${response.status}`);
+			const error = await response.json();
+			return {
+				success: false,
+				message: error?.message ?? 'Failed to load registered courses',
+				meta: {
+					hasNextPage: false,
+					hasPreviousPage: false,
+					limit: 20,
+					page: 1,
+					totalItems: 0,
+					totalPages: 1,
+				},
+				data: [],
+			};
 		}
 
 		return await response.json();
@@ -283,27 +319,56 @@ export async function fetchRegisteredCourses(): Promise<RegisteredCoursesRespons
 export async function fetchPayments(
 	searchParams: IPaymentsPageProps['searchParams'],
 ): Promise<IPaymentApiResponse> {
-	const page = (await searchParams).page || '1';
-	const limit = (await searchParams).limit || '50';
-	const type = (await searchParams).type || '';
-	const sortBy = (await searchParams).sortBy || 'createdAt';
+	try {
+		const page = (await searchParams).page || '1';
+		const limit = (await searchParams).limit || '50';
+		const type = (await searchParams).type || '';
+		const sortBy = (await searchParams).sortBy || 'createdAt';
 
-	let url = `payments?page=${page}&limit=${limit}&sortBy=${sortBy}`;
-	if (type) {
-		url += `&type=${type}`;
+		let url = `payments?page=${page}&limit=${limit}&sortBy=${sortBy}`;
+		if (type) {
+			url += `&type=${type}`;
+		}
+
+		const response = await apiProxy(`${API_BASE_URL}/v1/${url}`, {
+			next: { revalidate: 60 }, // Revalidate every 60 seconds
+			credentials: 'include',
+			headers: { 'Content-Type': 'application/json' },
+		});
+
+		if (!response.ok) {
+			const error = await response.json();
+			return {
+				message: error?.message ?? 'Could not retrieve Payment history',
+				success: false,
+				meta: {
+					hasNextPage: false,
+					hasPreviousPage: false,
+					limit: 10,
+					page: 1,
+					totalItems: 0,
+					totalPages: 1,
+				},
+				data: [],
+			};
+		}
+
+		return response.json() as unknown as IPaymentApiResponse;
+	} catch (error) {
+		return {
+			message: 'Could not retrieve Payment history',
+			success: false,
+			meta: {
+				hasNextPage: false,
+				hasPreviousPage: false,
+				limit: 10,
+				page: 1,
+				totalItems: 0,
+				totalPages: 1,
+			},
+			data: [],
+		};
 	}
-
-	const response = await apiProxy(`${API_BASE_URL}/v1/${url}`, {
-		next: { revalidate: 60 }, // Revalidate every 60 seconds
-		credentials: 'include',
-		headers: { 'Content-Type': 'application/json' },
-	});
-
-	if (!response.ok) {
-		throw new Error('Failed to fetch payments');
-	}
-
-	return response.json() as unknown as IPaymentApiResponse;
 }
 
 export async function getUserProfile(): Promise<{
@@ -319,6 +384,14 @@ export async function getUserProfile(): Promise<{
 			cache: 'no-store',
 		});
 
+		if (!response.ok) {
+			if (response.status === 401) {
+				redirect(UnProtectedRouteEnum.SIGNIN);
+			}
+			const error = await response.json();
+			return { data: error?.data, message: error?.message, success: false };
+		}
+
 		return await response.json();
 	} catch (error) {
 		console.error('error getting user data: ', error);
@@ -326,29 +399,103 @@ export async function getUserProfile(): Promise<{
 	}
 }
 
+export async function getVendorDashboard(): Promise<
+	IVendorsDashboardProps['initialData']
+> {
+	try {
+		const response = await apiProxy(
+			`${API_BASE_URL}/v1/dashboard/merchants/v/vendors/dashboard`,
+			{
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				cache: 'no-store',
+			},
+		);
+
+		if (!response.ok) {
+			if (response.status === 401) {
+				redirect(UnProtectedRouteEnum.SIGNIN);
+			}
+			const error = await response.json();
+			return {
+				data: {
+					stats: { booksAdded: 0, booksApproved: 0, booksSold: 0 },
+					barchart: [],
+					lastestPurchase: [],
+				},
+				message: error?.message,
+				success: false,
+			};
+		}
+
+		return await response.json();
+	} catch (error) {
+		console.error('error getting vendor dashboard: ', error);
+		return {
+			data: {
+				stats: { booksAdded: 0, booksApproved: 0, booksSold: 0 },
+				barchart: [],
+				lastestPurchase: [],
+			},
+			message: 'Could not retrieve dashboard data',
+			success: false,
+		};
+	}
+}
+
 export async function fetchDepartments(
 	searchParams: IDepartmentsPageProps['searchParams'],
 ) {
-	const page = (await searchParams).page || '1';
-	const limit = (await searchParams).limit || '10';
-	const sortBy = (await searchParams).sortBy || 'createdAt';
-	const name = (await searchParams).name || '';
+	try {
+		const page = (await searchParams).page || '1';
+		const limit = (await searchParams).limit || '10';
+		const sortBy = (await searchParams).sortBy || 'createdAt';
+		const name = (await searchParams).name || '';
 
-	let url = `v1/departments?page=${page}&limit=${limit}&sortBy=${sortBy}`;
-	if (name) {
-		url += `&name=${encodeURIComponent(name)}`;
+		let url = `v1/departments?page=${page}&limit=${limit}&sortBy=${sortBy}`;
+		if (name) {
+			url += `&name=${encodeURIComponent(name)}`;
+		}
+
+		const response = await apiProxy(`${API_BASE_URL}/${url}`, {
+			cache: 'no-store',
+			headers: { 'Content-Type': 'application/json' },
+		});
+
+		if (!response.ok) {
+			const error = await response.json();
+			return {
+				data: [],
+				message: error?.message ?? 'Failed to fetch Departments',
+				success: false,
+				meta: {
+					hasNextPage: false,
+					hasPreviousPage: false,
+					limit: 10,
+					page: 1,
+					totalItems: 0,
+					totalPages: 1,
+				},
+			};
+		}
+
+		return await response.json();
+	} catch (error) {
+		return {
+			data: [],
+			message: 'Failed to fetch Departments',
+			success: false,
+			meta: {
+				hasNextPage: false,
+				hasPreviousPage: false,
+				limit: 10,
+				page: 1,
+				totalItems: 0,
+				totalPages: 1,
+			},
+		};
 	}
-
-	const response = await apiProxy(`${API_BASE_URL}/${url}`, {
-		cache: 'no-store',
-		headers: { 'Content-Type': 'application/json' },
-	});
-
-	if (!response.ok) {
-		throw new Error('Failed to fetch departments');
-	}
-
-	return response.json();
 }
 
 export async function fetchAccounts() {
@@ -507,16 +654,16 @@ export async function fetchExamDetails(examId: string) {
 }
 
 export async function fetchCourseMaterials(
-	searchParams: ICourseMaterialsPageProps['searchParams'],
+	searchParams: IMaterialFilters,
 ): Promise<IMaterialsApiResponse> {
 	try {
-		const page = (await searchParams).page || '1';
-		const limit = (await searchParams).limit || '10';
-		const sortBy = (await searchParams).sortBy || 'createdAt';
-		const sortOrder = (await searchParams).sortOrder || 'DESC';
-		const fileType = (await searchParams).fileType || '';
-		const isFree = (await searchParams).isFree || '';
-		const search = (await searchParams).search || '';
+		const page = searchParams.page || '1';
+		const limit = searchParams.limit || '10';
+		const sortBy = searchParams.sortBy || 'createdAt';
+		const sortOrder = searchParams.sortOrder || 'DESC';
+		const fileType = searchParams.fileType || '';
+		const isFree = searchParams.isFree || '';
+		const search = searchParams.search || '';
 
 		let url = `${API_BASE_URL}/v1/course-materials?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
 		if (fileType) url += `&fileType=${fileType}`;
@@ -555,6 +702,68 @@ export async function fetchCourseMaterials(
 		console.error(error);
 		return {
 			message: 'Internal Server error',
+			data: { materials: [], totalRevenue: 0 },
+			success: false,
+			meta: {
+				page: 0,
+				limit: 0,
+				totalItems: 0,
+				totalPages: 0,
+				hasNextPage: false,
+				hasPreviousPage: false,
+			},
+		};
+	}
+}
+
+export async function getInitialVendorBooks(
+	searchParams: IMaterialFilters,
+): Promise<TBooksApiResponse> {
+	try {
+		const page = searchParams.page || '1';
+		const limit = searchParams.limit || '10';
+		const sortBy = searchParams.sortBy || 'createdAt';
+		const sortOrder = searchParams.sortOrder || 'DESC';
+		const fileType = searchParams.fileType || '';
+		const isFree = searchParams.isFree || '';
+		const search = searchParams.search || '';
+
+		let url = `${API_BASE_URL}/v1/course-materials?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+		if (fileType) url += `&fileType=${fileType}`;
+		if (isFree) url += `&isFree=${isFree}`;
+		if (search) url += `&search=${encodeURIComponent(search)}`;
+
+		const response = await apiProxy(url, {
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			cache: 'no-store',
+		});
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			return {
+				...data,
+				message: data?.message || 'Could not retrieve Books',
+				data: { materials: [], totalRevenue: 0 },
+				success: false,
+				meta: {
+					page: 0,
+					limit: 0,
+					totalItems: 0,
+					totalPages: 0,
+					hasNextPage: false,
+					hasPreviousPage: false,
+				},
+			};
+		}
+
+		return data;
+	} catch (error) {
+		console.error(error);
+		return {
+			message: 'Could not retrieve Books',
 			data: { materials: [], totalRevenue: 0 },
 			success: false,
 			meta: {
@@ -690,6 +899,59 @@ export const fetchStudentLiveExam = async (examId: string) => {
 	}
 };
 
+export const getAdminComplaints =
+	async (): Promise<IAdminComplaintResponse> => {
+		try {
+			const response = await apiProxy(
+				`${process.env.BACKEND_API_URL}/v1/complaints?page=1&limit=50&sortBy=createdAt&sortOrder=DESC`,
+				{
+					method: 'GET',
+				},
+			);
+
+			const data = await response.json();
+
+			return data;
+		} catch (error) {
+			console.error(error);
+			return {
+				data: [],
+				message: 'Error fetchung complaints',
+				success: false,
+				meta: {
+					hasNextPage: false,
+					hasPreviousPage: false,
+					limit: 0,
+					page: 1,
+					totalItems: 0,
+					totalPages: 0,
+				},
+			};
+		}
+	};
+
+export const getStudentComplaints = async (params: Record<string, any>) => {
+	try {
+		const queryString = new URLSearchParams(params).toString();
+		const response = await apiProxy(
+			`${API_BASE_URL}/v1/complaints/students?${queryString}`,
+			{
+				method: 'GET',
+				credentials: 'include',
+			},
+		);
+		if (!response.ok) {
+			const error = await response.json();
+			return error;
+		}
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error('error fetching student complaints: ', error);
+		return { message: 'Internal Server Error', success: false, data: {} };
+	}
+};
+
 export const fetchStudentDashboard =
 	async (): Promise<IStudentDashboardResponse> => {
 		try {
@@ -730,14 +992,18 @@ export const fetchLiveExamDetails = async (
 		if (!response.ok) {
 			const error = await response.json();
 			console.log('error: ', JSON.stringify(error), ', examId: ', examId);
-			return error;
+			return {
+				...error,
+				statusCode: 403,
+				data: {},
+			};
 		}
 		const data = await response.json();
 		return {
-			data: data.data,
+			data: data?.data ?? {},
 			statusCode: response.status,
-			message: data.message,
-			success: data.success,
+			message: data?.message ?? 'Not found!',
+			success: data?.success ?? false,
 		};
 	} catch (error) {
 		console.error('error fetching live exam details:', error);
@@ -1285,7 +1551,7 @@ export async function fetchAdminCourses(
 ): Promise<IAdminExamCourse[]> {
 	try {
 		const params = new URLSearchParams();
-		params.append('limit', '100');
+		params.append('limit', '50');
 		if (departmentId) params.append('departmentId', departmentId);
 
 		const response = await apiProxy(
@@ -1567,15 +1833,211 @@ export async function fetchDashboard(
 	}
 }
 
+export const getStudentManagenemt =
+	async (): Promise<IStudentManagenementResponse> => {
+		try {
+			const response = await apiProxy(
+				`${process.env.BACKEND_API_URL}/v1/students-management?page=1&limit=50&sortBy=createdAt&sortOrder=DESC`,
+				{
+					method: 'GET',
+				},
+			);
+
+			const data = await response.json();
+			// console.log('data: ', data);
+
+			return data;
+		} catch (error) {
+			console.error(error);
+			return {
+				data: [],
+				message: 'Error fetching students management',
+				success: false,
+				meta: {
+					hasNextPage: false,
+					hasPreviousPage: false,
+					limit: 0,
+					page: 1,
+					totalItems: 0,
+					totalPages: 0,
+				},
+			};
+		}
+	};
+
+export const getAdminEarnings = async (): Promise<IEarningDataResponse> => {
+	try {
+		const response = await apiProxy(
+			`${process.env.BACKEND_API_URL}/v1/earnings?salesAnalytics=true&salesByCountry=true&incomeStreams=true&productType=COURSE_MATERIAL`,
+			{
+				method: 'GET',
+			},
+		);
+
+		const data = await response.json();
+
+		return data;
+	} catch (error) {
+		console.error(error);
+		return {
+			data: {
+				incomeStreams: {
+					bonus: 0,
+					finance: 0,
+					income: 0,
+					percentageComparison: 0,
+					salary: 0,
+					todaysEarning: 0,
+					total: 0,
+					yesterdaysEarning: 0,
+				},
+				salesAnalytics: {
+					activeCustomers: 0,
+					newRevenue: 0,
+					productSold: 0,
+					totalSales: 0,
+				},
+				salesByCountry: {
+					offices: [],
+					period: '6 Months',
+					revenueGrowth: 0,
+					topPerforming: 0,
+				},
+			},
+			message: 'Error retrieving Earning data',
+			success: false,
+		};
+	}
+};
+
+export async function getInitialInstitutions(
+	params: URLSearchParams,
+): Promise<IGetInstitutionApiResponse<IInstitution[]>> {
+	const res = await apiProxy(
+		`${API_BASE_URL}/v1/institutions?${params.toString()}`,
+		{
+			cache: 'no-store',
+		},
+	);
+
+	if (!res.ok) {
+		return {
+			message: 'Failed to load initial institutions',
+			success: false,
+			meta: {
+				page: 1,
+				limit: 10,
+				totalItems: 0,
+				totalPages: 0,
+				hasNextPage: false,
+				hasPreviousPage: false,
+			},
+			data: [],
+		};
+	}
+
+	return await res.json();
+}
+
+export async function getInitialVendors(): Promise<IVendorApiResponse> {
+	try {
+		const res = await apiProxy(
+			`${process.env.BACKEND_API_URL}/v1/vendors?page=1&limit=50`,
+			{
+				cache: 'no-store',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			},
+		);
+
+		if (!res.ok) {
+			throw new Error('Failed to fetch initial vendors');
+		}
+
+		return await res.json();
+	} catch (error) {
+		console.error('Error fetching initial vendors:', error);
+		return {
+			message: 'Failed to load initial data',
+			success: false,
+			meta: {
+				page: 1,
+				limit: 50,
+				totalItems: 0,
+				totalPages: 0,
+				hasNextPage: false,
+				hasPreviousPage: false,
+			},
+			data: [],
+		};
+	}
+}
+
+export async function getRoles(params: {
+	page?: number;
+	limit?: number;
+	includePermissions?: boolean;
+	search?: string;
+}): Promise<IGetRoleResponse> {
+	const searchParams = new URLSearchParams();
+	if (params.page) searchParams.set('page', String(params.page));
+	if (params.limit) searchParams.set('limit', String(params.limit));
+	if (params.includePermissions) searchParams.set('includePermissions', 'true');
+	if (params.search) searchParams.set('search', params.search);
+
+	const response = await apiProxy(
+		`${API_BASE_URL}/v1/roles?${searchParams.toString()}`,
+		{
+			next: { revalidate: 0 },
+		},
+	);
+
+	if (!response.ok) {
+		// throw new Error('Failed to fetch roles');
+		const error = await response.json();
+		return {
+			data: [],
+			message: error.message,
+			meta: {
+				hasNextPage: false,
+				hasPreviousPage: false,
+				limit: 50,
+				page: 1,
+				totalItems: 0,
+				totalPages: 1,
+			},
+			success: false,
+		};
+	}
+
+	return await response.json();
+}
+
+export async function getGroupedPermissions(): Promise<IGetGroupedPermissionResponse> {
+	const response = await apiProxy(`${API_BASE_URL}/v1/permissions/grouped`, {
+		next: { revalidate: 60 },
+	});
+
+	if (!response.ok) {
+		const error = await response.json();
+		return { ...error, data: {} };
+	}
+
+	return response.json();
+}
+
 export const apiProxy = async (
 	input: RequestInfo | URL,
 	init?: RequestInit,
+	addContentHeader: boolean = true,
 ) => {
 	const cookie = await cookies();
 	// console.log('cookie: ', cookie.toString());
 	const makeRequest = async (
 		requestInput: RequestInfo | URL,
 		requestInit?: RequestInit,
+		addContentHeader: boolean = true,
 	) => {
 		return fetch(requestInput, {
 			...requestInit,
@@ -1583,12 +2045,13 @@ export const apiProxy = async (
 				Cookie: cookie.toString(),
 				// Cookie: `${process.env.AUTH_TOKEN_NAME}=${cookie.get(process.env.AUTH_TOKEN_NAME)?.value}`,
 				...requestInit?.headers,
+				...(addContentHeader && { 'Content-Type': 'application/json' }),
 			},
 		});
 	};
 
 	try {
-		let initResponse = await makeRequest(input, init);
+		let initResponse = await makeRequest(input, init, addContentHeader);
 
 		if (initResponse.status === 401) {
 			const refreshResponse = await fetch(`${API_BASE_URL}/v1/auth/refresh`, {
@@ -1615,7 +2078,11 @@ export const apiProxy = async (
 
 			initResponse = await makeRequest(input, {
 				...init,
-				headers: { ...init?.headers, Cookie: newCookies.toString() },
+				headers: {
+					...init?.headers,
+					Cookie: newCookies.toString(),
+					...(addContentHeader && { 'Content-Type': 'application/json' }),
+				},
 			});
 		}
 
@@ -1678,6 +2145,8 @@ export default async function serverAction() {
 			fetchAdminDashboard,
 			fetchAdminDeptSelect,
 			fetchAdminCourseSelect,
+			getAdminComplaints,
+			getAdminEarnings,
 		},
 	};
 }

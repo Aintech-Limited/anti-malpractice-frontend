@@ -1,5 +1,5 @@
-import { TForgotPasswordPhase } from '../interface';
+import { TForgotPasswordPhase } from "../interface";
 
 export interface IOTPVerificationProps {
-	setPhase: (phase: TForgotPasswordPhase) => void;
+  setPhase: (phase: TForgotPasswordPhase) => void;
 }

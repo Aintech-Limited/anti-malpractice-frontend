@@ -9,7 +9,7 @@ const FooterSection = async () => {
 	const token = cookie.get(process.env.AUTH_TOKEN_NAME)?.name;
 
 	return (
-		<footer className="w-full bg-[#f4f7ff] pt-20 pb-10 font-sans">
+		<footer className="w-full bg-[#f4f7ff] pb-10 font-sans">
 			<div className="max-w-7xl mx-auto px-6">
 				<div className="py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
 					<div className="lg:col-span-2">

@@ -1,45 +1,45 @@
-import { TMaterialType, TProviderType } from '../interface';
-import { VERIFICATION_ENDPOINTS, REDIRECT_PATHS } from './paymentConstants';
+import { TMaterialType, TProviderType } from "../interface";
+import { VERIFICATION_ENDPOINTS, REDIRECT_PATHS } from "./paymentConstants";
 
 export const getVerificationEndpoint = (
-	materialType: TMaterialType,
+  merchandiseType: TMaterialType,
 ): string => {
-	return VERIFICATION_ENDPOINTS[materialType];
+  return VERIFICATION_ENDPOINTS[merchandiseType];
 };
 
 export const getRedirectPath = (
-	materialType: TMaterialType,
-	materialId: string,
+  merchandiseType: TMaterialType,
+  materialId: string,
 ): string => {
-	return REDIRECT_PATHS[materialType](materialId);
+  return REDIRECT_PATHS[merchandiseType](materialId);
 };
 
 export const determineProvider = (transactionId?: string): TProviderType => {
-	return transactionId ? 'FLUTTERWAVE' : 'PAYSTACK';
+  return transactionId ? "FLUTTERWAVE" : "PAYSTACK";
 };
 
 export const getTransactionReference = (
-	tx_ref?: string,
-	reference?: string,
+  tx_ref?: string,
+  reference?: string,
 ): string => {
-	return tx_ref ?? reference ?? '';
+  return tx_ref ?? reference ?? "";
 };
 
 export const getTransactionId = (
-	transaction_id?: string,
-	reference?: string,
+  transaction_id?: string,
+  reference?: string,
 ): string => {
-	return transaction_id ?? reference ?? '';
+  return transaction_id ?? reference ?? "";
 };
 
 export const isValidTransaction = (
-	transactionId: string,
-	transactionRef: string,
+  transactionId: string,
+  transactionRef: string,
 ): boolean => {
-	return !(!transactionId || !transactionRef);
+  return !(!transactionId || !transactionRef);
 };
 
 export const formatTransactionRef = (ref: string): string => {
-	if (ref.length <= 20) return ref;
-	return `${ref.slice(0, 10)}...${ref.slice(-10)}`;
+  if (ref.length <= 20) return ref;
+  return `${ref.slice(0, 10)}...${ref.slice(-10)}`;
 };

@@ -1,7 +1,7 @@
-import ExamsChart from '@/src/components/Dashboard/Student/ExamChart/ExamsChart';
+import ExamsChart from "@/src/components/Dashboard/Student/ExamChart/ExamsChart";
 
 const ExamsChartPage = () => {
-	return <ExamsChart />;
+  return <ExamsChart />;
 };
 
 export default ExamsChartPage;

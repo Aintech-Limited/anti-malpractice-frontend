@@ -1,3 +1,3 @@
 export interface IFaceAuthInitialState {
-	SkipFaceAuth: null | boolean;
+  SkipFaceAuth: null | boolean;
 }

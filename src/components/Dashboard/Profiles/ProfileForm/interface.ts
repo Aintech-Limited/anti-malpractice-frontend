@@ -1,7 +1,7 @@
-import { IFormData } from '../interface';
+import { IFormData } from "../interface";
 
 export interface IProfileFormProps {
-	formData: IFormData;
-	isEditing: boolean;
-	onFormChange: (data: Partial<IFormData>) => void;
+  formData: IFormData;
+  isEditing: boolean;
+  onFormChange: (data: Partial<IFormData>) => void;
 }

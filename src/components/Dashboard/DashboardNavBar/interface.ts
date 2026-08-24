@@ -1,3 +1,3 @@
 export interface IDashboardNavBarProps {
-	isSidebarOpen?: boolean;
+  isSidebarOpen?: boolean;
 }

@@ -1,31 +1,31 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { apiProxy } from '@/src/lib/serverHelper';
+import { NextRequest, NextResponse } from "next/server";
+import { apiProxy } from "@/src/lib/serverHelper";
 
 export async function GET(request: NextRequest) {
-	try {
-		const params = request.nextUrl.searchParams;
-		const response = await apiProxy(
-			`${process.env.BACKEND_API_URL}/v1/departments?${params.toString()}`,
-			{
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				method: 'GET',
-			},
-		);
+  try {
+    const params = request.nextUrl.searchParams;
+    const response = await apiProxy(
+      `${process.env.BACKEND_API_URL}/v1/departments?${params.toString()}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "GET",
+      },
+    );
 
-		const data = await response.json();
+    const data = await response.json();
 
-		if (!response.ok) {
-			return NextResponse.json(data, { status: response.status });
-		}
+    if (!response.ok) {
+      return NextResponse.json(data, { status: response.status });
+    }
 
-		return NextResponse.json(data, { status: response.status });
-	} catch (error) {
-		console.error('Error fetching departments:', error);
-		return NextResponse.json(
-			{ error: 'Internal server error' },
-			{ status: 500 },
-		);
-	}
+    return NextResponse.json(data, { status: response.status });
+  } catch (error) {
+    console.error("Error fetching departments:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
+  }
 }

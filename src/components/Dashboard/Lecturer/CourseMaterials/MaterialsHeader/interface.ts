@@ -1,4 +1,4 @@
 export interface IMaterialsHeaderProps {
-	totalMaterials: number;
-	onCreateMaterial: () => void;
+  totalMaterials: number;
+  onCreateMaterial: () => void;
 }

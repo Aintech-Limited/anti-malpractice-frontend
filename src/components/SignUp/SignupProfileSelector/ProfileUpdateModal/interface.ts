@@ -1,4 +1,4 @@
 export interface IProfileUpdateModalProps {
-	isOpen: boolean;
-	onClose: () => void;
+  isOpen: boolean;
+  onClose: () => void;
 }

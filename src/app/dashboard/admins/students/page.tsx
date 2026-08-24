@@ -1,6 +1,7 @@
-import { initialStudents } from '@/src/components/Dashboard/Admin/Students/data';
-import Students from '@/src/components/Dashboard/Admin/Students/Students';
+import Students from "@/src/components/Dashboard/Admin/Students/Students";
+import { getStudentManagenemt } from "@/src/lib/serverHelper";
 
-export default function StudentsPage() {
-	return <Students initialStudents={initialStudents} />;
+export default async function StudentsPage() {
+  const data = await getStudentManagenemt();
+  return <Students initialData={data} />;
 }

@@ -1,5 +1,5 @@
-import { PhotoIdTypeValue } from '@/src/lib/enums';
+import { PhotoIdTypeValue } from "@/src/lib/enums";
 
 export interface ILecturerverifyInitState {
-	photoIdType: PhotoIdTypeValue | null;
+  photoIdType: PhotoIdTypeValue | null;
 }

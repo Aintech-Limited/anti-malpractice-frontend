@@ -1,5 +1,5 @@
-import { TCourseStatus } from '../interface';
+import { TCourseStatus } from "../interface";
 
 export interface IStatusBadgeProps {
-	status: TCourseStatus;
+  status: TCourseStatus;
 }

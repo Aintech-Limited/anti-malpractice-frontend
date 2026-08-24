@@ -1,6 +1,6 @@
-import { IExamRegistration } from '../interface';
+import { IExamRegistration } from "../interface";
 
 export interface IRegistrationCardProps {
-	registration: IExamRegistration;
-	index: number;
+  registration: IExamRegistration;
+  index: number;
 }

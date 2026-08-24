@@ -165,10 +165,13 @@ const Header = () => {
 				dispatch(clearSelfieImageId());
 				setActiveDropdown(null);
 				setIsMenuOpen(false);
-				GoogleSinOut({ redirect: true, callbackUrl: '/signin' });
+				GoogleSinOut({
+					redirect: true,
+					callbackUrl: UnProtectedRouteEnum.SIGNIN,
+				});
 
 				console.log('User logged out');
-				router.push('/signin');
+				router.push(UnProtectedRouteEnum.SIGNIN);
 				return;
 			} else {
 				console.log(await res.json());
@@ -185,7 +188,7 @@ const Header = () => {
 	};
 
 	return (
-		<header className="relative w-full border-b border-gray-100 bg-white top-0 z-50">
+		<header className=" sticky relative w-full border-b border-gray-100 bg-white top-0 z-50">
 			<FaceIDSetupModal
 				isOpen={showFaceId}
 				onClose={() => handleCloseFaceId()}
@@ -213,43 +216,41 @@ const Header = () => {
 							Home
 						</Link>
 
-						{/* Products Dropdown */}
-						<div className="relative">
-							<button
-								onClick={(e) => toggleDropdown(e, 'products')}
-								className={`flex items-center gap-1 hover:text-blue-600 transition-colors ${
-									activeDropdown === 'products' ? 'text-blue-600' : ''
-								}`}
-							>
-								Products{' '}
-								<ChevronDown
-									size={14}
-									className={
-										activeDropdown === 'products'
-											? 'rotate-180 transition-transform'
-											: 'transition-transform'
-									}
-								/>
-							</button>
-							{activeDropdown === 'products' && (
-								<div className="absolute top-10 left-0 w-56 bg-white border border-gray-100 shadow-xl rounded-xl p-2 animate-in fade-in zoom-in duration-150">
-									<DropdownItem
-										icon={<Box size={16} />}
-										label="AI Models"
-										desc="LLM Infrastructure"
-										href="/products/ai"
-									/>
-									<DropdownItem
-										icon={<Layout size={16} />}
-										label="Dashboard"
-										desc="Analytics Tools"
-										href="/products/dashboard"
-									/>
-								</div>
-							)}
-						</div>
+						{/* <div className="relative">
+              <button
+                onClick={(e) => toggleDropdown(e, "products")}
+                className={`flex items-center gap-1 hover:text-blue-600 transition-colors ${
+                  activeDropdown === "products" ? "text-blue-600" : ""
+                }`}
+              >
+                Products{" "}
+                <ChevronDown
+                  size={14}
+                  className={
+                    activeDropdown === "products"
+                      ? "rotate-180 transition-transform"
+                      : "transition-transform"
+                  }
+                />
+              </button>
+              {activeDropdown === "products" && (
+                <div className="absolute top-10 left-0 w-56 bg-white border border-gray-100 shadow-xl rounded-xl p-2 animate-in fade-in zoom-in duration-150">
+                  <DropdownItem
+                    icon={<Box size={16} />}
+                    label="AI Models"
+                    desc="LLM Infrastructure"
+                    href="/products/ai"
+                  />
+                  <DropdownItem
+                    icon={<Layout size={16} />}
+                    label="Dashboard"
+                    desc="Analytics Tools"
+                    href="/products/dashboard"
+                  />
+                </div>
+              )}
+            </div> */}
 
-						{/* Resources Dropdown */}
 						<div className="relative">
 							<button
 								onClick={(e) => toggleDropdown(e, 'resources')}
@@ -269,7 +270,7 @@ const Header = () => {
 							</button>
 							{activeDropdown === 'resources' && (
 								<div className="absolute top-10 left-0 w-56 bg-white border border-gray-100 shadow-xl rounded-xl p-2 animate-in fade-in zoom-in duration-150">
-									<DropdownItem
+									{/* <DropdownItem
 										icon={<BookOpen size={16} />}
 										label="Documentation"
 										href="/docs"
@@ -278,26 +279,30 @@ const Header = () => {
 										icon={<HelpCircle size={16} />}
 										label="Help Center"
 										href="/support"
-									/>
+									/> */}
 									<DropdownItem
 										icon={<Shield size={16} />}
 										label="Privacy"
 										href="/privacy"
 									/>
+									<DropdownItem
+										icon={<Shield size={16} />}
+										label="Terms"
+										href="/terms"
+									/>
 								</div>
 							)}
 						</div>
 
-						<Link
+						{/* <Link
 							href="/pricing"
 							className="hover:text-blue-600 transition-colors"
 						>
 							Pricing
-						</Link>
+						</Link> */}
 					</nav>
 				)}
 
-				{/* Right: Language & Auth */}
 				<div className="flex items-center gap-4">
 					<div className="hidden md:flex items-center gap-6">
 						<div className="flex items-center gap-1.5 text-slate-600 cursor-pointer">
@@ -305,11 +310,10 @@ const Header = () => {
 							<span className="font-semibold text-sm text-slate-900">EN</span>
 						</div>
 
-						{/* Authenticated Profile Dropdown */}
 						<div className="relative">
 							{loading ? (
 								<div className="h-8 w-8 bg-gray-100 animate-pulse rounded-full"></div>
-							) : user && Object.keys(user).length > 0 ? (
+							) : user ? (
 								<button
 									onClick={(e) => toggleDropdown(e, 'profile')}
 									className="flex items-center gap-2 group p-1 pr-3 rounded-full hover:bg-gray-50 transition-colors"
@@ -321,9 +325,9 @@ const Header = () => {
 										{user?.email}
 									</span>
 								</button>
-							) : (
+							) : pathname === UnProtectedRouteEnum.SIGNIN ? null : (
 								<Link
-									href="/signin"
+									href={UnProtectedRouteEnum.SIGNIN}
 									className="font-bold text-sm text-slate-900 hover:text-blue-600"
 								>
 									Log in
@@ -421,8 +425,7 @@ const Header = () => {
 										Home
 									</Link>
 
-									{/* Products Accordion */}
-									<div className="flex flex-col border-b border-gray-50">
+									{/* <div className="flex flex-col border-b border-gray-50">
 										<button
 											onClick={() => setMobileProductsOpen(!mobileProductsOpen)}
 											className="flex items-center justify-between py-2 text-base font-semibold text-slate-900"
@@ -448,9 +451,8 @@ const Header = () => {
 												/>
 											</div>
 										)}
-									</div>
+									</div> */}
 
-									{/* Resources Accordion */}
 									<div className="flex flex-col border-b border-gray-50">
 										<button
 											onClick={() =>
@@ -467,7 +469,7 @@ const Header = () => {
 										</button>
 										{mobileResourcesOpen && (
 											<div className="pl-3 pb-3 flex flex-col gap-3 animate-in fade-in slide-in-from-top-2">
-												<MobileSubItem
+												{/* <MobileSubItem
 													icon={<BookOpen size={16} />}
 													label="Documentation"
 													href="/docs"
@@ -476,26 +478,30 @@ const Header = () => {
 													icon={<HelpCircle size={16} />}
 													label="Help Center"
 													href="/support"
-												/>
+												/> */}
 												<MobileSubItem
 													icon={<Shield size={16} />}
 													label="Privacy"
 													href="/privacy"
 												/>
+												<MobileSubItem
+													icon={<Shield size={16} />}
+													label="Terms"
+													href="/terms"
+												/>
 											</div>
 										)}
 									</div>
 
-									<Link
+									{/* <Link
 										href="/pricing"
 										className="py-2 text-base font-semibold text-slate-900"
 										onClick={() => setIsMenuOpen(false)}
 									>
 										Pricing
-									</Link>
+									</Link> */}
 								</nav>
 
-								{/* Language Selection */}
 								<div className="mt-auto pt-6 flex items-center gap-2 text-slate-500 font-medium text-sm">
 									<Globe size={18} />
 									<span>Language: English (US)</span>
