@@ -7,6 +7,8 @@ import {
 } from "./lib/enums";
 import { cookies } from "next/headers";
 
+const unprotectedRoutesArray = Object.values(UnProtectedRouteEnum);
+
 export async function proxy(request: NextRequest) {
   let visitcount = 1;
   const visitcookie = request.cookies.get("visit_count")?.value || "0";
@@ -20,15 +22,7 @@ export async function proxy(request: NextRequest) {
   )?.value;
 
   // Public
-  if (
-    [
-      UnProtectedRouteEnum.SIGNIN,
-      UnProtectedRouteEnum.SIGNUP,
-      UnProtectedRouteEnum.VERIFY,
-      UnProtectedRouteEnum.FORGOT_PASSWORD,
-      UnProtectedRouteEnum.HOME,
-    ].includes(pathname as any)
-  ) {
+  if (unprotectedRoutesArray.includes(pathname as any)) {
     if (token) {
       const redirectResponse = NextResponse.redirect(
         new URL(ProtectedRouteEnum.DASHBOARD, request.url),
@@ -121,9 +115,6 @@ export async function proxy(request: NextRequest) {
   // // Protected
   if (Object.values(ProtectedRouteEnum).includes(pathname as any)) {
     if (!token) {
-      if (refreshToken) {
-        return NextResponse.next();
-      }
       const redirectResponse = NextResponse.redirect(
         new URL(UnProtectedRouteEnum.SIGNIN, request.url),
       );
@@ -147,14 +138,15 @@ export async function proxy(request: NextRequest) {
         sameSite: "lax",
       });
 
+      console.log("nextResponse url: ", nextResponse?.url);
+
       // admins
+      console.log("admin");
       if (
         (pathname === ProtectedRouteEnum.DASHBOARD &&
           decodedToken.role === UserRoleTypeEnum.ADMIN) ||
         (pathname.startsWith(ProtectedRouteEnum.STUDENTS) &&
           decodedToken.role === UserRoleTypeEnum.ADMIN) ||
-        pathname === ProtectedRouteEnum.FACE_CAPTURE ||
-        pathname === ProtectedRouteEnum.DASHBOARD_VERIFY ||
         (pathname.startsWith(ProtectedRouteEnum.VENDORS) &&
           decodedToken.role === UserRoleTypeEnum.ADMIN) ||
         (pathname.startsWith(ProtectedRouteEnum.LECTURERS) &&
@@ -172,13 +164,14 @@ export async function proxy(request: NextRequest) {
         });
         return redirectResponse;
       }
+
       // lecturers
+      console.log("lecturer");
       if (
         (pathname === ProtectedRouteEnum.DASHBOARD &&
           decodedToken.role === UserRoleTypeEnum.LECTURER) ||
         (pathname.startsWith(ProtectedRouteEnum.STUDENTS) &&
           decodedToken.role === UserRoleTypeEnum.LECTURER) ||
-        pathname === ProtectedRouteEnum.FACE_CAPTURE ||
         (pathname.startsWith(ProtectedRouteEnum.ADMINS) &&
           decodedToken.role === UserRoleTypeEnum.LECTURER) ||
         (pathname.startsWith(ProtectedRouteEnum.VENDORS) &&
@@ -197,12 +190,12 @@ export async function proxy(request: NextRequest) {
         return redirectResponse;
       }
       // vendors
+      console.log("vendor");
       if (
         (pathname === ProtectedRouteEnum.DASHBOARD &&
           decodedToken.role === UserRoleTypeEnum.VENDOR) ||
         (pathname.startsWith(ProtectedRouteEnum.STUDENTS) &&
           decodedToken.role === UserRoleTypeEnum.VENDOR) ||
-        pathname === ProtectedRouteEnum.FACE_CAPTURE ||
         (pathname.startsWith(ProtectedRouteEnum.ADMINS) &&
           decodedToken.role === UserRoleTypeEnum.VENDOR) ||
         (pathname.startsWith(ProtectedRouteEnum.LECTURERS) &&
@@ -222,6 +215,7 @@ export async function proxy(request: NextRequest) {
       }
 
       // students
+      console.log("student");
       if (
         (pathname === ProtectedRouteEnum.DASHBOARD &&
           decodedToken.role === UserRoleTypeEnum.STUDENT) ||
@@ -231,42 +225,11 @@ export async function proxy(request: NextRequest) {
           decodedToken.role === UserRoleTypeEnum.STUDENT) ||
         (pathname.startsWith(ProtectedRouteEnum.LECTURERS) &&
           decodedToken.role === UserRoleTypeEnum.STUDENT) ||
-        pathname === ProtectedRouteEnum.DASHBOARD_VERIFY
+        (pathname.startsWith(ProtectedRouteEnum.VENDORS) &&
+          decodedToken.role === UserRoleTypeEnum.STUDENT)
       ) {
         const redirectResponse = NextResponse.redirect(
           new URL(ProtectedRouteEnum.STUDENTS, request.url),
-        );
-        redirectResponse.cookies.set("visit_count", visitcount.toString(), {
-          maxAge: 60 * 60 * 24 * 3650, // 10 year
-          path: "/",
-          httpOnly: process.env.NODE_ENV === "production",
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
-        });
-        return redirectResponse;
-      }
-      if (
-        pathname === ProtectedRouteEnum.DASHBOARD_VERIFY &&
-        decodedToken.profileType !== UserRoleTypeEnum.LECTURER
-      ) {
-        const redirectResponse = NextResponse.redirect(
-          new URL(ProtectedRouteEnum.DASHBOARD, request.url),
-        );
-        redirectResponse.cookies.set("visit_count", visitcount.toString(), {
-          maxAge: 60 * 60 * 24 * 3650, // 10 year
-          path: "/",
-          httpOnly: process.env.NODE_ENV === "production",
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
-        });
-        return redirectResponse;
-      }
-      if (
-        pathname === ProtectedRouteEnum.FACE_CAPTURE &&
-        decodedToken.profileType !== UserRoleTypeEnum.STUDENT
-      ) {
-        const redirectResponse = NextResponse.redirect(
-          new URL(ProtectedRouteEnum.DASHBOARD, request.url),
         );
         redirectResponse.cookies.set("visit_count", visitcount.toString(), {
           maxAge: 60 * 60 * 24 * 3650, // 10 year
