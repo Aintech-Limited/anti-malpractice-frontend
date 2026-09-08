@@ -1,3 +1,5 @@
+"use client";
+
 import { BookOpen, X, Calendar } from "lucide-react";
 import Image from "next/image";
 import { formatDate } from "@/src/lib/helper";

@@ -31,8 +31,8 @@ export const PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const;
 export const FILE_TYPE_OPTIONS = [
   { value: "", label: "All Types" },
   { value: "PDF", label: "PDF" },
-  { value: "VIDEO", label: "Video" },
-  { value: "DOCUMENT", label: "Document" },
+  // { value: "VIDEO", label: "Video" },
+  // { value: "DOCUMENT", label: "Document" },
 ] as const;
 
 export const PRICE_FILTER_OPTIONS = [
