@@ -10,7 +10,7 @@ import { useAuth } from "@/src/providers/auth/AuthContext";
 import { useRouter } from "next/navigation";
 import { UserRoleTypeEnum, ProtectedRouteEnum } from "@/src/lib/enums";
 
-export default function Verify() {
+export default function LecturerIDVerificationClient() {
   const router = useRouter();
   const { user } = useAuth();
   useEffect(() => {

@@ -2,12 +2,13 @@
 
 import { ChangeEvent, useState } from "react";
 import Image from "next/image";
-import { useAuth } from "@/src/providers/auth/AuthContext";
 import { IExamRegistrationForm } from "../interface";
 import { validateRegistrationForm } from "../utils/validation";
 import { generateAcademicSemesters } from "@/src/lib/helper";
 import { YEAR_LEVELS } from "../utils/examConstants";
 import { IRegistrationFormProps } from "./interface";
+import { useAuth } from "@/src/providers/auth/AuthContext";
+import { getInitials } from "../utils/examHelpers";
 
 export const RegistrationForm = ({
   exam,
@@ -57,13 +58,20 @@ export const RegistrationForm = ({
     <div className="flex flex-col items-center">
       <div className="w-full max-w-4xl p-6 md:p-10 space-y-10">
         <div className="flex flex-col md:flex-row items-center gap-8 border-b border-gray-100 pb-10">
-          <Image
-            src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?&w=256&h=256&auto=format&fit=crop&crop=faces&q=80"
-            alt="Student profile"
-            className="w-40 h-40 rounded-3xl object-cover shadow-lg"
-            width={70}
-            height={30}
-          />
+          {user?.avatar ? (
+            <Image
+              src={user.avatar}
+              alt="Student profile"
+              className="w-40 h-40 rounded-3xl object-cover shadow-lg"
+              width={160}
+              height={160}
+            />
+          ) : (
+            <div className="w-40 h-40 rounded-3xl bg-blue-100 text-blue-700 shadow-lg flex items-center justify-center text-4xl font-bold">
+              {getInitials(user)}
+            </div>
+          )}
+
           <div className="text-center md:text-left flex-1">
             <h1 className="text-4xl font-extrabold text-gray-900 tracking-tighter">
               {exam.title}

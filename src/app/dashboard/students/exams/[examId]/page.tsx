@@ -13,6 +13,11 @@ const LiveExamDetailsPage = async ({
   const isValidId = isUUID(examId);
   if (!isValidId) redirect(ProtectedRouteEnum.STUDENTS);
   const initialData = await fetchLiveExamDetails(examId);
+
+  if (initialData?.statusCode === 403) {
+    redirect(ProtectedRouteEnum.STUDENTS);
+  }
+
   return (
     <LiveExamDetail
       examDetail={initialData.data}

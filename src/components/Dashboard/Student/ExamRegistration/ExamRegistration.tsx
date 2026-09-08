@@ -102,71 +102,69 @@ export default function ExamRegistration({
     fetchExams(page);
   };
 
-  if (loading) {
-    return <LoadingSkeleton />;
-  }
-
-  if (exams.length === 0) {
-    return (
-      <div className="p-8 bg-white min-h-screen font-sans">
-        <div className="max-w-6xl mx-auto">
-          <ExamRegistrationHeader totalExams={0} />
-          <EmptyState
-            title={NoExamsStory.args?.title as string}
-            description={NoExamsStory.args?.description}
-            icon="school"
-            size="md"
-          />
-          <Legend />
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="p-8 bg-white min-h-screen font-sans">
-      <div className="max-w-6xl mx-auto">
-        <ExamRegistrationHeader totalExams={meta.totalItems} />
+    <>
+      {loading ? (
+        <LoadingSkeleton />
+      ) : (exams?.length ?? 0) === 0 ? (
+        <div className="p-8 bg-white min-h-screen font-sans">
+          <div className="max-w-6xl mx-auto">
+            <ExamRegistrationHeader totalExams={0} />
+            <EmptyState
+              title={NoExamsStory.args?.title as string}
+              description={NoExamsStory.args?.description}
+              icon="school"
+              size="md"
+            />
+            <Legend />
+          </div>
+        </div>
+      ) : (
+        <div className="p-8 bg-white min-h-screen font-sans">
+          <div className="max-w-6xl mx-auto">
+            <ExamRegistrationHeader totalExams={meta.totalItems} />
 
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-gray-50">
-            <h2 className="text-lg font-bold text-gray-800">
-              Available Exam Table
-            </h2>
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="p-6 border-b border-gray-50">
+                <h2 className="text-lg font-bold text-gray-800">
+                  Available Exam Table
+                </h2>
+              </div>
+
+              <ExamsTable
+                exams={exams}
+                onRegister={handleRegister}
+                onRegisterLoading={registering}
+                onPay={handleMakePayment}
+                onPayLoading={initiatingPayment}
+              />
+            </div>
+
+            <Legend />
+
+            {meta.totalPages > 1 && (
+              <Pagination
+                currentPage={meta.page}
+                totalPages={meta.totalPages}
+                hasNextPage={meta.hasNextPage}
+                hasPreviousPage={meta.hasPreviousPage}
+                onPageChange={handlePageChange}
+              />
+            )}
           </div>
 
-          <ExamsTable
-            exams={exams}
-            onRegister={handleRegister}
-            onRegisterLoading={registering}
-            onPay={handleMakePayment}
-            onPayLoading={initiatingPayment}
-          />
+          {selectedExam && (
+            <RegistrationModal
+              exam={selectedExam}
+              isOpen={showModal}
+              onClose={closeModal}
+              onRegisterLater={handleRegisterLater}
+              onRegisterAndPay={handleRegisterAndPay}
+              isLoading={registering || initiatingPayment}
+            />
+          )}
         </div>
-
-        <Legend />
-
-        {meta.totalPages > 1 && (
-          <Pagination
-            currentPage={meta.page}
-            totalPages={meta.totalPages}
-            hasNextPage={meta.hasNextPage}
-            hasPreviousPage={meta.hasPreviousPage}
-            onPageChange={handlePageChange}
-          />
-        )}
-      </div>
-
-      {selectedExam && (
-        <RegistrationModal
-          exam={selectedExam}
-          isOpen={showModal}
-          onClose={closeModal}
-          onRegisterLater={handleRegisterLater}
-          onRegisterAndPay={handleRegisterAndPay}
-          isLoading={registering || initiatingPayment}
-        />
       )}
-    </div>
+    </>
   );
 }

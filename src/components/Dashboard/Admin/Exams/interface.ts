@@ -1,4 +1,5 @@
 import {
+  ExamQuestionTypeEnumValue,
   TAdminExamStatusValue,
   TAdminExamTypeEnumValue,
 } from "@/src/lib/enums";
@@ -72,8 +73,14 @@ export interface IAdminExam {
   createdAt: string;
 }
 
+export interface IAdminExamQuestionFullDetails {
+  id: string;
+  marks: number;
+  type: ExamQuestionTypeEnumValue;
+  questionText: string;
+}
 export interface IAdminExamFullDetails extends IAdminExam {
-  questions?: any[];
+  questions?: IAdminExamQuestionFullDetails[];
   instructions?: string;
   passingScore?: number;
   allowRetake?: boolean;

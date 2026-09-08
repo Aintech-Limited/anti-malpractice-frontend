@@ -14,6 +14,11 @@ import { toast } from "react-toastify";
 import FaceAuthEnrollmentWarning from "./FaceAuthEnrollmentWarning/FaceAuthEnrollmentWarning";
 import { ProtectedRouteEnum } from "@/src/lib/enums";
 import { useRouter } from "next/navigation";
+import {
+  hideLoading,
+  showLoading,
+} from "@/src/redux/features/globalLoadingSlice/globalLoadingSlice";
+import { useAppDispatch } from "@/src/redux/reduxStore";
 
 const LiveExamDetail = ({
   examDetail,
@@ -22,6 +27,7 @@ const LiveExamDetail = ({
   message,
 }: ILiveExamDetailsProps) => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const { user, loading } = useAuth();
   const [agreed, setAgreed] = useState<boolean>(false);
   const [startExamLoadingMessage, setStartExamLoadingMessage] =
@@ -57,10 +63,12 @@ const LiveExamDetail = ({
       if (examMetaExists) {
         createdAt = examMetaExists.createdAt;
       }
-      // console.log(examDetail);
+      console.log("examDetail: ", JSON.stringify(examDetail));
       DBExamRepository.initializeExam(
         {
-          duration: Number(examDetail.duration.Total), // in minutes
+          duration: examDetail.duration.Total
+            ? Number(examDetail.duration.Total)
+            : 0, // in minutes
           id: examDetail.examId,
           startTime,
           submitted,
@@ -94,19 +102,26 @@ const LiveExamDetail = ({
   }, [examDetail, user, loading]);
 
   const handleStartExam = async () => {
-    console.log("checking face auth status...");
-    const response = await fetch("/api/v1/users", { method: "GET" });
-    const data = await response.json();
-    if (data.success) {
-      if (data.data.faceAuthEnabled) {
-        setshowFaceAuth(true);
-        // setStartExam(true); // TODO: keeping this here for testing. remove after i am done testing
-        return;
-      } else {
-        toast.error("Seems like you have not Enrolled for Face Verification.");
-        toast.error("Enroll for Face Verification before Starting Exam");
-        setShowFaceAuthEnrollmenWarning(true);
+    dispatch(showLoading("Preparing Verification..."));
+    try {
+      const response = await fetch("/api/v1/users", { method: "GET" });
+      const data = await response.json();
+      if (data.success) {
+        if (data.data.faceAuthEnabled) {
+          setshowFaceAuth(true);
+          // setStartExam(true); // TODO: keeping this here for testing. remove after i am done testing
+          return;
+        } else {
+          toast.error(
+            "Seems like you have not Enrolled for Face Verification.",
+          );
+          toast.error("Enroll for Face Verification before Starting Exam");
+          setShowFaceAuthEnrollmenWarning(true);
+        }
       }
+    } catch (error) {
+    } finally {
+      dispatch(hideLoading());
     }
   };
 

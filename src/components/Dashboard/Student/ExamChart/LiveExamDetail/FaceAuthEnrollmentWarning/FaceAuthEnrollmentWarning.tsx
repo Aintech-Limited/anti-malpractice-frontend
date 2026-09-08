@@ -32,7 +32,7 @@ const FaceAuthEnrollmentWarning = ({
 
   const handleContinue = () => {
     toast.info("Redirecting to face authentication enrollment...");
-    router.push(ProtectedRouteEnum.FACE_CAPTURE);
+    router.push(ProtectedRouteEnum.STUDENT_FACE_CAPTURE);
   };
 
   const handleCloseEncourage = () => {
@@ -42,7 +42,7 @@ const FaceAuthEnrollmentWarning = ({
 
   const handleEnrollNowFromEncourage = () => {
     toast.info("Starting face verification enrollment process...");
-    router.push(ProtectedRouteEnum.FACE_CAPTURE);
+    router.push(ProtectedRouteEnum.STUDENT_FACE_CAPTURE);
   };
 
   return (

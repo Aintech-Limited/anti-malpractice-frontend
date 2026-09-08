@@ -80,7 +80,7 @@ const FaceCapture = ({
           },
           audio: false,
         });
-        console.log(stream.getVideoTracks()[0].readyState);
+        // console.log(stream.getVideoTracks()[0].readyState);
 
         streamRef.current = stream;
 
@@ -194,11 +194,25 @@ const FaceCapture = ({
       });
 
       if (!response.ok) {
+        if (response.status === 409 && !isVerification) {
+          throw new Error("Already Enrolled");
+        }
         // const error = await response.json();
-        if (response.status === 422) {
+        if (response.status === 422 && isVerification) {
           throw new Error(
             "Captured face does not match. Ensure proper lighting, remove face covering, and try again.",
           );
+        }
+        if (!isVerification && !response.ok) {
+          const error = await response.json();
+          if (response.status === 400)
+            throw new Error(
+              error?.message?.includes("No faces meet the confidence")
+                ? "Face quality is insufficient for enrollment. Please provide a clear image."
+                : error?.mssage?.includes("Invalid file type for image")
+                  ? error?.mssage
+                  : "Enrollment failed!",
+            );
         }
         throw new Error(
           `Could not complete ${isVerification ? "Verification" : "Enrollment"} .${isVerification ? "Verification" : "Enrollment"} failed`,
@@ -208,7 +222,15 @@ const FaceCapture = ({
       if (isVerification && onEnrollmentComplete) {
         const data = (await response.json()) as IFaceVerificationResponse;
 
+        // console.log("face verification data: ", data);
+
         const verificationSuccessfull = data?.data?.authenticated ?? false;
+
+        if (!verificationSuccessfull) {
+          setError(data?.message || `Failed to verify.`);
+          setCurrentStep("error");
+          return;
+        }
 
         setSuccessMessage(data.message || "Face verification successful");
         setCurrentStep("success");
@@ -224,10 +246,6 @@ const FaceCapture = ({
       }
 
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Enrollment failed");
-      }
 
       if (!isVerification && data.backupCodes) {
         const codes: BackupCode[] = data.backupCodes.map(

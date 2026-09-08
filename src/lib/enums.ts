@@ -29,13 +29,13 @@ export type PhotoIdTypeValue = (typeof PhotoIdType)[keyof typeof PhotoIdType];
 
 export const ProtectedRouteEnum = Object.freeze({
   DASHBOARD: "/dashboard",
-  DASHBOARD_VERIFY: "/dashboard/verify",
+  DASHBOARD_LECTURERS_VERIFY: "/dashboard/lecturers/verify",
   STUDENTS: "/dashboard/students",
   LECTURERS: "/dashboard/lecturers",
   VENDORS: "/dashboard/vendors",
   ADMINS: "/dashboard/admins",
   CHECKOUT: "/checkout",
-  FACE_CAPTURE: "/dashboard/face-capture",
+  STUDENT_FACE_CAPTURE: "/dashboard/students/face-capture",
 });
 
 export type ProtectedRouteEnumValue =
@@ -222,3 +222,12 @@ export const InstitutionLevelEnum = Object.freeze({
 
 export type TInstitutionLevelEnum =
   (typeof InstitutionLevelEnum)[keyof typeof InstitutionLevelEnum];
+
+export const AdminExamStatusTypeEnum = Object.freeze({
+  NOT_APPROVED: "NOT_APPROVED",
+  APPROVED: "APPROVED",
+  CHANGES_REQUESTED: "CHANGES_REQUESTED",
+} as const);
+
+export type TAdminExamStatusTypeEnumValue =
+  (typeof AdminExamStatusTypeEnum)[keyof typeof AdminExamStatusTypeEnum];

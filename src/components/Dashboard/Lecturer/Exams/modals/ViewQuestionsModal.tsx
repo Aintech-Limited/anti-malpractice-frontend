@@ -112,7 +112,7 @@ export const ViewQuestionsModal = ({
             </div>
             <div className="flex items-center gap-3">
               <button
-                onClick={onAddQuestion}
+                onClick={() => onAddQuestion(exam)}
                 className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
               >
                 <Plus className="w-4 h-4" />
@@ -154,7 +154,7 @@ export const ViewQuestionsModal = ({
               <div className="text-center py-12">
                 <p className="text-gray-500 mb-4">No questions added yet.</p>
                 <button
-                  onClick={onAddQuestion}
+                  onClick={() => onAddQuestion(exam)}
                   className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
                 >
                   Add Your First Question

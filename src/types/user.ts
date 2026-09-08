@@ -1,4 +1,8 @@
-import { TDepartmentUserRoleEnum, UserRoleTypeEnumValue } from "../lib/enums";
+import {
+  TDepartmentUserRoleEnum,
+  TInstitutionLevelEnum,
+  UserRoleTypeEnumValue,
+} from "../lib/enums";
 
 export interface IUserModel {
   id: string;
@@ -23,4 +27,5 @@ export interface IUserModel {
   institutionId?: string;
   institutionName?: string;
   avatar?: string | null;
+  institutionLevel: TInstitutionLevelEnum | null;
 }

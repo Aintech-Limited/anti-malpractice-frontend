@@ -1,4 +1,4 @@
-import Verify from "@/src/components/Dashboard/Verify/Verify";
+import LecturerIDVerificationClient from "@/src/components/Dashboard/LecturerIDVerificationClient/LecturerIDVerificationClient";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -6,5 +6,5 @@ export const metadata: Metadata = {
   description: "Know your Customer.",
 };
 export default function VerifyPage() {
-  return <Verify />;
+  return <LecturerIDVerificationClient />;
 }

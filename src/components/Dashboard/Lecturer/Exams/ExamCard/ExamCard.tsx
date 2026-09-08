@@ -19,7 +19,7 @@ import {
 import { useState } from "react";
 import { IExamCardProps } from "./interface";
 import { formatDate } from "@/src/lib/helper";
-import { ProtectedRouteEnum } from "@/src/lib/enums";
+import { AdminExamStatusTypeEnum, ProtectedRouteEnum } from "@/src/lib/enums";
 import { useRouter } from "next/navigation";
 
 export const ExamCard = ({
@@ -133,28 +133,34 @@ export const ExamCard = ({
                   <Trash2 className="w-4 h-4" />
                   Delete Exam
                 </button>
-                <button
-                  onClick={() => {
-                    onViewRegistrations(exam);
-                    setShowMenu(false);
-                  }}
-                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-green-600 hover:bg-red-50 rounded-b-lg"
-                >
-                  <View className="w-4 h-4" />
-                  View Registrations
-                </button>
-                <button
-                  onClick={() => {
-                    router.push(
-                      ProtectedRouteEnum.LECTURERS + `/grade-exams/${exam.id}`,
-                    );
-                    setShowMenu(false);
-                  }}
-                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-green-600 hover:bg-red-50 rounded-b-lg"
-                >
-                  <View className="w-4 h-4" />
-                  Grade Exam
-                </button>
+                {exam.adminStatus === AdminExamStatusTypeEnum.APPROVED && (
+                  <button
+                    onClick={() => {
+                      onViewRegistrations(exam);
+                      setShowMenu(false);
+                    }}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-green-600 hover:bg-red-50 rounded-b-lg"
+                  >
+                    <View className="w-4 h-4" />
+                    View Registrations
+                  </button>
+                )}
+
+                {exam.adminStatus === AdminExamStatusTypeEnum.APPROVED && (
+                  <button
+                    onClick={() => {
+                      router.push(
+                        ProtectedRouteEnum.LECTURERS +
+                          `/grade-exams/${exam.id}`,
+                      );
+                      setShowMenu(false);
+                    }}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-green-600 hover:bg-red-50 rounded-b-lg"
+                  >
+                    <View className="w-4 h-4" />
+                    Grade Exam
+                  </button>
+                )}
               </div>
             )}
           </div>

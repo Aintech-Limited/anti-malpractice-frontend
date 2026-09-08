@@ -1,3 +1,5 @@
+import { TAdminExamStatusTypeEnumValue } from "@/src/lib/enums";
+
 export interface IExamsPageProps {
   searchParams: Promise<{
     page?: string;
@@ -30,6 +32,7 @@ export interface IExam {
     title: string;
     courseCode: string;
   };
+  adminStatus: TAdminExamStatusTypeEnumValue;
 }
 
 export interface ICourseAssignment {
