@@ -65,8 +65,8 @@ export const EmptyState = ({
 
       <p className="text-gray-500">
         {searchTerm
-          ? `No departments match "${searchTerm}". Try a different search term.`
-          : "No departments available at the moment."}
+          ? `No data match "${searchTerm}". Try a different search term.`
+          : "No Data available at the moment."}
       </p>
       {searchTerm && (
         <button

@@ -1,4 +1,5 @@
 import { PaymentCard } from "../PaymentCard/PaymentCard";
+import { getMerchandiseIcon } from "../utils/paymentHelpers";
 import { IPaymentsListProps } from "./interface";
 
 export const PaymentsList = ({
@@ -15,13 +16,17 @@ export const PaymentsList = ({
 
   return (
     <div className="space-y-4">
-      {payments.map((payment, idx) => (
-        <PaymentCard
-          key={payment.id ?? idx}
-          payment={payment}
-          onViewDetails={onViewDetails}
-        />
-      ))}
+      {payments.map((payment, idx) => {
+        const Icon = getMerchandiseIcon(payment.merchandiseName);
+        return (
+          <PaymentCard
+            key={payment.id ?? idx}
+            payment={payment}
+            onViewDetails={onViewDetails}
+            ICON={Icon}
+          />
+        );
+      })}
     </div>
   );
 };

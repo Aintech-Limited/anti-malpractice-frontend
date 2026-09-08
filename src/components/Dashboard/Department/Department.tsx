@@ -15,12 +15,14 @@ import { DepartmentsList } from "./DepartmentsList/DepartmentsList";
 import { Pagination } from "./Pagination/Pagination";
 import { DepartmentModal } from "./modals/DepartmentModal";
 import { LoadingSkeleton } from "../Student/RegisteredExam/LoadingSkeleton/LoadingSkeleton";
+import { useAuth } from "@/src/providers/auth/AuthContext";
 
 export default function DepartmentClient({
   initialDepartments,
   initialMeta,
   initialSearchTerm,
 }: IDepartmentsClientProps) {
+  const { user: userData } = useAuth();
   const {
     departments,
     filteredDepartments,
@@ -97,11 +99,12 @@ export default function DepartmentClient({
     setLoadingState(true);
     try {
       const params = new URLSearchParams();
-      params.set("page", "1");
-      params.set("limit", meta.limit.toString());
-      params.set("sortBy", sortBy);
+      params.append("page", "1");
+      params.append("limit", meta.limit.toString());
+      params.append("sortBy", sortBy);
+      params.append("institutionId", userData?.institutionId ?? "");
       if (localSearchTerm) {
-        params.set("name", localSearchTerm);
+        params.append("name", localSearchTerm);
       }
 
       const response = await fetch(`/api/v1/departments?${params}`);
@@ -128,10 +131,11 @@ export default function DepartmentClient({
     setLoadingState(true);
     try {
       const params = new URLSearchParams();
-      params.set("page", page.toString());
-      params.set("limit", meta.limit.toString());
-      params.set("sortBy", sortBy);
-      if (searchTerm) params.set("name", searchTerm);
+      params.append("page", page.toString());
+      params.append("limit", meta.limit.toString());
+      params.append("sortBy", sortBy);
+      params.append("institutionId", userData?.institutionId ?? "");
+      if (searchTerm) params.append("name", searchTerm);
 
       const response = await fetch(`/api/v1/departments?${params}`);
       const data = await response.json();

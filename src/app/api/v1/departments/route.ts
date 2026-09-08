@@ -4,6 +4,13 @@ import { apiProxy } from "@/src/lib/serverHelper";
 export async function GET(request: NextRequest) {
   try {
     const params = request.nextUrl.searchParams;
+    const institutionId = params.get("institutionId");
+    if (!institutionId) {
+      return NextResponse.json(
+        { message: "Institution is requiredto fetch Departments" },
+        { status: 400 },
+      );
+    }
     const response = await apiProxy(
       `${process.env.BACKEND_API_URL}/v1/departments?${params.toString()}`,
       {

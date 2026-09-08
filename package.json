@@ -17,6 +17,13 @@
     "prettier:fix": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,css}\" \"!node_modules\" \"!.next\" \"!build\" \"!dist\"",
     "prettier:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md,css}\" \"!node_modules\" \"!.next\" \"!build\" \"!dist\""
   },
+  "overrides": {
+    "inflight": "npm:lru-cache@latest",
+    "glob": "^10.3.10"
+  },
+  "engines": {
+    "node": "24.x"
+  },
   "dependencies": {
     "@mediapipe/face_detection": "^0.4.1646425229",
     "@reduxjs/toolkit": "^2.11.2",

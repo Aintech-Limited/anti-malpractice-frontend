@@ -85,7 +85,7 @@ export function useExamResults({
       if (result.success) {
         setData(
           role === UserRoleTypeEnum.STUDENT
-            ? result.data.map((data) => ({
+            ? result?.data?.map((data) => ({
                 ...data,
                 user: {
                   id: user?.id ?? "",
@@ -93,7 +93,7 @@ export function useExamResults({
                   lastName: user?.lastName ?? "",
                 },
               }))
-            : result.data,
+            : result?.data,
         );
         setMeta(result.meta);
       } else {
@@ -121,7 +121,7 @@ export function useExamResults({
     const getExamsAndDepartments = async () => {
       try {
         const deptResponse = await fetch(
-          `/api/v1/departments?limit=50&page=1&sortOrder=DESC&sortBy=createdAt`,
+          `/api/v1/departments?limit=50&page=1&sortOrder=DESC&sortBy=createdAt&institutionId=${user?.institutionId}`,
           {
             method: "GET",
           },
@@ -168,7 +168,7 @@ export function useExamResults({
     };
 
     getExamsAndDepartments();
-  }, [role]);
+  }, [role, user?.institutionId]);
 
   const downloadResults = async (format: "PDF" | "CSV") => {
     setError((prevErrors) => ({ ...prevErrors, download: "" }));

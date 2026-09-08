@@ -2,7 +2,7 @@ import { INFO_CARDS_CONFIG } from "../utils/profileConstants";
 import { IInfoGridProps } from "./interface";
 import { InfoCard } from "../InfoCard/InfoCard";
 import { IUserModel } from "@/src/types/user";
-import { UserRoleTypeEnum } from "@/src/lib/enums";
+import { InstitutionLevelEnum, UserRoleTypeEnum } from "@/src/lib/enums";
 
 export const InfoGrid = ({ user }: IInfoGridProps) => {
   return (
@@ -28,6 +28,14 @@ export const InfoGrid = ({ user }: IInfoGridProps) => {
               config.key === "isIdVerified")
           )
             return null;
+
+          if (
+            user?.role === UserRoleTypeEnum.STUDENT &&
+            user?.institutionLevel !== InstitutionLevelEnum.TERTIARY &&
+            config.key === "departmentName"
+          ) {
+            return null;
+          }
 
           return (
             <InfoCard

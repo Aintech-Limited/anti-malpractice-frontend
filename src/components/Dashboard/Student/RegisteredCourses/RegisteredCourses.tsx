@@ -8,6 +8,7 @@ import AvailableCourseMaterialsModal from "../AvailableCourseMaterialsModal/Avai
 import { toast } from "react-toastify";
 import DropCOurseModal from "./DropCOurseModal/DropCOurseModal";
 import COursesGrid from "./COursesGrid/COursesGrid";
+import { ProtectedRouteEnum } from "@/src/lib/enums";
 
 export default function RegisteredCourses({
   courses: courseI,
@@ -131,7 +132,9 @@ export default function RegisteredCourses({
           catalog to get started.
         </p>
         <button
-          onClick={() => router.push("/catalog")}
+          onClick={() =>
+            router.push(ProtectedRouteEnum.STUDENTS + "/courses/catalog")
+          }
           className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           Browse Courses

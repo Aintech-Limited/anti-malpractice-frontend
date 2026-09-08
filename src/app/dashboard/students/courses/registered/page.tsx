@@ -5,7 +5,6 @@ import RegisteredCourses from "@/src/components/Dashboard/Student/RegisteredCour
 
 export default async function RegisteredCoursesPage() {
   const { success, data, message, meta } = await fetchRegisteredCourses();
-  // console.log('data: ', data);
 
   return (
     <div className="min-h-screen bg-gray-50">

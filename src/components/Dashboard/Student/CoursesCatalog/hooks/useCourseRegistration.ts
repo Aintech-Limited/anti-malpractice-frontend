@@ -1,8 +1,15 @@
 import { useState } from "react";
 import { Course } from "../interface";
 import { toast } from "react-toastify";
+import { useAppDispatch } from "@/src/redux/reduxStore";
+import {
+  hideLoading,
+  showLoading,
+} from "@/src/redux/features/globalLoadingSlice/globalLoadingSlice";
 
 export const useCourseRegistration = () => {
+  const dispatch = useAppDispatch();
+
   const [registeredCourseIds, setRegisteredCourseIds] = useState<string[]>([]);
   const [isRegistering, setIsRegistering] = useState(false);
   const [showRegisterCOurseModal, setShowRegisterCourseModal] =
@@ -13,7 +20,6 @@ export const useCourseRegistration = () => {
     course: Course,
     action: "register" | "continue_learning" = "register",
   ) => {
-    console.log("Selected course:", course);
     setSelectedCourse(course);
     if (action === "register") setShowRegisterCourseModal(true);
   };
@@ -24,9 +30,8 @@ export const useCourseRegistration = () => {
     setShowRegisterCourseModal(false);
 
     setIsRegistering(true);
-    toast.info("Registering course. Please wait");
+    dispatch(showLoading("Registering course..."));
     try {
-      console.log("Registering for course:", selectedCourse);
       const response = await fetch("/api/v1/course-registration", {
         method: "POST",
         body: JSON.stringify({ courseId: selectedCourse?.id ?? course?.id }),
@@ -45,6 +50,7 @@ export const useCourseRegistration = () => {
       console.error("Registration failed:", error);
     } finally {
       setIsRegistering(false);
+      dispatch(hideLoading());
     }
   };
 

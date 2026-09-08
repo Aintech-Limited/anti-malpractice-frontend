@@ -17,7 +17,7 @@ export const REDIRECT_PATHS: Record<
   EXAM_REGISTRATION: (materialId: string) =>
     `/dashboard/students/exams/registered?purchased=${materialId}`,
   COURSE_MATERIAL: (materialId: string) =>
-    `/dashboard/students/courses/registered?purchased=${materialId}`,
+    `/dashboard/students/courses/materials?purchased=${materialId}`,
 };
 
 export const COUNTDOWN_DURATION = 8;

@@ -110,17 +110,21 @@ export default function ExamsClient({
 
   const handleFetchExamDetails = async (
     examId: string,
-  ): Promise<IAdminExamFullDetails | null> => {
+  ): Promise<{
+    data?: IAdminExamFullDetails;
+    message: string;
+    success: boolean;
+  }> => {
     try {
       const response = await fetch(`/api/v1/admin/exam/${examId}`);
       const result = await response.json();
-      if (result.success) {
-        return result.data;
-      }
-      return null;
+      return result;
     } catch (error) {
       console.error("Error fetching exam details:", error);
-      return null;
+      return {
+        message: "failed",
+        success: false,
+      };
     }
   };
 
@@ -164,6 +168,7 @@ export default function ExamsClient({
       } else {
         toast.error(`Failed to request changes: ${result.message}`);
       }
+      return result;
     } catch (error) {
       console.error("Error requesting changes:", error);
       toast.error("Failed to request changes. Please try again.");

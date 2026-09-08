@@ -73,7 +73,7 @@ export const useExams = (initialExams: IExam[], initialMeta: any) => {
     setModalStage("");
   };
 
-  const openQuestionsModal = (exam: IExam) => {
+  const openAddQuestionsModal = (exam: IExam) => {
     setSelectedExam(exam);
     setModalStage("add_questions");
   };
@@ -115,7 +115,7 @@ export const useExams = (initialExams: IExam[], initialMeta: any) => {
     closeDeleteModal,
     openUpdateModal,
     closeUpdateModal,
-    openQuestionsModal,
+    openAddQuestionsModal,
     closeQuestionsModal,
     openViewQuestionsModal,
     closeViewQuestionsModal,

@@ -50,10 +50,6 @@ export default function Checkout({
     router.push(encodeURI(window.location.href));
   };
 
-  const handleContinue = () => {
-    handleRedirect();
-  };
-
   if (status === "invalid") {
     return (
       <CheckoutContainer>
@@ -76,7 +72,8 @@ export default function Checkout({
         <SuccessState
           transactionRef={transactionRef}
           countdown={countdown}
-          onContinue={handleContinue}
+          onContinue={handleRedirect}
+          merchandiseType={merchandiseType as TMaterialType}
         />
       </CheckoutContainer>
     );

@@ -11,8 +11,23 @@ import { PasswordModal } from "./modals/PasswordModal";
 import { InfoGrid } from "./InfoGrid/InfoGrid";
 import { PasswordSection } from "./PasswordSection/PasswordSection";
 import AvatarUploader from "./AvatarUploader/AvatarUploader";
+import DepartmentRequest from "./DepartmentRequest/DepartmentRequest";
+import { useEffect, useState } from "react";
+import { IDepartment } from "./DepartmentRequest/interface";
+import { useAuth } from "@/src/providers/auth/AuthContext";
+import { InstitutionLevelEnum, UserRoleTypeEnum } from "@/src/lib/enums";
+import { useAppDispatch } from "@/src/redux/reduxStore";
+import {
+  hideLoading,
+  showLoading,
+} from "@/src/redux/features/globalLoadingSlice/globalLoadingSlice";
+import { toast } from "react-toastify";
+import { data } from "framer-motion/client";
 
 export default function Profile({ initialUserData }: IProfileClientProps) {
+  const dispatch = useAppDispatch();
+  const { user: userData } = useAuth();
+  const [departments, setDepartments] = useState<IDepartment[]>([]);
   const {
     user,
     isEditing,
@@ -44,6 +59,53 @@ export default function Profile({ initialUserData }: IProfileClientProps) {
     setShowConfirmPassword,
     setLoadingState: setPasswordLoading,
   } = usePassword(user.hasPassword ?? false);
+
+  useEffect(() => {
+    // allow only for students in tertiary institutions
+    if (
+      userData?.role !== UserRoleTypeEnum.STUDENT ||
+      userData?.departmentId ||
+      user?.institutionLevel !== InstitutionLevelEnum.TERTIARY
+    )
+      return;
+    dispatch(showLoading("Fetching Departments"));
+
+    const fetchDepartments = async () => {
+      try {
+        const response = await fetch(
+          `/api/v1/departments?institutionId=${user?.institutionId}`,
+          {
+            method: "GET",
+            credentials: "include",
+          },
+        );
+
+        if (!response.ok) {
+          if (response.status === 500) throw new Error("");
+          const error = await response.json();
+          throw new Error(error?.message ?? "Department retrieval failed");
+        }
+
+        const data = await response.json();
+
+        if (!data.success) throw new Error(data.message);
+
+        setDepartments(data?.data ?? []);
+      } catch (error: any) {
+        toast.error(error?.message ?? "Could not retrieve departments.");
+      } finally {
+        dispatch(hideLoading());
+      }
+    };
+
+    fetchDepartments();
+  }, [
+    userData?.departmentId,
+    userData?.role,
+    dispatch,
+    user?.institutionId,
+    user?.institutionLevel,
+  ]);
 
   const handleUpdateProfile = async () => {
     setProfileLoading(true);
@@ -142,7 +204,21 @@ export default function Profile({ initialUserData }: IProfileClientProps) {
               onOpenModal={openPasswordModal}
             />
 
-            <InfoGrid user={user} institution={false} />
+            <InfoGrid
+              user={{
+                ...user,
+                departmentId: userData?.departmentId ?? user?.departmentId,
+                departmentName:
+                  userData?.departmentName ?? user?.departmentName,
+                departmentRole:
+                  userData?.departmentRole ?? user?.departmentRole,
+              }}
+              institution={false}
+            />
+            {!user?.departmentId &&
+              user?.institutionLevel === InstitutionLevelEnum.TERTIARY && (
+                <DepartmentRequest departments={departments} />
+              )}
 
             <AvatarUploader avatar={user?.avatar} />
           </div>

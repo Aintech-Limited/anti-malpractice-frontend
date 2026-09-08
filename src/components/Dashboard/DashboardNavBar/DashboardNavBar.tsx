@@ -2,7 +2,7 @@
 
 import { aintechLogo } from "@/public/assetLinks";
 import { APP_NAME } from "@/src/lib/data";
-import { Bell, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import Image from "next/image";
 import { IDashboardNavBarProps } from "./interface";
 import NotificationBell from "../Notifications/NotificationBell/NotificationBell";

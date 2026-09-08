@@ -16,6 +16,7 @@ export interface IExamResult {
   examAttempt: {
     passed: boolean;
     exam: {
+      id: string;
       title: string;
       course: {
         title: string;
@@ -72,6 +73,7 @@ export interface IUseExamResultsProps {
 export interface IStudentExamResultsProps {
   initialPage?: number;
   initialLimit?: number;
+  resultId?: string;
 }
 
 export interface IStaffExamResultsProps {
@@ -87,4 +89,5 @@ export interface IExamResultsProps {
   exams?: { id: string; title: string }[];
   initialPage?: number;
   initialLimit?: number;
+  resultId?: string;
 }

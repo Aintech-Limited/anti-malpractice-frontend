@@ -3,7 +3,7 @@ import MaterialCard from "./MaterialCard/MaterialCard";
 import { courseStats } from "./data";
 import { getPurchasedCourseMaterials } from "@/src/lib/serverHelper";
 import { ICourseMaterialsQuery } from "./interface";
-import { EmptyState } from "@/src/components/common/EmptyState/EmptyState";
+import { CourseMaterialsClient } from "./CourseMaterialsClient";
 
 const CourseMaterials = async ({
   limit,
@@ -17,7 +17,6 @@ const CourseMaterials = async ({
     sort,
     stats,
   });
-  // console.log('courseData: ', JSON.stringify(courseData));
   return (
     <div className="max-w-7xl mx-auto space-y-10 p-20">
       <header>
@@ -46,9 +45,7 @@ const CourseMaterials = async ({
           <MaterialCard key={idx} material={material} />
         ))}
       </div>
-      {!courseData?.data?.materials?.length && (
-        <EmptyState title="No purchased Material" />
-      )}
+      {!courseData?.data?.materials?.length && <CourseMaterialsClient />}
     </div>
   );
 };

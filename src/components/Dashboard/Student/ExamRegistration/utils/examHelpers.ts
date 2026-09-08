@@ -39,3 +39,10 @@ export const getButtonText = (exam: IExam): string => {
 export const isButtonDisabled = (exam: IExam): boolean => {
   return exam.isRegistered || exam.status === "ENDED";
 };
+
+export const getInitials = (user: any) => {
+  const first = user?.firstName?.trim()?.[0] ?? "";
+  const last = user?.lastName?.trim()?.[0] ?? "";
+
+  return `${first}${last}`.toUpperCase() || "U";
+};
