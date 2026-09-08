@@ -41,7 +41,7 @@ const DashboardExamRow = ({
             return;
           }
           if (isResult) {
-            router.push(`/dashboard/students/results/${id}`);
+            router.push(`/dashboard/students/exam-results?resultId=${id}`);
             return;
           }
           toast.info("Read!!! Study!!! Prepare!!!");

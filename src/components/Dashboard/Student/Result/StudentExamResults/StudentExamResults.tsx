@@ -12,7 +12,11 @@ import { ExamResultPagination } from "../StaffExamResults/ExamResultPagination/E
 export default function StudentExamResults({
   initialPage = 1,
   initialLimit = 50,
+  resultId,
 }: IStudentExamResultsProps) {
+  const [paramsResultId, setParamsResultId] = useState<null | string>(
+    resultId ?? null,
+  );
   const [courseCodeInput, setCourseCodeInput] = useState("");
   const {
     data,
@@ -33,6 +37,7 @@ export default function StudentExamResults({
   });
 
   const handleSearch = () => {
+    setParamsResultId(null);
     if (courseCodeInput.trim()) {
       if (courseCodeInput.length < 3) {
         setError((prevErrors) => ({
@@ -52,6 +57,10 @@ export default function StudentExamResults({
   const handleExport = async (format: "PDF" | "CSV") => {
     await downloadResults(format);
   };
+
+  const requestedResult = data?.filter(
+    (d) => d?.examAttempt?.exam?.id === paramsResultId,
+  );
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -102,7 +111,6 @@ export default function StudentExamResults({
         </div>
       </div>
 
-      {/* Results Section */}
       {loading ? (
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
@@ -142,7 +150,6 @@ export default function StudentExamResults({
             </button>
           </div>
 
-          {/* Results Table */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
@@ -168,38 +175,42 @@ export default function StudentExamResults({
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {data.map((result, index) => (
-                  <tr key={index} className="hover:bg-gray-50 transition">
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {result.examAttempt.exam.course.courseCode}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {result.examAttempt.exam.title}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-center font-medium">
-                      {result.score}
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span
-                        className={`inline-flex px-3 py-1 rounded-full text-sm font-semibold ${examResultUtils.getGradeColor(result.grade)}`}
-                      >
-                        {result.grade}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      {result.examAttempt.passed ? (
-                        <span className="text-green-600 font-semibold">
-                          ✓ Yes
+                {(requestedResult?.length ? requestedResult : data)?.map(
+                  (result, index) => (
+                    <tr key={index} className="hover:bg-gray-50 transition">
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {result.examAttempt.exam.course.courseCode}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {result.examAttempt.exam.title}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-center font-medium">
+                        {result.score}
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span
+                          className={`inline-flex px-3 py-1 rounded-full text-sm font-semibold ${examResultUtils.getGradeColor(result.grade)}`}
+                        >
+                          {result.grade}
                         </span>
-                      ) : (
-                        <span className="text-red-600 font-semibold">✗ No</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {formatDate(result.submittedAt)}
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        {result.examAttempt.passed ? (
+                          <span className="text-green-600 font-semibold">
+                            ✓ Yes
+                          </span>
+                        ) : (
+                          <span className="text-red-600 font-semibold">
+                            ✗ No
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-500">
+                        {formatDate(result.submittedAt)}
+                      </td>
+                    </tr>
+                  ),
+                )}
               </tbody>
             </table>
           </div>

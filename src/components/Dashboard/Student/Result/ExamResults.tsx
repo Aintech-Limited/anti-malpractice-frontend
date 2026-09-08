@@ -9,6 +9,7 @@ import { useAuth } from "@/src/providers/auth/AuthContext";
 export default function ExamResults({
   initialPage = 1,
   initialLimit = 50,
+  resultId,
 }: IExamResultsProps) {
   const { getUserRole } = useAuth();
   const role = getUserRole()!;
@@ -17,6 +18,7 @@ export default function ExamResults({
       <StudentExamResults
         initialPage={initialPage}
         initialLimit={initialLimit}
+        resultId={resultId}
       />
     );
   }

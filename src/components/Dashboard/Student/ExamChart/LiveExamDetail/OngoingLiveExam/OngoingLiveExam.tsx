@@ -31,6 +31,11 @@ import ExamLiveCameraFeed from "./ExamLiveCameraFeed/ExamLiveCameraFeed";
 import ExamTitleStatsGuidlines from "./ExamTitleStatsGuidlines/ExamTitleStatsGuidlines";
 import QuestionCard from "./QuestionCard/QuestionCard";
 import { useSecurityLockdown } from "./hook/useSecurityLockDown";
+import {
+  hideLoading,
+  showLoading,
+} from "@/src/redux/features/globalLoadingSlice/globalLoadingSlice";
+import { useAppDispatch } from "@/src/redux/reduxStore";
 
 const OngoingLiveExam = ({
   initialExamId,
@@ -39,6 +44,7 @@ const OngoingLiveExam = ({
   initialDurationTime,
 }: IOngoingLiveExamProps) => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const { user } = useAuth();
   // States
   const [examId, setExamId] = useState<string>(initialExamId);
@@ -82,10 +88,6 @@ const OngoingLiveExam = ({
 
   const examLocked = !screenStreamActive || isSubmitted;
 
-  // const { allQuestions, error, loading } = useFetchExamQuestions(
-  // 	examId,
-  // 	examAttemptId,
-  // );
   useEffect(() => {
     const fetchExamsQuestions = async () => {
       const maxRetries = 3;
@@ -540,6 +542,7 @@ const OngoingLiveExam = ({
 
   const handleSubmit = async () => {
     try {
+      dispatch(showLoading("Finalizing..."));
       // Capture final evidence before submission
       await handleScreenShot();
       const submitted = await handleBackendAnswerSync(true);
@@ -556,6 +559,8 @@ const OngoingLiveExam = ({
     } catch (error) {
       console.error("Error submitting exam:", error);
       toast.error("Failed to submit exam. Please try again.");
+    } finally {
+      dispatch(hideLoading());
     }
   };
 
