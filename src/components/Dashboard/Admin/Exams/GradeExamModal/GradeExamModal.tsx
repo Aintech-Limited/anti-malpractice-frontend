@@ -31,8 +31,8 @@ export default function AdminGradeExamModal({
       return;
     }
 
-    toast.error(result?.message || "Failed to grade examresults");
-    setError("Failed to grade exam");
+    toast.error(result?.message || "Failed to grade exam results");
+    setError(result?.message || "Failed to grade exam");
   };
 
   if (!isOpen || !exam) return null;
@@ -66,7 +66,6 @@ export default function AdminGradeExamModal({
             <div className="text-center py-8 text-red-600">{error}</div>
           ) : (
             <div className="space-y-6">
-              {/* Basic Info */}
               <div>
                 <h3 className="text-lg font-bold text-gray-900 mb-2">
                   {exam.title}

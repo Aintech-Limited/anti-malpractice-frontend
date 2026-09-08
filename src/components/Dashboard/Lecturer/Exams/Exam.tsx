@@ -38,7 +38,7 @@ export default function Exams({
     closeDeleteModal,
     openUpdateModal,
     closeUpdateModal,
-    openQuestionsModal,
+    openAddQuestionsModal,
     closeQuestionsModal,
     openViewQuestionsModal,
     closeViewQuestionsModal,
@@ -114,7 +114,7 @@ export default function Exams({
           <ExamsList
             exams={exams}
             onViewQuestions={openViewQuestionsModal}
-            onAddQuestions={openQuestionsModal}
+            onAddQuestions={openAddQuestionsModal}
             onUpdate={openUpdateModal}
             onDelete={openDeleteModal}
             onViewRegistrations={viewRegistrations}
@@ -171,7 +171,7 @@ export default function Exams({
         <ViewQuestionsModal
           exam={selectedExam}
           onClose={closeViewQuestionsModal}
-          onAddQuestion={openCreateModal}
+          onAddQuestion={openAddQuestionsModal}
         />
       )}
     </div>

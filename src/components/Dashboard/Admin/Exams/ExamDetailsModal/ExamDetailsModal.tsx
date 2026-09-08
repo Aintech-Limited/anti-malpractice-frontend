@@ -30,10 +30,10 @@ export default function AdminExamDetailsModal({
       setLoading(true);
       setError(null);
       const result = await onFetchDetails(exam.id);
-      if (result) {
-        setDetails(result);
+      if (result.success && result.data) {
+        setDetails(result.data);
       } else {
-        setError("Failed to load exam details");
+        setError(result?.message ?? "Failed to load exam details");
       }
       setLoading(false);
     };
@@ -88,7 +88,6 @@ export default function AdminExamDetailsModal({
                 </div>
               </div>
 
-              {/* Two Column Layout */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
@@ -231,7 +230,6 @@ export default function AdminExamDetailsModal({
                 </div>
               </div>
 
-              {/* Instructions */}
               {details?.instructions && (
                 <div>
                   <h4 className="font-semibold text-gray-700 mb-2 flex items-center gap-2">
@@ -252,18 +250,16 @@ export default function AdminExamDetailsModal({
                     Questions Preview (First 5)
                   </h4>
                   <div className="space-y-3">
-                    {details.questions
-                      .slice(0, 5)
-                      .map((q: any, idx: number) => (
-                        <div key={idx} className="bg-gray-50 rounded-lg p-3">
-                          <p className="text-sm font-medium text-gray-900">
-                            {idx + 1}. {q.text}
-                          </p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            Type: {q.type} | Marks: {q.marks}
-                          </p>
-                        </div>
-                      ))}
+                    {details.questions.slice(0, 5).map((q, idx: number) => (
+                      <div key={q.id} className="bg-gray-50 rounded-lg p-3">
+                        <p className="text-sm font-medium text-gray-900">
+                          {idx + 1}. {q.questionText}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Type: {q.type} | Marks: {q.marks}
+                        </p>
+                      </div>
+                    ))}
                     {details.questions.length > 5 && (
                       <p className="text-sm text-gray-500 text-center">
                         ... and {details.questions.length - 5} more questions
