@@ -39,6 +39,7 @@ import {
 import FaceIDSetupModal from "../FaceIDSetupModal/FaceIDSetupModal";
 import Link from "next/link";
 import { toast } from "react-toastify";
+import { isValidURL } from "@/src/lib/utils/isValidURL";
 
 const DashboardSidebar = ({
   toggleSidebar,
@@ -52,21 +53,7 @@ const DashboardSidebar = ({
   const { SkipFaceAuth } = useAppSelector((state) => state.afaceAuth);
   const [showFaceId, setShowFaceId] = useState<boolean>(false);
 
-  const isValidURL = () => {
-    const displayAvatar =
-      userData?.avatar?.trim() !== "" &&
-      userData?.avatar?.trim() !== undefined &&
-      userData?.avatar?.trim() !== null;
-    if (!displayAvatar) return false;
-    try {
-      const link = new URL(userData?.avatar ?? "");
-
-      if (link.protocol !== "https:") return false;
-    } catch (error) {
-      return false;
-    }
-    return true;
-  };
+  const isValidAvatarURL = isValidURL(userData?.avatar ?? "");
 
   useEffect(() => {
     if (
@@ -79,7 +66,7 @@ const DashboardSidebar = ({
       userData?.profileType === UserRoleTypeEnum.LECTURER &&
       userData?.idRecorded === false
     ) {
-      router.push(ProtectedRouteEnum.DASHBOARD_VERIFY);
+      router.push(ProtectedRouteEnum.DASHBOARD_LECTURERS_VERIFY);
       return;
     }
     if (
@@ -106,6 +93,12 @@ const DashboardSidebar = ({
     setShowFaceId(false);
     dispatch(setFaceAuthState({ SkipFaceAuth: true }));
     return;
+  };
+
+  const handleCaptureFace = () => {
+    router.push(ProtectedRouteEnum.STUDENT_FACE_CAPTURE);
+    setShowFaceId(false);
+    dispatch(setFaceAuthState({ SkipFaceAuth: true }));
   };
 
   const handleLogout = async () => {
@@ -137,9 +130,12 @@ const DashboardSidebar = ({
 
         toast.info("Signing you out...");
         return;
-      } else {
-        console.log(await res.json());
       }
+
+      if (res.status === 500 || res.status === 503) {
+        return;
+      }
+      console.log(await res.json());
     } catch (error) {
       console.warn("signout error: ", error);
     }
@@ -158,7 +154,8 @@ const DashboardSidebar = ({
     <div>
       <FaceIDSetupModal
         isOpen={showFaceId}
-        onClose={() => handleCloseFaceId()}
+        onClose={handleCloseFaceId}
+        onCaptureFace={handleCaptureFace}
       />
       <aside
         className={`fixed inset-y-0 left-0 z-1000 w-64 bg-blue-600 flex flex-col p-6 transition-transform duration-300 transform select-none ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:absolute lg:top-0 lg:left-0 lg:block lg:w-64 lg:h-full lg:opacity-0 lg:pointer-events-none"}`}
@@ -197,7 +194,7 @@ const DashboardSidebar = ({
         </button>
 
         <div className="flex items-center gap-4 border-t border-white/20 pt-6">
-          {isValidURL() ? (
+          {isValidAvatarURL ? (
             <Image
               src={userData!.avatar!}
               alt="User Avatar"
@@ -249,7 +246,7 @@ const DashboardSidebar = ({
         </button>
 
         <div className="flex items-center gap-4 border-t border-white/20 pt-6">
-          {isValidURL() ? (
+          {isValidAvatarURL ? (
             <Image
               src={userData!.avatar!}
               alt="Student"

@@ -83,7 +83,7 @@ const SidebarItem = ({ item }: { item: INavGroup }) => {
               <Link
                 key={child.name}
                 href={`${conformPath}${item.path}${child.path}`}
-                className={`block py-2 text-xs font-medium text-blue-100 hover:text-white transition-colors border-l border-white/20 pl-4 hover:border-white ${conformPath === pathname ? "text-green-700" : ""}`}
+                className={`block py-2 text-xs font-medium text-blue-100 hover:text-white transition-colors border-l border-white/20 pl-4 hover:border-white ${conformPath === pathname ? "text-gray-200" : ""}`}
               >
                 {child.name}
               </Link>

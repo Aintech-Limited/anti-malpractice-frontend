@@ -30,7 +30,7 @@ const LecturerDashboard = ({ initialData }: ILecturerDashboardProps) => {
 
   if (!initialData.success) {
     // console.log('sucess: ', initialData.success);
-    toast.error(initialData.message);
+    toast.error(initialData?.message ?? "Error occured");
   }
 
   return (
