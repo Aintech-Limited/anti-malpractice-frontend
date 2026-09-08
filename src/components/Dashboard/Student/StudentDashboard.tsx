@@ -10,19 +10,18 @@ const StudentDashboard = ({ initialData }: IStudentDashboardProps) => {
   const router = useRouter();
 
   const noPlanToday =
-    initialData.liveExams.length < 1 &&
-    initialData.results.length < 1 &&
-    initialData.upcomingExamsThisWeek.length < 1 &&
-    initialData.upcomingExamsToday.length < 1;
+    (initialData?.liveExams?.length ?? 0) < 1 &&
+    (initialData?.results?.length ?? 0) < 1 &&
+    (initialData?.upcomingExamsThisWeek?.length ?? 0) < 1 &&
+    (initialData?.upcomingExamsToday?.length ?? 0) < 1;
 
   return (
     <section className="bg-[#E9EEF2] min-h-screen p-6 md:p-12 font-sans">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8">
-        {/* Overview */}
         <div className="w-full md:w-1/3">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Overview</h2>
           <div className="space-y-20">
-            {initialData.stats.map((stat, idx) => (
+            {initialData?.stats?.map((stat, idx) => (
               <div
                 key={idx}
                 className="bg-white p-6 rounded-xl shadow-sm flex flex-col cursor-pointer
@@ -53,8 +52,7 @@ const StudentDashboard = ({ initialData }: IStudentDashboardProps) => {
               Today Plan
             </h2>
             <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
-              {/* Live Exam Section */}
-              {initialData.liveExams.length > 0 && (
+              {(initialData?.liveExams?.length ?? 0) > 0 && (
                 <div className="mb-8">
                   <div className="bg-[#EF5350] w-fit flex items-center gap-2 px-4 py-2 rounded-lg text-white font-bold mb-6 animate-pulse-red">
                     <Radio size={20} className="animate-ping" />
@@ -64,7 +62,7 @@ const StudentDashboard = ({ initialData }: IStudentDashboardProps) => {
                   </div>
 
                   <div className="space-y-4">
-                    {initialData.liveExams.map((live) => {
+                    {initialData?.liveExams?.map((live) => {
                       return (
                         <DashboardExamRow
                           key={live.id}
@@ -82,8 +80,7 @@ const StudentDashboard = ({ initialData }: IStudentDashboardProps) => {
 
               <hr className="border-gray-100 my-8" />
 
-              {/* Upcoming Exam Today Section */}
-              {initialData.upcomingExamsToday.length > 0 && (
+              {(initialData?.upcomingExamsToday?.length ?? 0) > 0 && (
                 <div className="mb-8">
                   <div className="bg-[#2da354] w-fit flex items-center gap-2 px-4 py-2 rounded-lg text-white font-bold mb-6 animate-pulse-red">
                     <Radio size={20} className="animate-spin" />
@@ -93,7 +90,7 @@ const StudentDashboard = ({ initialData }: IStudentDashboardProps) => {
                   </div>
 
                   <div className="space-y-4">
-                    {initialData.upcomingExamsToday.map((upcoming) => {
+                    {initialData?.upcomingExamsToday?.map((upcoming) => {
                       return (
                         <DashboardExamRow
                           key={upcoming.id}
@@ -110,8 +107,7 @@ const StudentDashboard = ({ initialData }: IStudentDashboardProps) => {
               )}
 
               <hr className="border-gray-100 my-8" />
-              {/* Upcoming Exam This Week Section */}
-              {initialData.upcomingExamsThisWeek.length > 0 && (
+              {(initialData?.upcomingExamsThisWeek?.length ?? 0) > 0 && (
                 <div className="mb-8">
                   <div className="bg-[#2da354] w-fit flex items-center gap-2 px-4 py-2 rounded-lg text-white font-bold mb-6 animate-pulse-red">
                     <Radio size={20} className="animate-spin" />
@@ -121,7 +117,7 @@ const StudentDashboard = ({ initialData }: IStudentDashboardProps) => {
                   </div>
 
                   <div className="space-y-4">
-                    {initialData.upcomingExamsThisWeek.map((upcoming) => {
+                    {initialData?.upcomingExamsThisWeek?.map((upcoming) => {
                       return (
                         <DashboardExamRow
                           key={upcoming.id}
@@ -139,8 +135,7 @@ const StudentDashboard = ({ initialData }: IStudentDashboardProps) => {
 
               <hr className="border-gray-100 my-8" />
 
-              {/* Results Section */}
-              {initialData.results.length > 0 && (
+              {(initialData?.results?.length ?? 0) > 0 && (
                 <div>
                   <div className="bg-[#1A1AFF] w-fit flex items-center gap-2 px-4 py-2 rounded-lg text-white font-bold mb-6">
                     <BarChart2 size={20} />
@@ -149,7 +144,7 @@ const StudentDashboard = ({ initialData }: IStudentDashboardProps) => {
                     </span>
                   </div>
                   <div className="space-y-4">
-                    {initialData.results.map((result) => {
+                    {initialData?.results?.map((result) => {
                       return (
                         <DashboardExamRow
                           key={result.id}
