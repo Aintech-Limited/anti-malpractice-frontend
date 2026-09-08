@@ -20,6 +20,7 @@ import lecturerVerificationImageReducer from "./features/lecturerVerificationIma
 import otpExpiryReducer from "./features/otpExpiry/otpExpirySlice";
 import forgotPasswordReducer from "./features/forgotPassword/forgotPasswordSlice";
 import faceAuthReducer from "./features/faceAuth/faceAuthSlice";
+import globalLoadingReducer from "./features/globalLoadingSlice/globalLoadingSlice";
 
 const themePersistConfig = { key: "asignup", storage };
 const otpExpiryPersistConfig = { key: "aotpExpiry", storage };
@@ -39,6 +40,7 @@ const rootReducer = combineReducers({
     alecturerVerificationImagesPersistConfig,
     lecturerVerificationImageReducer,
   ),
+  globalLoading: globalLoadingReducer,
 });
 
 export const store = configureStore({
