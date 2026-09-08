@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { X, Building2, Save } from "lucide-react";
 import { EditDepartmentModalProps } from "./interface";
 import { IDepartment } from "../interface";
+import useStopDialogBGPageScrolling from "@/src/lib/hooks/useStopDialogBGPageScrolling";
 
 export default function EditDepartmentModal({
   isOpen,
@@ -18,6 +19,8 @@ export default function EditDepartmentModal({
     imageUrl: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+
+  useStopDialogBGPageScrolling({ isOpen, onClose });
 
   useEffect(() => {
     if (!department) return;
@@ -52,10 +55,16 @@ export default function EditDepartmentModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 z-10 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
       <div className="absolute inset-0 backdrop-blur-md bg-black/50" />
 
-      <div className="relative z-10 w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden">
+      <div
+        className="relative z-10 w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="bg-linear-to-r from-green-600 to-green-700 px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">

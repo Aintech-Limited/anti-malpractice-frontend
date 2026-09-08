@@ -35,7 +35,6 @@ export const StudentNavGroups: INavGroup[] = [
       // { name: 'Available Exams', path: '/available' },
       { name: "Exam Registration", path: "/registration" }, // list of exams to register from
       { name: "Registered Exams", path: "/registered" }, // list of registered exams
-      { name: "Exam Results", path: "/results" },
     ],
   },
   {

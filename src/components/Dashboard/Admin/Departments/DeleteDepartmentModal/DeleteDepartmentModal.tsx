@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { X, AlertTriangle, Trash2 } from "lucide-react";
 import { IDeleteDepartmentModalProps } from "./interface";
+import useStopDialogBGPageScrolling from "@/src/lib/hooks/useStopDialogBGPageScrolling";
 
 export default function DeleteDepartmentModal({
   isOpen,
@@ -11,6 +12,8 @@ export default function DeleteDepartmentModal({
   department,
 }: IDeleteDepartmentModalProps) {
   const [isLoading, setIsLoading] = useState(false);
+
+  useStopDialogBGPageScrolling({ isOpen, onClose });
 
   if (!isOpen || !department) return null;
 
@@ -22,10 +25,16 @@ export default function DeleteDepartmentModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 z-10 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
       <div className="absolute inset-0 backdrop-blur-md bg-black/50" />
 
-      <div className="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
+      <div
+        className="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="bg-linear-to-r from-red-600 to-red-700 px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
