@@ -7,6 +7,7 @@ export const SuccessState = ({
   transactionRef,
   countdown,
   onContinue,
+  merchandiseType,
 }: ISuccessStateProps) => {
   return (
     <div className="bg-white rounded-xl shadow-sm p-8 text-center">
@@ -32,7 +33,8 @@ export const SuccessState = ({
         onClick={onContinue}
         className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
       >
-        Continue to Course ({countdown}s)
+        Continue to {merchandiseType === "COURSE_MATERIAL" ? "Course" : "Exams"}{" "}
+        ({countdown}s)
       </button>
 
       <p className="text-xs text-gray-500 mt-4">

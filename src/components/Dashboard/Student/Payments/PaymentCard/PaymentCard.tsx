@@ -1,6 +1,7 @@
+"use client";
+
 import { Eye, CreditCard, Calendar, DollarSign } from "lucide-react";
 import {
-  getMerchandiseIcon,
   getMerchandiseStyles,
   getStatusColor,
   formatTransactionId,
@@ -10,8 +11,11 @@ import {
 import { formatDate } from "@/src/lib/helper";
 import { IPaymentCardProps } from "./interface";
 
-export const PaymentCard = ({ payment, onViewDetails }: IPaymentCardProps) => {
-  const Icon = getMerchandiseIcon(payment.merchandiseName);
+export const PaymentCard = ({
+  payment,
+  onViewDetails,
+  ICON,
+}: IPaymentCardProps) => {
   const { iconColor, bgGradient } = getMerchandiseStyles(
     payment.merchandiseName,
   );
@@ -27,7 +31,7 @@ export const PaymentCard = ({ payment, onViewDetails }: IPaymentCardProps) => {
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-4 flex-1">
             <div className={`p-3 ${bgGradient} rounded-xl`}>
-              <Icon className={`w-5 h-5 ${iconColor}`} />
+              <ICON className={`w-5 h-5 ${iconColor}`} />
             </div>
 
             <div className="flex-1">

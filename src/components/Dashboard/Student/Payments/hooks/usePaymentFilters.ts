@@ -21,7 +21,7 @@ export const usePaymentFilters = (initialFilters: IFilters) => {
     if (updated.sortBy) params.set("sortBy", updated.sortBy);
 
     router.push(
-      `/dashboard/${user?.role === UserRoleTypeEnum.LECTURER ? "lecturers" : "students"}/finance/history?${params.toString()}`,
+      `/dashboard/${user?.role === UserRoleTypeEnum.LECTURER ? "lecturers" : user?.role === UserRoleTypeEnum.STUDENT ? "students" : "vendors"}/finance/history?${params.toString()}`,
     );
   };
 
