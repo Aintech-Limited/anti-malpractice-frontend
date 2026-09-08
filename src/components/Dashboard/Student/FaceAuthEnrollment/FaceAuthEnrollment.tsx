@@ -13,9 +13,14 @@ const FaceAuthEnrollment = () => {
   const { updateUser, user } = useAuth();
 
   useEffect(() => {
+    if (!user) {
+      router.push(ProtectedRouteEnum.DASHBOARD);
+      return;
+    }
     if (user?.faceAuthEnabled) {
       toast.info("Face ID already enabled");
       router.push(ProtectedRouteEnum.STUDENTS);
+      return;
     }
   }, [router, user]);
 
@@ -39,12 +44,8 @@ const FaceAuthEnrollment = () => {
     }
   };
 
-  const handleCancel = () => {
-    router.back();
-  };
-
   return (
-    <div className="min-h-screen bg-linear-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 py-12 px-4">
+    <div className="min-h-screen bg-linear-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 py-12 px-4 max-w-full mx-auto">
       <div className="max-w-7xl mx-auto">
         <header className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
@@ -59,7 +60,10 @@ const FaceAuthEnrollment = () => {
           {showEnrollment ? (
             <FaceCapture
               onEnrollmentComplete={handleEnrollmentComplete}
-              onCancel={handleCancel}
+              onCancel={() => {
+                router.back();
+              }}
+              isOpen={showEnrollment}
             />
           ) : (
             <div className="text-center">
@@ -70,7 +74,6 @@ const FaceAuthEnrollment = () => {
           )}
         </div>
 
-        {/* Security information */}
         <div className="mt-12 max-w-3xl mx-auto">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
@@ -118,15 +121,17 @@ const FaceAuthEnrollment = () => {
               </div>
             </div>
           </div>
-          <div className="text-center pt-4">
-            <button
-              className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
-              type="button"
-              onClick={() => setShowEnrollment(true)}
-            >
-              Continue
-            </button>
-          </div>
+          {!showEnrollment && (
+            <div className="text-center pt-4">
+              <button
+                className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
+                type="button"
+                onClick={() => setShowEnrollment(true)}
+              >
+                Continue
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
