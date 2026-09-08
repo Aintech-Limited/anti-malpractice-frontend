@@ -55,7 +55,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           isMobileOpen={isMobileOpen}
         />
 
-        {/*  Backdrop for mobile sidebar open  */}
         {isMobileOpen && (
           <div
             onClick={toggleSidebar}

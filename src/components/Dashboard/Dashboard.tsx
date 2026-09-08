@@ -1,38 +1,6 @@
 "use client";
 
-import {
-  ProtectedRouteEnum,
-  UnProtectedRouteEnum,
-  UserRoleTypeEnum,
-} from "@/src/lib/enums";
-import { useAuth } from "@/src/providers/auth/AuthContext";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-
 const Dashboard = () => {
-  const router = useRouter();
-  const { user } = useAuth();
-
-  useEffect(() => {
-    if (!user?.role) return;
-
-    switch (user.role) {
-      case UserRoleTypeEnum.ADMIN:
-        router.push(ProtectedRouteEnum.ADMINS);
-        break;
-      case UserRoleTypeEnum.STUDENT:
-        router.push(ProtectedRouteEnum.STUDENTS);
-        break;
-      case UserRoleTypeEnum.LECTURER:
-        router.push(ProtectedRouteEnum.LECTURERS);
-        break;
-      case UserRoleTypeEnum.VENDOR:
-        router.push(ProtectedRouteEnum.VENDORS);
-        break;
-      default:
-        router.push(UnProtectedRouteEnum.SIGNIN);
-    }
-  }, [router, user?.role]);
   return (
     <div className="flex h-screen w-full bg-gray-50 overflow-hidden">
       <aside className="w-64 border-r border-gray-200 bg-white p-4 hidden md:flex md:flex-col justify-between shrink-0">
