@@ -1,66 +1,61 @@
 "use client";
-import { createContext, useContext, useState, useEffect } from "react";
-import { IAuthContextType, IAuthProviderProps } from "./interface";
+import { useEffect } from "react";
+import {
+  purgeAllPersist,
+  useAppDispatch,
+  useAppSelector,
+} from "@/src/redux/reduxStore";
+import {
+  signInAction,
+  signOutUser,
+  updateUserAction,
+  setLoading,
+  setUserRoles,
+} from "@/src/redux/features/auth/authSlice";
+import { IAuthProviderProps } from "./interface";
 import { IUserModel } from "@/src/types/user";
-
-const AuthContext = createContext<IAuthContextType | undefined>(undefined);
-
-export const USER_STORAGE_KEY = "finduUser";
 
 export function AuthProvider({
   children,
   userData,
 }: Readonly<IAuthProviderProps>) {
-  const [user, setUser] = useState<IUserModel | null>(() => {
-    if (userData) return userData;
-
-    if (typeof window !== "undefined") {
-      try {
-        const storedUser = localStorage.getItem(USER_STORAGE_KEY);
-        if (storedUser && storedUser !== "undefined") {
-          return JSON.parse(storedUser);
-        }
-      } catch (error) {
-        console.error("Failed to parse stored user:", error);
-        localStorage.removeItem(USER_STORAGE_KEY);
-      }
-    }
-    return null;
-  });
-  const [loading, setLoading] = useState(!userData && !user);
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      if (user) {
-        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
-      } else {
-        localStorage.removeItem(USER_STORAGE_KEY);
-      }
+    const { userRoles, ...restOfData } = (userData ?? {}) as any;
+    // console.log("userRoles: ", userRoles, ", restOfData: ", restOfData);
+    if (userData && !user) {
+      dispatch(signInAction(restOfData));
+      dispatch(setUserRoles(userRoles));
+    } else if (!user) {
+      dispatch(setLoading(false));
     }
+  }, [userData, user, dispatch]);
 
-    if (loading) {
-      (() => setLoading(false))();
-    }
-  }, [user, loading]);
+  return <>{children}</>;
+}
 
-  useEffect(() => {
-    if (userData && JSON.stringify(userData) !== JSON.stringify(user)) {
-      (() => setUser(userData))();
-    }
-  }, [userData, user]);
+export const useAuth = () => {
+  const dispatch = useAppDispatch();
+  const { user, loading } = useAppSelector((state) => state.auth);
 
   const signIn = (userData: IUserModel) => {
     if (!userData || typeof userData !== "object") {
       console.error("Invalid user data provided to signIn");
       return;
     }
-    setUser(userData);
+    dispatch(setLoading(true));
+    dispatch(signInAction(userData));
+    dispatch(setLoading(false));
   };
 
   const signOut = () => {
-    setUser(null);
-    localStorage.removeItem(USER_STORAGE_KEY);
-    sessionStorage.clear();
+    dispatch(signOutUser());
+    purgeAllPersist();
+    if (typeof window !== "undefined") {
+      sessionStorage.clear();
+    }
   };
 
   const updateUser = (userData: Partial<IUserModel>) => {
@@ -74,11 +69,7 @@ export function AuthProvider({
       return;
     }
 
-    const updatedUser = { ...user, ...userData };
-    setUser(updatedUser);
-    if (typeof window !== "undefined") {
-      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
-    }
+    dispatch(updateUserAction(userData));
   };
 
   const isAuthenticated = !!user;
@@ -87,25 +78,13 @@ export function AuthProvider({
     return user?.role || null;
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        signIn,
-        loading,
-        signOut,
-        updateUser,
-        isAuthenticated,
-        getUserRole,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
-}
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used within AuthProvider");
-  return context;
+  return {
+    user,
+    signIn,
+    loading,
+    signOut,
+    updateUser,
+    isAuthenticated,
+    getUserRole,
+  };
 };
