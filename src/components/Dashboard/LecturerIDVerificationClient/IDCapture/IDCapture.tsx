@@ -104,7 +104,7 @@ const IDCapture = ({
     // detect blurry image
     const blurry = detectBlur(canvas);
 
-    if (blurry < 100) {
+    if (blurry < 50) {
       toast.warning("Image is blurry. Hold steady and try again.");
       return;
     }
