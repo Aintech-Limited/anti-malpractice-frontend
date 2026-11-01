@@ -1,12 +1,16 @@
 "use client";
-import { useAuth } from "@/src/providers/auth/AuthContext";
+import {
+  setUserRoles,
+  signInAction,
+} from "@/src/redux/features/auth/authSlice";
+import { useAppDispatch } from "@/src/redux/reduxStore";
 import { X, BookCheckIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const VerificationModal = () => {
   const router = useRouter();
-  const { signIn, updateUser } = useAuth();
+  const dispatch = useAppDispatch();
 
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -21,28 +25,27 @@ const VerificationModal = () => {
 
         if (res.ok) {
           const data = await res.json();
-          signIn(data.data);
-          updateUser(data.data);
-          console.log(data.data);
-          setLoading(false);
+          // console.log(data.data);
+          const { userRoles, ...restOfData } = data?.data ?? {};
+
+          if (userRoles) dispatch(setUserRoles(userRoles));
+          if (restOfData) dispatch(signInAction(restOfData));
+
           router.push("/dashboard");
         }
       } catch (error) {
         console.error((error as Error).message);
+      } finally {
         setLoading(false);
       }
     };
     refreshUserData();
-  }, [router, signIn, updateUser]);
+  }, [router, dispatch]);
   return (
-    /* The Overlay  */
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Semi-transparent background layer */}
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" />
 
-      {/* Modal */}
       <div className="relative w-full max-w-sm overflow-hidden rounded-2xl bg-white p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
-        {/* Close Button  */}
         <div className="flex justify-end">
           <button
             onClick={() => router.push("/dashboard")}
@@ -53,14 +56,11 @@ const VerificationModal = () => {
           </button>
         </div>
 
-        {/* Modal Content */}
         <div className="flex flex-col items-center text-center">
-          {/* Book Icon Container */}
           <div className="mb-4 mt-5 flex h-44 w-44 items-center justify-center rounded-full bg-orange-50 text-orange-500">
             <BookCheckIcon size={120} />
           </div>
 
-          {/* Text Content */}
           <h3 className="mb-2 mt-10 text-xl font-bold text-gray-900">
             Thanks! We&apos;ll review your documents soon.
           </h3>
@@ -68,7 +68,6 @@ const VerificationModal = () => {
             Document reviewing is fast.
           </p>
 
-          {/* Action Buttons */}
           <div className="flex w-full flex-col gap-3 mb-5">
             <button
               onClick={() => router.push("/dashboard")}
