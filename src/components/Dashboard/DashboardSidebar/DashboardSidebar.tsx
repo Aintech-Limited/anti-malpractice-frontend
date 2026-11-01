@@ -40,22 +40,25 @@ import FaceIDSetupModal from "../FaceIDSetupModal/FaceIDSetupModal";
 import Link from "next/link";
 import { toast } from "react-toastify";
 import { isValidURL } from "@/src/lib/utils/isValidURL";
+import LoadingOverlay from "../../common/LoadingOverlay/LoadingOverlay";
 
 const DashboardSidebar = ({
   toggleSidebar,
   isSidebarOpen,
   isMobileOpen,
 }: IDashboardSidebarProps) => {
-  const { user: userData, loading, signOut, signIn } = useAuth();
+  const { user: userData, signOut } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const dispatch = useAppDispatch();
   const { SkipFaceAuth } = useAppSelector((state) => state.afaceAuth);
   const [showFaceId, setShowFaceId] = useState<boolean>(false);
+  const [signinout, setSigninout] = useState(false);
 
   const isValidAvatarURL = isValidURL(userData?.avatar ?? "");
 
   useEffect(() => {
+    setSigninout(false);
     if (
       !Object.values(ProtectedRouteEnum).includes(
         pathname as ProtectedRouteEnumValue,
@@ -103,13 +106,14 @@ const DashboardSidebar = ({
 
   const handleLogout = async () => {
     try {
+      setSigninout(true);
       const res = await fetch("/api/v1/auth/signout", {
         method: "DELETE",
         credentials: "include",
       });
       if (res.status < 400 || res.status === 401) {
         const data = await res.json();
-        console.log(data.message);
+        // console.log(data.message);
 
         signOut();
         dispatch(clearFaceAuthState());
@@ -121,7 +125,6 @@ const DashboardSidebar = ({
           callbackUrl: UnProtectedRouteEnum.SIGNIN,
         });
 
-        console.log("User logged out");
         if (window) {
           window.location.href = UnProtectedRouteEnum.SIGNIN;
         } else {
@@ -138,6 +141,8 @@ const DashboardSidebar = ({
       console.log(await res.json());
     } catch (error) {
       console.warn("signout error: ", error);
+    } finally {
+      setSigninout(false);
     }
   };
 
@@ -149,14 +154,15 @@ const DashboardSidebar = ({
         : userData?.role === UserRoleTypeEnum.VENDOR
           ? VendorNavGroups
           : AdminNavGroups;
-
   return (
     <div>
+      <LoadingOverlay message="Signing Out..." isOpen={signinout} />
       <FaceIDSetupModal
         isOpen={showFaceId}
         onClose={handleCloseFaceId}
         onCaptureFace={handleCaptureFace}
       />
+      {/* Desktop Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-1000 w-64 bg-blue-600 flex flex-col p-6 transition-transform duration-300 transform select-none ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:absolute lg:top-0 lg:left-0 lg:block lg:w-64 lg:h-full lg:opacity-0 lg:pointer-events-none"}`}
       >
@@ -193,7 +199,7 @@ const DashboardSidebar = ({
           <span>Log out</span>
         </button>
 
-        <div className="flex items-center gap-4 border-t border-white/20 pt-6">
+        <div className="flex items-center gap-4 border-t border-white/20 pt-6 shrink-0">
           {isValidAvatarURL ? (
             <Image
               src={userData!.avatar!}
@@ -203,7 +209,7 @@ const DashboardSidebar = ({
               width={70}
             />
           ) : (
-            <div className="w-12 h-12 rounded-xl border border-white/20">{`${userData?.firstName?.slice(0, 1) ?? ""} ${userData?.lastName?.slice(0, 1) ?? ""}`}</div>
+            <div className="w-12 h-12 rounded-xl border border-white/20 flex items-center justify-center text-white font-bold">{`${userData?.firstName?.slice(0, 1) ?? ""} ${userData?.lastName?.slice(0, 1) ?? ""}`}</div>
           )}
           <div>
             <p className="text-sm font-bold text-white">
@@ -214,11 +220,12 @@ const DashboardSidebar = ({
         </div>
       </aside>
 
+      {/* Mobile Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-100 w-64 bg-blue-600 flex flex-col p-6 transition-transform duration-300 transform select-none lg:hidden ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
-        <div className="flex items-center justify-between mb-10">
-          <h2 className="text-2xl font-black text-white tracking-tighter">
+        <div className="flex items-center justify-between mb-10 shrink-0">
+          <h2 className="text-2xl font-black text-white tracking-tighter flex items-center gap-2">
             <Image
               alt={`${APP_NAME} LOGO`}
               src={aintechLogo}
@@ -230,22 +237,24 @@ const DashboardSidebar = ({
           <CircleXIcon
             onClick={toggleSidebar}
             className="w-6 h-6 text-blue-100 cursor-pointer"
-          />{" "}
+          />
         </div>
-        <nav className="flex-1 space-y-2">
+
+        <nav className="flex-1 space-y-2 overflow-x-auto overflow-y-auto min-h-0 pr-1">
           {navGroups.map((group) => (
             <SidebarItem key={group.name} item={group} />
           ))}
         </nav>
+
         <button
-          className="flex items-center gap-4 h-12 px-4 w-full text-white text-sm font-semibold rounded-xl bg-white/10 hover:bg-white/15 transition-all mt-auto mb-6 group"
+          className="flex items-center gap-4 h-12 px-4 w-full text-white text-sm font-semibold rounded-xl bg-white/10 hover:bg-white/15 transition-all mt-auto mb-6 group shrink-0"
           onClick={handleLogout}
         >
           <LogOut className="w-5 h-5 text-blue-100 transition-colors group-hover:text-white" />
           <span>Log out</span>
         </button>
 
-        <div className="flex items-center gap-4 border-t border-white/20 pt-6">
+        <div className="flex items-center gap-4 border-t border-white/20 pt-6 shrink-0">
           {isValidAvatarURL ? (
             <Image
               src={userData!.avatar!}
@@ -255,7 +264,7 @@ const DashboardSidebar = ({
               width={70}
             />
           ) : (
-            <div className="w-12 h-12 rounded-xl border border-white/20">{`${userData?.firstName?.slice(0, 1) ?? ""} ${userData?.lastName?.slice(0, 1) ?? ""}`}</div>
+            <div className="w-12 h-12 rounded-xl border border-white/20 flex items-center justify-center text-white font-bold">{`${userData?.firstName?.slice(0, 1) ?? ""} ${userData?.lastName?.slice(0, 1) ?? ""}`}</div>
           )}
 
           <div>
