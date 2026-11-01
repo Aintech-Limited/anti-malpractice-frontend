@@ -1,7 +1,7 @@
 import { EmptyState } from "@/src/components/common/EmptyState/EmptyState";
 import { DepartmentItem } from "../DepartmentItem/DepartmentItem";
 import { IDepartmentListProps } from "./interface";
-import { NoDepartments } from "@/src/components/common/EmptyState/EmptyState.stories";
+import { NoCourses } from "@/src/components/common/EmptyState/EmptyState.stories";
 
 export const DepartmentList = ({
   departments,
@@ -19,9 +19,9 @@ export const DepartmentList = ({
     return (
       <div className="flex items-center justify-center min-h-100">
         <EmptyState
-          title={NoDepartments.args!.title!}
-          description={NoDepartments.args!.description}
-          icon={NoDepartments.args!.icon}
+          title={NoCourses.args!.title!}
+          description={NoCourses.args!.description}
+          icon={NoCourses.args!.icon}
           action={{
             label: "Clear Filters",
             onClick: () => {
