@@ -184,7 +184,13 @@ export default function Students({ initialData }: IStudentManagenementProps) {
     }
     const startIndex = (currentPage - 1) * itemsPerPage;
     return unfilteredStudents.slice(startIndex, startIndex + itemsPerPage);
-  }, [isFilteringActive, filteredStudents, unfilteredStudents, currentPage]);
+  }, [
+    isFilteringActive,
+    currentPage,
+    unfilteredStudents,
+    filteredStudents,
+    searchQuery,
+  ]);
 
   const totalPages = useMemo(() => {
     if (isFilteringActive) {
@@ -327,12 +333,16 @@ export default function Students({ initialData }: IStudentManagenementProps) {
             setSearchQuery={setSearchQuery}
           />
 
-          {isSuspendingLoading && (
-            <LoadingOverlay message="Suspending Student" />
-          )}
-          {isUnSuspendingLoading && (
-            <LoadingOverlay message="Unsuspending Student" />
-          )}
+          <LoadingOverlay
+            message={
+              isSuspendingLoading
+                ? "Suspending Student"
+                : isUnSuspendingLoading
+                  ? "Unsuspending Student"
+                  : ""
+            }
+            isOpen={isSuspendingLoading || isUnSuspendingLoading}
+          />
 
           <div className="w-full overflow-x-auto rounded-xl border border-slate-100 shadow-sm">
             <table className="w-full min-w-175 border-collapse text-left text-sm text-slate-700">
