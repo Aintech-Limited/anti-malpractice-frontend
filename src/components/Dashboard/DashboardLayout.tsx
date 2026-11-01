@@ -1,13 +1,24 @@
 "use client";
 
-import { useState, useLayoutEffect } from "react";
+import { useState, useLayoutEffect, useEffect } from "react";
 import { Menu } from "lucide-react";
 import { DashboardLayoutProps } from "./interface";
 import DashboardNavBar from "./DashboardNavBar/DashboardNavBar";
 import DashboardSidebar from "./DashboardSidebar/DashboardSidebar";
 import { usePathname } from "next/navigation";
+import { useAppDispatch, useAppSelector } from "@/src/redux/reduxStore";
+import {
+  setUserRoles,
+  setUserRolesLoading,
+  signInAction,
+} from "@/src/redux/features/auth/authSlice";
+import { LoadingUserOverlay } from "../common/LoadingOverlay/LoadingOverlay";
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+  const { userRoles, user, userRolesLoading } = useAppSelector(
+    (state) => state.auth,
+  );
+  const dispatch = useAppDispatch();
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -15,6 +26,32 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const examPattern =
     /^\/dashboard\/students\/exams\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
   const isExamPage = examPattern.test(pathname);
+  useEffect(() => {
+    if (userRoles && user) return;
+    const getUserWithROles = async () => {
+      dispatch(setUserRolesLoading(true));
+      try {
+        const res = await fetch("/api/v1/users", {
+          method: "GET",
+          credentials: "include",
+        });
+        if ([200, 201].includes(res.status)) {
+          const data = await res.json();
+          const { userRoles, ...restOfUser } = data?.data ?? {};
+          if (userRoles) dispatch(setUserRoles(userRoles));
+          if (!user && restOfUser) {
+            dispatch(signInAction(restOfUser));
+          }
+          dispatch(setUserRolesLoading(false));
+          return;
+        }
+      } catch (error) {
+        console.warn("could not get user data: ", error);
+      }
+    };
+
+    getUserWithROles();
+  }, [userRoles, dispatch, user]);
 
   useLayoutEffect(() => {
     const handleResize = () => {
@@ -39,6 +76,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 antialiased flex flex-col font-sans">
+      <LoadingUserOverlay isOpen={userRolesLoading} message="Re-initializing" />
       <DashboardNavBar isSidebarOpen={isSidebarOpen} />
 
       <div className="flex flex-1 relative">
