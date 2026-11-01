@@ -81,6 +81,12 @@ export default function AdminComplaintsManager({
   const [admins, setAdmins] = useState<TAssigneeAdmins[]>([]);
 
   const itemsPerPage = 10;
+  const displayOverlay =
+    isLoading ||
+    isMarkingAsResolvedLoading ||
+    isAssigninToMeLoading ||
+    isEscalateLoading ||
+    isInProgressLoading;
 
   const isFilteringActive = useMemo(() => {
     return (
@@ -523,15 +529,18 @@ export default function AdminComplaintsManager({
       <ComplaintAnalytics metrics={metrics} />
 
       <div className="bg-white rounded-3xl border border-slate-200/60 shadow-xs overflow-visible">
-        {isLoading && <LoadingOverlay message="Syncing data engine" />}
-        {isMarkingAsResolvedLoading && (
-          <LoadingOverlay message="Marking as resolved" />
-        )}
-        {isAssigninToMeLoading && <LoadingOverlay message="Assigning to me" />}
-        {isEscalateLoading && <LoadingOverlay message="Escalating Complaint" />}
-        {isInProgressLoading && (
-          <LoadingOverlay message="Setting in progress" />
-        )}
+        <LoadingOverlay
+          message={(() => {
+            if (isLoading) return "Syncing data engine";
+            if (isMarkingAsResolvedLoading) return "Marking as resolved";
+            if (isAssigninToMeLoading) return "Assigning to me";
+            if (isEscalateLoading) return "Escalating Complaint";
+            if (isInProgressLoading) return "Setting in progress";
+            return "";
+          })()}
+          isOpen={displayOverlay}
+        />
+
         <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
           <SearchFilter
             searchQuery={searchQuery}
