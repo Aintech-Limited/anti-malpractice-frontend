@@ -15,7 +15,7 @@ export default function PrivacyPolicy() {
   ];
 
   return (
-    <div className="bg-slate-900 dark:bg-white min-h-screen text-slate-100 dark:text-slate-200 py-12 px-4 sm:px-6 lg:px-8 transition-colors">
+    <div className="bg-slate-900 mt-15 dark:bg-white min-h-screen text-slate-100 dark:text-slate-200 py-12 px-4 sm:px-6 lg:px-8 transition-colors">
       <div className="max-w-6xl mx-auto">
         <header className="mb-12 border-b border-slate-200 dark:border-slate-800 pb-8">
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-100 dark:text-black">
@@ -131,7 +131,7 @@ export default function PrivacyPolicy() {
                 <p className="dark:text-slate-800">
                   {APP_NAME} uses the collected data for various purposes:
                 </p>
-                <ul className="space-y-2 list-disc list-inside bg-white  p-6 rounded-xl bg-white dark:bg-white-800/40 p-6 sm:p-8 rounded-2xl border border-gray-100 dark:border-gray-100 shadow-sm space-y-4">
+                <ul className="space-y-2 list-disc list-inside bg-white  p-6 rounded-xl dark:bg-white-800/40 sm:p-8 border border-gray-100 dark:border-gray-100 shadow-sm space-y-4">
                   <li className="dark:text-slate-800">
                     To provide and maintain the Service
                   </li>
@@ -172,7 +172,7 @@ export default function PrivacyPolicy() {
                 <p className="dark:text-slate-900">
                   {APP_NAME} may process your Personal Data because:
                 </p>
-                <ul className="space-y-2 list-disc list-inside  p-6 rounded-xl   bg-white dark:bg-white-800/40 p-6 sm:p-8 rounded-2xl border border-gray-100 dark:border-gray-100 shadow-sm space-y-4">
+                <ul className="space-y-2 list-disc list-inside  p-6 rounded-xl   bg-white dark:bg-white-800/40 sm:p-8 border border-gray-100 dark:border-gray-100 shadow-sm space-y-4">
                   <li className="text-slate-800">
                     We need to perform a contract with you
                   </li>
@@ -314,9 +314,9 @@ export default function PrivacyPolicy() {
                 ].map((right, idx) => (
                   <li
                     key={idx}
-                    className="bg-white p-3.5 rounded-xl border border-slate-200/80 border-gray-100 text-sm font-medium flex items-start gap-3"
+                    className="bg-white p-3.5 rounded-xl border border-slate-200/80 text-sm font-medium flex items-start gap-3"
                   >
-                    <span className="flex-shrink-0 text-indigo-500 font-bold">
+                    <span className="shrink-0 text-indigo-500 font-bold">
                       ✓
                     </span>
                     <span className="text-slate-800">{right}</span>

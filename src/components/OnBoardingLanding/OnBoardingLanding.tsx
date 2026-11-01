@@ -5,10 +5,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { bookData } from "./data";
+import { useAuth } from "@/src/providers/auth/AuthContext";
 
 const AUTO_DELAY = 4000;
 
 export default function OnBoardingLanding() {
+  const { user, signOut } = useAuth();
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState<"left" | "right">("right");
   const [paused, setPaused] = useState(false);
@@ -25,6 +27,12 @@ export default function OnBoardingLanding() {
     setDirection("left");
     setIndex((prev) => (prev - 1 + total) % total);
   };
+
+  useEffect(() => {
+    if (!user) return;
+
+    signOut();
+  }, [signOut, user]);
 
   useEffect(() => {
     const goNext = () => {
