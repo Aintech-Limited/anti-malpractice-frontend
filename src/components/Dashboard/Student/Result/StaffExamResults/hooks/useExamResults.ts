@@ -12,15 +12,14 @@ import {
 } from "../../interface";
 import { UserRoleTypeEnum } from "@/src/lib/enums";
 import { exportExamResults } from "@/src/lib/utils/exportExamResults";
-import { useAuth } from "@/src/providers/auth/AuthContext";
+import { useAppSelector } from "@/src/redux/reduxStore";
 
 export function useExamResults({
-  role,
   initialFilters,
   initialPage = 1,
   initialLimit = 20,
 }: IUseExamResultsProps) {
-  const { user } = useAuth();
+  const { user } = useAppSelector((state) => state.auth);
 
   const [exams, setExams] = useState<IStaffExamResultsProps["exams"]>([]);
   const [departments, setDepartments] = useState<
@@ -36,7 +35,7 @@ export function useExamResults({
   }>({ download: "", network: "", search: "" });
   const [filters, setFilters] = useState<IStaffFilters | IStudentFilters>(
     initialFilters ||
-      (role === UserRoleTypeEnum.STUDENT ? { courseCode: "" } : {}),
+      (user?.role === UserRoleTypeEnum.STUDENT ? { courseCode: "" } : {}),
   );
   const [page, setPage] = useState(initialPage);
   const [limit] = useState(initialLimit);
@@ -48,7 +47,7 @@ export function useExamResults({
     try {
       const queryParams = new URLSearchParams();
 
-      if (role === UserRoleTypeEnum.STUDENT) {
+      if (user?.role === UserRoleTypeEnum.STUDENT) {
         const studentFilters = filters as IStudentFilters;
         if (studentFilters.courseCode) {
           queryParams.append("courseCode", studentFilters.courseCode);
@@ -75,7 +74,7 @@ export function useExamResults({
       queryParams.append("limit", limit.toString());
 
       const endpoint =
-        role === UserRoleTypeEnum.STUDENT
+        user?.role === UserRoleTypeEnum.STUDENT
           ? `/api/v1/exam-results?${queryParams.toString()}`
           : `/api/v1/exam-results/staffs?${queryParams.toString()}`;
 
@@ -84,7 +83,7 @@ export function useExamResults({
 
       if (result.success) {
         setData(
-          role === UserRoleTypeEnum.STUDENT
+          user?.role === UserRoleTypeEnum.STUDENT
             ? result?.data?.map((data) => ({
                 ...data,
                 user: {
@@ -110,14 +109,14 @@ export function useExamResults({
     } finally {
       setLoading(false);
     }
-  }, [role, page, limit, filters, user?.id, user?.firstName, user?.lastName]);
+  }, [user, page, limit, filters]);
 
   useEffect(() => {
     fetchResults();
   }, [fetchResults]);
 
   useEffect(() => {
-    if (UserRoleTypeEnum.STUDENT === role) return;
+    if (UserRoleTypeEnum.STUDENT === user?.role) return;
     const getExamsAndDepartments = async () => {
       try {
         const deptResponse = await fetch(
@@ -168,7 +167,7 @@ export function useExamResults({
     };
 
     getExamsAndDepartments();
-  }, [role, user?.institutionId]);
+  }, [user?.institutionId, user?.role]);
 
   const downloadResults = async (format: "PDF" | "CSV") => {
     setError((prevErrors) => ({ ...prevErrors, download: "" }));

@@ -231,3 +231,23 @@ export const AdminExamStatusTypeEnum = Object.freeze({
 
 export type TAdminExamStatusTypeEnumValue =
   (typeof AdminExamStatusTypeEnum)[keyof typeof AdminExamStatusTypeEnum];
+
+export const SidebarsEnum = Object.freeze({
+  Dashboard: "Dashboard",
+  Departments: "Departments",
+  Lecturers: "Lecturers",
+  Institutions: "Institutions",
+  Vendors: "Vendors",
+  Exams: "Exams",
+  Profile: "Profile",
+  Earnings: "Earnings",
+  Students: "Students",
+  Complaints: "Complaints",
+  Roles: "Roles",
+  Courses: "Courses",
+  Results: "Results",
+  Finance: "Finance",
+  Books: "Books",
+} as const);
+export type TSidebarsEnumValue =
+  (typeof SidebarsEnum)[keyof typeof SidebarsEnum];

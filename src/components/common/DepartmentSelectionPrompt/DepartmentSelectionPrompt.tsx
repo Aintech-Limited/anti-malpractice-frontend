@@ -24,7 +24,8 @@ const DepartmentSelectionPrompt = () => {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 w-[calc(100vw-2rem)] max-w-sm">
+    <div className="fixed inset-0 z-51 flex items-center justify-center w-[calc(100vw-2rem)] ">
+      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" />
       <div className="relative overflow-hidden rounded-2xl border border-red-300 bg-white shadow-2xl shadow-red-950/20">
         <div className="h-1.5 bg-red-600" />
 
@@ -57,7 +58,7 @@ const DepartmentSelectionPrompt = () => {
 
               <p className="text-xs leading-relaxed text-red-800">
                 Please go to your profile and select your department to continue
-                using the dashboard.
+                .
               </p>
             </div>
           </div>

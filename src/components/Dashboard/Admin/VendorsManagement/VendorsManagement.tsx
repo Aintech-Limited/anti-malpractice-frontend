@@ -14,11 +14,15 @@ import {
 import { IMeta } from "../RolesPermissions/interface";
 import { WarningDialog } from "./WarningDialog/WarningDialog";
 import { VendorsTable } from "./VendorsTable/VendorsTable";
+import { useAppSelector } from "@/src/redux/reduxStore";
+import { EmptyState } from "@/src/components/common/EmptyState/EmptyState";
+import BaseClientWrapper from "@/src/components/common/BaseClientWrapper/BaseClientWrapper";
 
 export default function VendorsManagement({
   initialVendors,
   initialMeta,
 }: IVendorsManagementProps) {
+  const { userRoles } = useAppSelector((state) => state.auth);
   const [vendors, setVendors] = useState<IVendor[]>(initialVendors);
   const [meta, setMeta] = useState<IMeta>(initialMeta);
   const [page, setPage] = useState<number>(initialMeta.page || 1);
@@ -41,6 +45,7 @@ export default function VendorsManagement({
   };
 
   const fetchVendors = useCallback(async () => {
+    if (!userRoles?.permissions?.vendor?.read) return;
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
@@ -82,7 +87,7 @@ export default function VendorsManagement({
     } finally {
       setIsLoading(false);
     }
-  }, [page, limit, searchId, status]);
+  }, [userRoles?.permissions?.vendor?.read, page, limit, searchId, status]);
 
   useEffect(() => {
     fetchVendors();
@@ -93,6 +98,9 @@ export default function VendorsManagement({
       }
     };
   }, [fetchVendors]);
+
+  if (!userRoles?.permissions?.vendor?.read)
+    return <EmptyState title="Nothing to display here" />;
 
   const executeAction = async () => {
     if (!modal.vendor || !modal.type) return;
@@ -134,7 +142,7 @@ export default function VendorsManagement({
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6 bg-gray-50 min-h-screen">
+    <BaseClientWrapper>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-bold text-blue-900">Vendor Management</h1>
         <span className="text-sm text-gray-500">
@@ -185,6 +193,29 @@ export default function VendorsManagement({
         vendors={vendors}
       />
 
+      <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+        <div className="text-xs text-gray-600">
+          Page <span className="font-semibold">{meta.page}</span> of{" "}
+          <span className="font-semibold">{meta.totalPages}</span>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+            disabled={!meta.hasPreviousPage || isLoading}
+            className="px-3 py-1.5 border border-gray-300 text-xs rounded-md bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          >
+            Previous
+          </button>
+          <button
+            onClick={() => setPage((prev) => prev + 1)}
+            disabled={!meta.hasNextPage || isLoading}
+            className="px-3 py-1.5 border border-gray-300 text-xs rounded-md bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+
       {modal.isOpen && modal.vendor && (
         <WarningDialog
           actionLoading={actionLoading}
@@ -193,6 +224,6 @@ export default function VendorsManagement({
           modal={modal}
         />
       )}
-    </div>
+    </BaseClientWrapper>
   );
 }

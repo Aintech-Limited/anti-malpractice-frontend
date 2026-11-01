@@ -3,9 +3,8 @@ import Image from "next/image";
 
 const HeroSection = () => {
   return (
-    <section className="flex items-center justify-center bg-blue-200 p-4 md:p-8 overflow-hidden">
+    <section className="flex mt-15 items-center justify-center bg-blue-200 p-4 md:p-8 overflow-hidden">
       <div className="max-w-7xl flex flex-col md:flex-row items-center">
-        {/* Text Content */}
         <div className="flex-1 p-8 md:p-16 flex flex-col justify-center order-1">
           <h1 className="animate-fade-up text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-6">
             Sell your eBooks{" "}
@@ -32,7 +31,6 @@ const HeroSection = () => {
           </a>
         </div>
 
-        {/* Image Content */}
         <div className="flex-1 p-8 md:p-6 order-2 relative">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-blue-400 rounded-full blur-[100px] opacity-20 animate-pulse"></div>
 

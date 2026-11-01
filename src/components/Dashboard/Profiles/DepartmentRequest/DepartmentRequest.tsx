@@ -86,7 +86,7 @@ const DepartmentRequest = ({ departments }: IDepartmentRequestProps) => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto mt-10 p-5 sm:p-6 bg-white rounded-2xl shadow-sm border border-blue-50">
+    <div className="w-full max-w-full mx-auto mt-10 p-5 sm:p-6 bg-white rounded-2xl shadow-sm border border-blue-50">
       <div className="flex flex-col items-center text-center mb-6">
         <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center mb-3">
           <Building2 className="w-6 h-6 text-blue-600" />

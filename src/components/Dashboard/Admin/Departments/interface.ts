@@ -45,8 +45,8 @@ export interface IDepartmentsResponse {
 export interface ICreateDepartmentData {
   name: string;
   description: string;
-  activeSemester: number | string;
-  imageUrl?: string;
+  // activeSemester: number | string;
+  imageURL?: string;
   institutionId: string;
 }
 

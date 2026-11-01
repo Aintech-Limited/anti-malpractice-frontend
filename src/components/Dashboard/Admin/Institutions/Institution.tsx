@@ -20,11 +20,14 @@ import {
   IInstitutionsClientProps,
 } from "./interface";
 import { IMeta } from "../RolesPermissions/interface";
+import { useAppSelector } from "@/src/redux/reduxStore";
+import { EmptyState } from "@/src/components/common/EmptyState/EmptyState";
 
 export default function InstitutionsClient({
   initialInstitutions,
   initialMeta,
 }: IInstitutionsClientProps) {
+  const { userRoles } = useAppSelector((state) => state.auth);
   const [institutions, setInstitutions] =
     useState<IInstitution[]>(initialInstitutions);
   const [meta, setMeta] = useState<IMeta>(initialMeta);
@@ -43,6 +46,14 @@ export default function InstitutionsClient({
 
   const [selectedInstitution, setSelectedInstitution] =
     useState<IInstitution | null>(null);
+
+  if (!userRoles?.permissions?.school?.update)
+    return (
+      <EmptyState
+        title="Nothing to display here"
+        description="You might not have enough permissions"
+      />
+    );
 
   const fetchInstitutions = async (page = 1) => {
     setLoading(true);

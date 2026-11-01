@@ -23,10 +23,13 @@ export async function POST(request: NextRequest) {
       );
     }
     const data = await response.json();
+    const { token, ...restOfData } = data ?? {};
 
     const setCookieHeader = response.headers.get("set-cookie");
 
-    const nextResponse = NextResponse.json(data, { status: response.status });
+    const nextResponse = NextResponse.json(restOfData, {
+      status: response.status,
+    });
 
     if (setCookieHeader) {
       nextResponse.headers.set("set-cookie", setCookieHeader);

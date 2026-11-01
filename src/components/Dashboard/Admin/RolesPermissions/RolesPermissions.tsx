@@ -3,21 +3,22 @@
 import { IMeta, IRole, IRolesPageClientProps } from "./interface";
 
 import { useState, useCallback, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Search, Plus, Check, X, AlertCircle } from "lucide-react";
 import { DeleteRoleModal } from "./DeleteRoleModal/DeleteRoleModal";
 import { CreateEditDialog } from "./CreateEditDialog/CreateEditDialog";
 import { RolesTable } from "./RolesTable/RolesTable";
 import { RolesPagination } from "./RolesPagination/Pagination";
+import { EmptyState } from "@/src/components/common/EmptyState/EmptyState";
+import { useAppSelector } from "@/src/redux/reduxStore";
 
 export default function RolesPageClient({
   initialRoles,
   initialMeta,
   groupedPermissions,
 }: IRolesPageClientProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
-
+  const { userRoles } = useAppSelector((state) => state.auth);
   const [roles, setRoles] = useState<IRole[]>(initialRoles);
   const [meta, setMeta] = useState<IMeta>(initialMeta);
   const [searchTerm, setSearchTerm] = useState(
@@ -49,39 +50,54 @@ export default function RolesPageClient({
     message: string;
   } | null>(null);
 
-  const fetchRoles = useCallback(async (page: number, search: string) => {
-    setIsLoading(true);
-    try {
-      const queryParams = new URLSearchParams();
-      queryParams.set("page", String(page));
-      queryParams.set("limit", "10");
-      queryParams.set("includePermissions", "true");
-      if (search) queryParams.set("search", search);
+  const fetchRoles = useCallback(
+    async (page: number, search: string) => {
+      if (!userRoles?.permissions?.vendor?.read) return;
+      setIsLoading(true);
+      try {
+        const queryParams = new URLSearchParams();
+        queryParams.set("page", String(page));
+        queryParams.set("limit", "10");
+        queryParams.set("includePermissions", "true");
+        if (search) queryParams.set("search", search);
 
-      const response = await fetch(`/api/v1/roles?${queryParams.toString()}`);
-      const data = await response.json();
+        const response = await fetch(`/api/v1/roles?${queryParams.toString()}`);
+        const data = await response.json();
 
-      if (data.success) {
-        setRoles(data.data);
-        setMeta(data.meta);
-      } else {
-        throw new Error(data.message || "Failed to fetch roles");
+        if (data.success) {
+          setRoles(data.data);
+          setMeta(data.meta);
+        } else {
+          throw new Error(data.message || "Failed to fetch roles");
+        }
+      } catch (error: any) {
+        showNotification("error", error.message || "Failed to fetch roles");
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error: any) {
-      showNotification("error", error.message || "Failed to fetch roles");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    },
+    [userRoles?.permissions?.vendor?.read],
+  );
 
   useEffect(() => {
+    if (!userRoles?.permissions?.vendor?.read) return;
     if (
       searchTerm !== searchParams.get("search") ||
       currentPage !== meta.page
     ) {
       fetchRoles(currentPage, searchTerm);
     }
-  }, [currentPage, searchTerm, fetchRoles, searchParams, meta.page]);
+  }, [
+    currentPage,
+    searchTerm,
+    fetchRoles,
+    searchParams,
+    meta.page,
+    userRoles?.permissions?.vendor?.read,
+  ]);
+
+  if (!userRoles?.permissions?.vendor?.read)
+    return <EmptyState title="Nothing to display here" />;
 
   const showNotification = (type: "success" | "error", message: string) => {
     setNotification({ type, message });

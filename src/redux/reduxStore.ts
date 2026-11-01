@@ -21,6 +21,7 @@ import otpExpiryReducer from "./features/otpExpiry/otpExpirySlice";
 import forgotPasswordReducer from "./features/forgotPassword/forgotPasswordSlice";
 import faceAuthReducer from "./features/faceAuth/faceAuthSlice";
 import globalLoadingReducer from "./features/globalLoadingSlice/globalLoadingSlice";
+import authReducer from "./features/auth/authSlice";
 
 const themePersistConfig = { key: "asignup", storage };
 const otpExpiryPersistConfig = { key: "aotpExpiry", storage };
@@ -28,6 +29,12 @@ const faceAuthPersistConfig = { key: "afaceAuth", storage };
 const alecturerVerificationImagesPersistConfig = {
   key: "alecturerVerificationImages",
   storage,
+};
+const authPersistCofig = {
+  key: "auth",
+  storage,
+  whitelist: ["user", "loading"],
+  // blacklist: ["userRoles"],
 };
 
 const rootReducer = combineReducers({
@@ -41,6 +48,7 @@ const rootReducer = combineReducers({
     lecturerVerificationImageReducer,
   ),
   globalLoading: globalLoadingReducer,
+  auth: persistReducer(authPersistCofig, authReducer),
 });
 
 export const store = configureStore({
@@ -75,6 +83,8 @@ export const purgeAllPersist = async () => {
     store.dispatch({ type: `aotpExpiry/reset` });
     store.dispatch({ type: `afaceAuth/reset` });
     store.dispatch({ type: `alecturerVerificationImages/reset` });
+
+    store.dispatch({ type: `auth/reset` });
   } catch {
     console.error("Purge failed. Using Fallback Purge");
     // fallback if purge fails
@@ -85,6 +95,7 @@ export const purgeAllPersist = async () => {
       localStorage.removeItem(`persist:aotpExpiry`);
       localStorage.removeItem(`persist:afaceAuth`);
       localStorage.removeItem(`persist:alecturerVerificationImages`);
+      localStorage.removeItem(`persist:auth`);
 
       store.dispatch({ type: `asignup/reset` });
       store.dispatch({ type: `aphotoIdType/reset` });
@@ -92,6 +103,7 @@ export const purgeAllPersist = async () => {
       store.dispatch({ type: `aotpExpiry/reset` });
       store.dispatch({ type: `afaceAuth/reset` });
       store.dispatch({ type: `alecturerVerificationImages/reset` });
+      store.dispatch({ type: `auth/reset` });
     }
   }
 };

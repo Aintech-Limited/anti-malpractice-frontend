@@ -455,6 +455,7 @@ const SignupForm = memo(({ setStage }: ISignupFormProps) => {
           {loadingInstitutions && (
             <LoadingOverlay
               message={`Fetching ${formValues.institutionLevel.toLowerCase()} Institutions`}
+              isOpen={loadingInstitutions}
             />
           )}
 
