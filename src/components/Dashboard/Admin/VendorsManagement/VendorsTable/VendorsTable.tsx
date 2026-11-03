@@ -77,7 +77,7 @@ export const VendorsTable = ({
 											</span>
 										) : (
 											<span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-												Revoked / Pending
+												Revoked or Pending
 											</span>
 										)}
 									</td>
