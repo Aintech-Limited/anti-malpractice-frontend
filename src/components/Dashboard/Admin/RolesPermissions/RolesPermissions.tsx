@@ -95,7 +95,7 @@ export default function RolesPageClient({
     meta.page,
     userRoles?.permissions?.vendor?.read,
   ]);
- 
+
   if (!userRoles?.permissions?.role?.read)
     return <EmptyState title="Nothing to display here" />;
 
