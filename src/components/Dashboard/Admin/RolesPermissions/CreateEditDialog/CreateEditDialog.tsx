@@ -3,6 +3,7 @@
 import { AlertCircle, ChevronDown, Loader2 } from "lucide-react";
 import { ICreateEditDialogProps } from "./interface";
 import { MODULE_COLORS } from "../utils/contants";
+import { useLockBodyScroll } from "@/src/lib/hooks/useStopDialogBGPageScrolling";
 
 export const CreateEditDialog = ({
   setShowDialog,
@@ -21,14 +22,15 @@ export const CreateEditDialog = ({
   handleSubmit,
   isSubmitting,
 }: ICreateEditDialogProps) => {
+  useLockBodyScroll({ isOpen: true });
   return (
     <div className="fixed inset-0 z-10 flex items-center justify-center">
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm"
         onClick={() => setShowDialog(false)}
       />
-      <div className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden">
-        <div className="p-6 border-b border-slate-200">
+      <div className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[100vh] my-10 overflow-scroll ">
+        <div className="p-6 mt-20 border-b border-slate-200">
           <h2 className="text-xl font-semibold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             {editingRole ? "Edit Role" : "Create New Role"}
           </h2>
@@ -156,7 +158,7 @@ export const CreateEditDialog = ({
                                 />
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm font-medium text-slate-700">
-                                    {permission.name}
+                                    {permission.name?.replaceAll(":", " ")}
                                   </p>
                                   <p className="text-xs text-slate-500 truncate">
                                     {permission.description}

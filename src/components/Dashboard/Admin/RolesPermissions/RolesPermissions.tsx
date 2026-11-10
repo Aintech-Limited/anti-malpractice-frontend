@@ -96,7 +96,7 @@ export default function RolesPageClient({
     userRoles?.permissions?.vendor?.read,
   ]);
 
-  if (!userRoles?.permissions?.vendor?.read)
+  if (!userRoles?.permissions?.role?.read)
     return <EmptyState title="Nothing to display here" />;
 
   const showNotification = (type: "success" | "error", message: string) => {
